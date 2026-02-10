@@ -3,22 +3,6 @@ class Seminariomail::SendmailServices
   require 'sendgrid-ruby'
   include SendGrid
 
-  # Descripcion: Metodo generico de envio
-  # Fecha: 16-02-2023
-  # Autor: AFP
-  # Datos de Acceso SendGrid:
-  #   Username:notifier.seminario@gmail.com
-  #   Password: EmpresaSeminario2023*
-  # Datos de Acceso Correo
-  #   Username:notifier.seminario@gmail.com
-  #   Password: Seminario2023*
-
-  # Codigos de Sengrid Api KEY
-  # ****************************************
-
-  # ****************************************
-
-
   def general(receiver, subject, template, fpath, fname, *args)
     mail = SendGrid::Mail.new
     mail.from = Email.new(email: 'notifier.seminario@gmail.com')
