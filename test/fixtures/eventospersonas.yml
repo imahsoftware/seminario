@@ -1,0 +1,45 @@
+# Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  evento: one
+  identificacion: MyString
+  nombre: MyString
+  apellido: MyString
+  fecha_nacimiento: 2026-02-12
+  direccion: MyString
+  celular: MyString
+  email: MyString
+  sexo: MyString
+  estado_civil: MyString
+  acudiente_nombre: MyString
+  acudiente_apellido: MyString
+  acudiente_identificacion: MyString
+  acudiente_email: MyString
+  acudiente_celular: MyString
+  acudiente_codigoval: MyString
+  acudiente_codigorec: MyString
+  acudiente_firma: MyString
+  acepta_politica: MyString
+  acepta_cultura: MyString
+
+two:
+  evento: two
+  identificacion: MyString
+  nombre: MyString
+  apellido: MyString
+  fecha_nacimiento: 2026-02-12
+  direccion: MyString
+  celular: MyString
+  email: MyString
+  sexo: MyString
+  estado_civil: MyString
+  acudiente_nombre: MyString
+  acudiente_apellido: MyString
+  acudiente_identificacion: MyString
+  acudiente_email: MyString
+  acudiente_celular: MyString
+  acudiente_codigoval: MyString
+  acudiente_codigorec: MyString
+  acudiente_firma: MyString
+  acepta_politica: MyString
+  acepta_cultura: MyString

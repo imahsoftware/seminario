@@ -1,0 +1,39 @@
+<p id="notice"><%= notice %></p>
+
+<h1>Iglesias</h1>
+
+<table>
+  <thead>
+    <tr>
+      <th>Nombre</th>
+      <th>Direccion</th>
+      <th>Telefono</th>
+      <th>Presbitero</th>
+      <th>Email</th>
+      <th>User</th>
+      <th>User act</th>
+      <th colspan="3"></th>
+    </tr>
+  </thead>
+
+  <tbody>
+    <% @iglesias.each do |iglesia| %>
+      <tr>
+        <td><%= iglesia.nombre %></td>
+        <td><%= iglesia.direccion %></td>
+        <td><%= iglesia.telefono %></td>
+        <td><%= iglesia.presbitero %></td>
+        <td><%= iglesia.email %></td>
+        <td><%= iglesia.user %></td>
+        <td><%= iglesia.user_act %></td>
+        <td><%= link_to 'Show', iglesia %></td>
+        <td><%= link_to 'Edit', edit_iglesia_path(iglesia) %></td>
+        <td><%= link_to 'Destroy', iglesia, method: :delete, data: { confirm: 'Are you sure?' } %></td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>
+
+<br>
+
+<%= link_to 'New Iglesia', new_iglesia_path %>

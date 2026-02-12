@@ -1,0 +1,37 @@
+<%= form_for(tiposevento) do |f| %>
+  <% if tiposevento.errors.any? %>
+    <div id="error_explanation">
+      <h2><%= pluralize(tiposevento.errors.count, "error") %> prohibited this tiposevento from being saved:</h2>
+
+      <ul>
+      <% tiposevento.errors.full_messages.each do |message| %>
+        <li><%= message %></li>
+      <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div class="field">
+    <%= f.label :descripcion %>
+    <%= f.text_field :descripcion %>
+  </div>
+
+  <div class="field">
+    <%= f.label :estado %>
+    <%= f.text_field :estado %>
+  </div>
+
+  <div class="field">
+    <%= f.label :user_id %>
+    <%= f.text_field :user_id %>
+  </div>
+
+  <div class="field">
+    <%= f.label :user_act %>
+    <%= f.number_field :user_act %>
+  </div>
+
+  <div class="actions">
+    <%= f.submit %>
+  </div>
+<% end %>

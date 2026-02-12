@@ -1,0 +1,52 @@
+<%= form_for(iglesia) do |f| %>
+  <% if iglesia.errors.any? %>
+    <div id="error_explanation">
+      <h2><%= pluralize(iglesia.errors.count, "error") %> prohibited this iglesia from being saved:</h2>
+
+      <ul>
+      <% iglesia.errors.full_messages.each do |message| %>
+        <li><%= message %></li>
+      <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div class="field">
+    <%= f.label :nombre %>
+    <%= f.text_field :nombre %>
+  </div>
+
+  <div class="field">
+    <%= f.label :direccion %>
+    <%= f.text_field :direccion %>
+  </div>
+
+  <div class="field">
+    <%= f.label :telefono %>
+    <%= f.text_field :telefono %>
+  </div>
+
+  <div class="field">
+    <%= f.label :presbitero %>
+    <%= f.text_field :presbitero %>
+  </div>
+
+  <div class="field">
+    <%= f.label :email %>
+    <%= f.text_field :email %>
+  </div>
+
+  <div class="field">
+    <%= f.label :user_id %>
+    <%= f.text_field :user_id %>
+  </div>
+
+  <div class="field">
+    <%= f.label :user_act %>
+    <%= f.number_field :user_act %>
+  </div>
+
+  <div class="actions">
+    <%= f.submit %>
+  </div>
+<% end %>

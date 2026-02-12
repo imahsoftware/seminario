@@ -1,0 +1,2 @@
+module IglesiascomunidadesHelper
+end

@@ -1,0 +1,39 @@
+<p id="notice"><%= notice %></p>
+
+<p>
+  <strong>Nombre:</strong>
+  <%= @iglesia.nombre %>
+</p>
+
+<p>
+  <strong>Direccion:</strong>
+  <%= @iglesia.direccion %>
+</p>
+
+<p>
+  <strong>Telefono:</strong>
+  <%= @iglesia.telefono %>
+</p>
+
+<p>
+  <strong>Presbitero:</strong>
+  <%= @iglesia.presbitero %>
+</p>
+
+<p>
+  <strong>Email:</strong>
+  <%= @iglesia.email %>
+</p>
+
+<p>
+  <strong>User:</strong>
+  <%= @iglesia.user %>
+</p>
+
+<p>
+  <strong>User act:</strong>
+  <%= @iglesia.user_act %>
+</p>
+
+<%= link_to 'Edit', edit_iglesia_path(@iglesia) %> |
+<%= link_to 'Back', iglesias_path %>

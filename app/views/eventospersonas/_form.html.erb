@@ -1,0 +1,117 @@
+<%= form_for(eventospersona) do |f| %>
+  <% if eventospersona.errors.any? %>
+    <div id="error_explanation">
+      <h2><%= pluralize(eventospersona.errors.count, "error") %> prohibited this eventospersona from being saved:</h2>
+
+      <ul>
+      <% eventospersona.errors.full_messages.each do |message| %>
+        <li><%= message %></li>
+      <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div class="field">
+    <%= f.label :evento_id %>
+    <%= f.text_field :evento_id %>
+  </div>
+
+  <div class="field">
+    <%= f.label :identificacion %>
+    <%= f.text_field :identificacion %>
+  </div>
+
+  <div class="field">
+    <%= f.label :nombre %>
+    <%= f.text_field :nombre %>
+  </div>
+
+  <div class="field">
+    <%= f.label :apellido %>
+    <%= f.text_field :apellido %>
+  </div>
+
+  <div class="field">
+    <%= f.label :fecha_nacimiento %>
+    <%= f.date_select :fecha_nacimiento %>
+  </div>
+
+  <div class="field">
+    <%= f.label :direccion %>
+    <%= f.text_field :direccion %>
+  </div>
+
+  <div class="field">
+    <%= f.label :celular %>
+    <%= f.text_field :celular %>
+  </div>
+
+  <div class="field">
+    <%= f.label :email %>
+    <%= f.text_field :email %>
+  </div>
+
+  <div class="field">
+    <%= f.label :sexo %>
+    <%= f.text_field :sexo %>
+  </div>
+
+  <div class="field">
+    <%= f.label :estado_civil %>
+    <%= f.text_field :estado_civil %>
+  </div>
+
+  <div class="field">
+    <%= f.label :acudiente_nombre %>
+    <%= f.text_field :acudiente_nombre %>
+  </div>
+
+  <div class="field">
+    <%= f.label :acudiente_apellido %>
+    <%= f.text_field :acudiente_apellido %>
+  </div>
+
+  <div class="field">
+    <%= f.label :acudiente_identificacion %>
+    <%= f.text_field :acudiente_identificacion %>
+  </div>
+
+  <div class="field">
+    <%= f.label :acudiente_email %>
+    <%= f.text_field :acudiente_email %>
+  </div>
+
+  <div class="field">
+    <%= f.label :acudiente_celular %>
+    <%= f.text_field :acudiente_celular %>
+  </div>
+
+  <div class="field">
+    <%= f.label :acudiente_codigoval %>
+    <%= f.text_field :acudiente_codigoval %>
+  </div>
+
+  <div class="field">
+    <%= f.label :acudiente_codigorec %>
+    <%= f.text_field :acudiente_codigorec %>
+  </div>
+
+  <div class="field">
+    <%= f.label :acudiente_firma %>
+    <%= f.text_field :acudiente_firma %>
+  </div>
+
+  <div class="field">
+    <%= f.label :acepta_politica %>
+    <%= f.text_field :acepta_politica %>
+  </div>
+
+  <div class="field">
+    <%= f.label :acepta_cultura %>
+    <%= f.text_field :acepta_cultura %>
+  </div>
+
+  <div class="actions">
+    <%= f.submit %>
+  </div>
+<% end %>

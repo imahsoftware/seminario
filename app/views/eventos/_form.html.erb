@@ -1,0 +1,67 @@
+<%= form_for(evento) do |f| %>
+  <% if evento.errors.any? %>
+    <div id="error_explanation">
+      <h2><%= pluralize(evento.errors.count, "error") %> prohibited this evento from being saved:</h2>
+
+      <ul>
+      <% evento.errors.full_messages.each do |message| %>
+        <li><%= message %></li>
+      <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div class="field">
+    <%= f.label :guid %>
+    <%= f.text_field :guid %>
+  </div>
+
+  <div class="field">
+    <%= f.label :iglesia_id %>
+    <%= f.text_field :iglesia_id %>
+  </div>
+
+  <div class="field">
+    <%= f.label :iglesiascomunidad_id %>
+    <%= f.text_field :iglesiascomunidad_id %>
+  </div>
+
+  <div class="field">
+    <%= f.label :tiposevento_id %>
+    <%= f.text_field :tiposevento_id %>
+  </div>
+
+  <div class="field">
+    <%= f.label :fecha_inicio %>
+    <%= f.date_select :fecha_inicio %>
+  </div>
+
+  <div class="field">
+    <%= f.label :fecha_fin %>
+    <%= f.date_select :fecha_fin %>
+  </div>
+
+  <div class="field">
+    <%= f.label :detalle %>
+    <%= f.text_field :detalle %>
+  </div>
+
+  <div class="field">
+    <%= f.label :estado %>
+    <%= f.text_field :estado %>
+  </div>
+
+  <div class="field">
+    <%= f.label :user_id %>
+    <%= f.text_field :user_id %>
+  </div>
+
+  <div class="field">
+    <%= f.label :user_act %>
+    <%= f.number_field :user_act %>
+  </div>
+
+  <div class="actions">
+    <%= f.submit %>
+  </div>
+<% end %>

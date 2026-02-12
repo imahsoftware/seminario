@@ -1,5 +1,10 @@
 Rails.application.routes.draw do
 
+  resources :eventospersonas
+  resources :eventos
+  resources :tiposeventos
+  resources :iglesiascomunidades
+  resources :iglesias
   mount ActionCable.server => '/cable'
 
   resources :notificacionesplataformas, only: [:index] do

@@ -1,0 +1,24 @@
+<p id="notice"><%= notice %></p>
+
+<p>
+  <strong>Descripcion:</strong>
+  <%= @tiposevento.descripcion %>
+</p>
+
+<p>
+  <strong>Estado:</strong>
+  <%= @tiposevento.estado %>
+</p>
+
+<p>
+  <strong>User:</strong>
+  <%= @tiposevento.user %>
+</p>
+
+<p>
+  <strong>User act:</strong>
+  <%= @tiposevento.user_act %>
+</p>
+
+<%= link_to 'Edit', edit_tiposevento_path(@tiposevento) %> |
+<%= link_to 'Back', tiposeventos_path %>
