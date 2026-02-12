@@ -1,0 +1,9 @@
+<% if @active_record.present? %>
+	$("#tiposevento_<%= @active_record.id %>").replaceWith("<%= j render 'tr', tiposevento: @active_record %>");
+<% end %>
+$("#tiposevento_form").html("<%= j render 'form' %>");
+$(".datetimepicker").datetimepicker();
+$(".tooltip").tooltip("hide");
+$('[data-toggle="tooltip"]').tooltip();
+$("#tiposevento_form").collapse("show");
+$(".select2").select2();

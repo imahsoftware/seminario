@@ -1,74 +1,72 @@
 class TiposeventosController < ApplicationController
   before_action :set_tiposevento, only: [:show, :edit, :update, :destroy]
 
-  # GET /tiposeventos
-  # GET /tiposeventos.json
+  #before_action :checkaccess, only: [:index, :edit], if: :user_signed_in?
+
+  def checkaccess
+    return is_permit('tiposeventos')
+  end
+
   def index
-    @tiposeventos = Tiposevento.all
+    @q = Tiposevento.ransack(params[:q])
+    @tiposeventos = @q.result.paginate(:page => params[:page], :per_page => 50)
+    respond_to do |format|
+      format.html
+    end
   end
 
-  # GET /tiposeventos/1
-  # GET /tiposeventos/1.json
   def show
+    respond_to { |format| format.js }
   end
 
-  # GET /tiposeventos/new
   def new
+    @active_record = Tiposevento.find(params[:active_id]) if params[:active_id].present?
     @tiposevento = Tiposevento.new
+    respond_to { |format| format.js }
   end
 
-  # GET /tiposeventos/1/edit
   def edit
+    @active_record = Tiposevento.find(params[:active_id]) if params[:active_id].present?
+    @tiposevento = Tiposevento.find(params[:id])
+    respond_to { |format| format.js }
   end
 
-  # POST /tiposeventos
-  # POST /tiposeventos.json
   def create
     @tiposevento = Tiposevento.new(tiposevento_params)
-
     respond_to do |format|
       if @tiposevento.save
-        format.html { redirect_to @tiposevento, notice: 'Tiposevento was successfully created.' }
-        format.json { render :show, status: :created, location: @tiposevento }
+        flash[:notice] = "#{t :notice_crea_msj}"
+        format.js
       else
-        format.html { render :new }
-        format.json { render json: @tiposevento.errors, status: :unprocessable_entity }
+        format.js { render 'layouts/errors', locals: { object: @tiposevento } }
       end
     end
   end
 
-  # PATCH/PUT /tiposeventos/1
-  # PATCH/PUT /tiposeventos/1.json
   def update
     respond_to do |format|
       if @tiposevento.update(tiposevento_params)
-        format.html { redirect_to @tiposevento, notice: 'Tiposevento was successfully updated.' }
-        format.json { render :show, status: :ok, location: @tiposevento }
+        flash[:notice] = "#{t :notice_actualiza_msj}"
+        format.js
       else
-        format.html { render :edit }
-        format.json { render json: @tiposevento.errors, status: :unprocessable_entity }
+        format.js { render 'layouts/errors', locals: { object: @tiposevento } }
       end
     end
   end
 
-  # DELETE /tiposeventos/1
-  # DELETE /tiposeventos/1.json
   def destroy
     @tiposevento.destroy
-    respond_to do |format|
-      format.html { redirect_to tiposeventos_url, notice: 'Tiposevento was successfully destroyed.' }
-      format.json { head :no_content }
-    end
+    flash['success'] = 'Eliminado con Exito'
   end
 
   private
-    # Use callbacks to share common setup or constraints between actions.
-    def set_tiposevento
-      @tiposevento = Tiposevento.find(params[:id])
-    end
+  # Use callbacks to share common setup or constraints between actions.
+  def set_tiposevento
+    @tiposevento = Tiposevento.find(params[:id])
+  end
 
-    # Only allow a list of trusted parameters through.
-    def tiposevento_params
-      params.require(:tiposevento).permit(:descripcion, :estado, :user_id, :user_act)
-    end
+  # Never trust parameters from the scary internet, only allow the white list through.
+  def tiposevento_params
+    params.require(:tiposevento).permit!
+  end
 end
