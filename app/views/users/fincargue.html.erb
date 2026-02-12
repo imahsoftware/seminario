@@ -1,15 +1,9 @@
 <div class="box box-primary">
   <div class="box-header">
     <legend>
-      <% if is_auth_c('cargacazadores') %>
-        <%= link_to descargaedupol_procesos_path, data: { toggle: 'tooltip' }, title: 'Regresar' do %>
-          <i class="fa fa-arrow-left fa-fw text-success" aria-hidden="true"></i>
-        <% end %>
-      <% else %>
         <%= link_to users_path, data: { toggle: 'tooltip' }, title: 'Regresar' do %>
           <i class="fa fa-arrow-left fa-fw text-success" aria-hidden="true"></i>
         <% end %>
-      <% end %>
       Proceso Masivo de Usuarios
     </legend>
   </div>

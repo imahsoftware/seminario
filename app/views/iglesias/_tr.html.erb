@@ -1,0 +1,15 @@
+<tr id="iglesia_<%= iglesia.id %>">
+  <% if is_auth_a('iglesia') %>
+  	<td class="text-center">
+      <%= link_to edit_iglesia_path(iglesia), class: 'edit_iglesia_button', remote: true, data: { toggle: 'tooltip' }, title: "#{t :title_editar}" do %>
+         <button class="btn btn-xs btn-warning"><i class="fa fa-edit"></i></button>
+      <% end %>
+      <%= link_to iglesia, remote: true, method: :delete, data: { confirm: "#{t :elimina_confirma}", toggle: 'tooltip' }, title: "#{t :title_elimina}" do %>
+          <button class="btn btn-xs btn-danger"><i class="fa fa-trash"></i></button>
+      <% end %>
+    </td>
+  <% end %>
+  <td class="text-center"><%= iglesia.id %></td>
+  <td><%= iglesia.descripcion %></td>
+  <td><%= iglesia.estado %></td>
+</tr>

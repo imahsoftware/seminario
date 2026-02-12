@@ -1,52 +1,25 @@
-<%= form_for(iglesia) do |f| %>
-  <% if iglesia.errors.any? %>
-    <div id="error_explanation">
-      <h2><%= pluralize(iglesia.errors.count, "error") %> prohibited this iglesia from being saved:</h2>
-
-      <ul>
-      <% iglesia.errors.full_messages.each do |message| %>
-        <li><%= message %></li>
-      <% end %>
-      </ul>
+<%= simple_form_for @iglesia, remote: true do |f| %>
+  <div class="bs-callout">
+    <div class="row">
+      <div class="col-md-8">
+        <%= f.input :descripcion, input_html: { class: 'clean' } %>
+      </div>
+      <div class="col-md-2">
+        <%= f.input :estado, collection: select_estado, as: :select, input_html: { data: { width: '100%' }, class: 'select2' } %>
+      </div>
     </div>
-  <% end %>
-
-  <div class="field">
-    <%= f.label :nombre %>
-    <%= f.text_field :nombre %>
-  </div>
-
-  <div class="field">
-    <%= f.label :direccion %>
-    <%= f.text_field :direccion %>
-  </div>
-
-  <div class="field">
-    <%= f.label :telefono %>
-    <%= f.text_field :telefono %>
-  </div>
-
-  <div class="field">
-    <%= f.label :presbitero %>
-    <%= f.text_field :presbitero %>
-  </div>
-
-  <div class="field">
-    <%= f.label :email %>
-    <%= f.text_field :email %>
-  </div>
-
-  <div class="field">
-    <%= f.label :user_id %>
-    <%= f.text_field :user_id %>
-  </div>
-
-  <div class="field">
-    <%= f.label :user_act %>
-    <%= f.number_field :user_act %>
-  </div>
-
-  <div class="actions">
-    <%= f.submit %>
+    <div class="row">
+      <div class="col-md-6">
+        <% if @iglesia.new_record? %>
+          <%= button_tag "#{t :cancelar}", type: 'button', data: { target: '#iglesia_form' }, class: 'cancel_button btn btn-flat btn-default pull-left', aria_hidden: true %>
+        <% else %>
+          <%= link_to "#{t :cancelar}", iglesia_path(@iglesia), class: 'btn btn-flat btn-default pull-left', aria_hidden: true, remote: true %>
+        <% end %>
+      </div>
+      <div class="col-md-6">
+        <%= f.button :submit, "#{t :guardar}", class: "btn btn-danger pull-right" %>
+      </div>
+    </div>
   </div>
 <% end %>
+<br/>

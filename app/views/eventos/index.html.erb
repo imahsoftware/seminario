@@ -3,11 +3,11 @@
 <div class="box box-primary">
   <div class="box-header with-border">
     <h3 class="box-title">
-      <%# if is_auth_c('modulo') %>
+
       <%= link_to new_evento_path, remote: true, id: 'new_evento_button', data: { toggle: 'tooltip' }, title: 'Agregar' do %>
         <i class="fa fa-plus fa-fw text-success" aria-hidden="true"></i>
       <% end %>
-      <%# end %>
+
       Eventos
     </h3>
     <div class="box-tools pull-right">

@@ -3,11 +3,9 @@
 <div class="box box-primary">
   <div class="box-header with-border">
     <h3 class="box-title">
-      <%# if is_auth_c('modulo') %>
         <%= link_to new_modulo_path, remote: true, id: 'new_modulo_button', data: { toggle: 'tooltip' }, title: 'Agregar' do %>
           <i class="fa fa-plus fa-fw text-success" aria-hidden="true"></i>
         <% end %>
-      <%# end %>
       Modulos
     </h3>
     <div class="box-tools pull-right">
