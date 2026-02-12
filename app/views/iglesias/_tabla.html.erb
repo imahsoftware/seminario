@@ -1,19 +1,26 @@
 <div class="table-responsive">
   <table class="table table-bordered">
-    <thead>
-    <tr class="thcolor">
-      <% if is_auth_a('iglesia') %>
-        <th width="10%" class="text-table"></th>
+      <thead>
+      <tr class="thcolor">
+        <% if is_auth_a('iglesia') %>
+      <th class="text-center">Acciones</th>
+          <% end %>
+        <th>Nombre</th>
+        <th>Dirección</th>
+        <th>Presbítero</th>
+        <th>Correo</th>
+      </tr>
+      </thead>
+      <tbody id="tbody_iglesias">
+      <% @iglesias.order(created_at: :desc).each do |iglesia| %>
+        <%= render 'iglesias/tr', iglesia: iglesia %>
       <% end %>
-      <th width="10%" class="text-center">Id</th>
-      <th class="text-table">Descripción</th>
-      <th class="text-table" width="10%">Estado</th>
-    </tr>
-    </thead>
-    <tbody id="tbody_iglesias">
-    <% @iglesias.each do |iglesia| %>
-      <%= render 'iglesias/tr', iglesia: iglesia %>
-    <% end %>
-    </tbody>
-  </table>
+      </tbody>
+    </table>
 </div>
+<div class="box-footer clear-fix">
+  <div class="box-tools pull-right">
+    <%= will_paginate @modulos, renderer: BootstrapPagination::Rails %>
+  </div>
+</div><!-- box-footer -->
+
