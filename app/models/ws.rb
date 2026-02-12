@@ -1,3 +1,0 @@
-class Ws < ApplicationRecord
-
-end

@@ -745,49 +745,6 @@ class ApplicationController < ActionController::Base
     return dato
   end
 
-  helper_method :is_select_portafolioscuenta
-  def is_select_portafolioscuenta
-    @objetos = Portafolioscuenta.where(portafolio_id: is_portafolio).order(:cod_cuenta)
-    return @objetos
-  end
-
-  helper_method :is_select_portafolios
-  def is_select_portafolios
-    @objetos = Portafolio.all
-    return @objetos
-  end
-
-  helper_method :is_consecutivolote
-  def is_consecutivolote
-    consec1 = Objeto.find_by_sql("SELECT max(consecutivo) consecutivo from solicitudesretiros")[0].consecutivo.to_i rescue 0
-    consec2 = Objeto.find_by_sql("SELECT max(consecutivo) consecutivo from solicitudesretiros where estado_final is null")[0].consecutivo.to_i rescue 0
-    if consec2 > 0
-      return consec2
-    elsif consec1 > 0
-      return consec1 + 1
-    else
-      return 1
-    end
-  end
-
-  helper_method :is_consecutivoservicio
-  def is_consecutivoservicio
-    dato = Consecutivo.create!
-    return dato.id
-  end
-
-  helper_method :is_consecutivovaca
-  def is_consecutivovaca
-    consec1 = Objeto.find_by_sql("SELECT max(consecutivo) consecutivo from contratospervacaciones where estado = 'LIQUIDADA'")[0].consecutivo.to_i rescue 0
-    if consec1 > 0
-      return consec1
-    else
-      consec2 = Objeto.find_by_sql("SELECT max(consecutivo) consecutivo from contratospervacaciones where estado = 'PAGADA'")[0].consecutivo.to_i rescue 0
-      if consec2 > 0
-        return consec2 + 1
-      end
-    end
-  end
 
   helper_method :is_camponumerico
   def is_camponumerico(valor)

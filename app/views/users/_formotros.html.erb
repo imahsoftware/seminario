@@ -37,7 +37,6 @@
             <div class="col-md-8">
               <%= f.input :contrato_id, collection: Contrato.includes([:empresa]).order(:nro_contrato).collect {|p| [ p.nombrebyuser, p.id ] }, input_html: { class: 'select2' }, as: :select, label: 'Contrato - Empresa',include_blank: true%>
             </div>
-            <div class="col-xs-12 col-sm-12 col-md-3 col-lg-2"><%= f.input :clase_aseo, as: :select, collection: select_act_tipo, input_html: { data: { width: '100%' }, class: 'select2'}, label: "Nodo"%></div>
           </div>
           <div class="row">
             <div class="col-md-2"><%= f.input :avatar, as: :file %></div>

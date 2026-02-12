@@ -10,6 +10,6 @@
     </td>
   <% end %>
   <td class="text-center"><%= iglesia.id %></td>
-  <td><%= iglesia.descripcion %></td>
-  <td><%= iglesia.estado %></td>
+  <td><%= iglesia.descripcion rescue nil %></td>
+  <td><%= iglesia.estado rescue nil  %></td>
 </tr>
