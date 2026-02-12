@@ -1,0 +1,25 @@
+<div class="table-responsive">
+  <table class="table table-bordered table-condensed table-striped">
+    <thead>
+      <tr class="thcolor">
+        <th class="text-center">Acciones</th>
+        <th>Descripción</th>
+        <th>Controlador</th>
+        <th>Imagen</th>
+        <th>Mensaje</th>
+        <th>Nivel</th>
+        <th>Autorizado</th>
+      </tr>
+    </thead>
+    <tbody id="tbody_eventos">
+      <% @eventos.order(created_at: :desc).each do |evento| %>
+	      <%= render 'eventos/tr', evento: evento %>
+	    <% end %>
+    </tbody>
+  </table>
+</div>
+<div class="box-footer clear-fix">
+  <div class="box-tools pull-right">
+    <%= will_paginate @eventos, renderer: BootstrapPagination::Rails %>
+  </div>
+</div><!-- box-footer -->

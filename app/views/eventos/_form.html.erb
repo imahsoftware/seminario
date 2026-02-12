@@ -1,67 +1,132 @@
-<%= form_for(evento) do |f| %>
-  <% if evento.errors.any? %>
-    <div id="error_explanation">
-      <h2><%= pluralize(evento.errors.count, "error") %> prohibited this evento from being saved:</h2>
+<%= simple_form_for @evento do |f| %>
 
-      <ul>
-      <% evento.errors.full_messages.each do |message| %>
-        <li><%= message %></li>
-      <% end %>
-      </ul>
+  <div class="bs-callout">
+
+    <% if @evento.errors.any? %>
+      <div class="alert alert-danger">
+        <h4><%= pluralize(@evento.errors.count, "error") %> impidieron guardar el registro:</h4>
+        <ul>
+          <% @evento.errors.full_messages.each do |message| %>
+            <li><%= message %></li>
+          <% end %>
+        </ul>
+      </div>
+    <% end %>
+
+    <!-- FILA 1 -->
+    <div class="row">
+      <div class="col-md-4">
+        <%= f.input :guid, input_html: { class: 'clean' } %>
+      </div>
+
+      <div class="col-md-4">
+        <%= f.input :iglesia_id,
+                    collection: @iglesias,
+                    label_method: :nombre,
+                    value_method: :id,
+                    include_blank: true,
+                    input_html: { class: 'select2 clean' } %>
+      </div>
+
+      <div class="col-md-4">
+        <%= f.input :iglesiascomunidad_id,
+                    label: "Iglesia Comunidad",
+                    collection:  @iglesias_comunidad,
+                    label_method: :nombre,
+                    value_method: :id,
+                    include_blank: true,
+                    input_html: { class: 'select2 clean' } %>
+      </div>
     </div>
-  <% end %>
 
-  <div class="field">
-    <%= f.label :guid %>
-    <%= f.text_field :guid %>
+    <!-- FILA 2 -->
+    <div class="row">
+
+      <div class="col-md-4">
+        <%= f.input :tiposevento_id,
+                    label: "Tipo de Evento",
+                    collection: @tipos_evento,
+                    label_method: :descripcion,
+                    value_method: :id,
+                    include_blank: true,
+                    input_html: { class: 'select2 clean' } %>
+      </div>
+
+      <!-- FECHA INICIO -->
+      <div class="col-md-4">
+        <label>Fecha Inicio</label>
+        <div class="input-group">
+          <div class="input-group-addon" style="background: #EDEDED;">
+            <i class="fa fa-calendar"></i>
+          </div>
+          <%= f.input :fecha_inicio,
+                      as: :string,
+                      label: false,
+                      input_html: {
+                        class: 'form-control datetimepicker',
+                        autocomplete: 'off'
+                      } %>
+        </div>
+      </div>
+
+      <!-- FECHA FIN -->
+      <div class="col-md-4">
+        <label>Fecha Fin</label>
+        <div class="input-group">
+          <div class="input-group-addon" style="background: #EDEDED;">
+            <i class="fa fa-calendar"></i>
+          </div>
+          <%= f.input :fecha_fin,
+                      as: :string,
+                      label: false,
+                      input_html: {
+                        class: 'form-control datetimepicker',
+                        autocomplete: 'off'
+                      } %>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- FILA 3 -->
+    <div class="row">
+      <div class="col-md-6">
+        <%= f.input :detalle, input_html: { class: 'clean' } %>
+      </div>
+
+      <div class="col-md-3">
+        <%= f.input :estado,
+                    input_html: { class: 'clean' } %>
+      </div>
+
+      <div class="col-md-3">
+        <%= f.input :user_act,
+                    input_html: { class: 'clean' } %>
+      </div>
+    </div>
+
+    <!-- BOTONES -->
+    <div class="row">
+      <div class="col-md-6">
+        <%= link_to "Cancelar", eventos_path,
+                    class: "btn btn-flat btn-default pull-left" %>
+      </div>
+
+      <div class="col-md-6">
+        <%= f.button :submit, "Guardar",
+                     class: "btn btn-danger pull-right" %>
+      </div>
+    </div>
+
   </div>
 
-  <div class="field">
-    <%= f.label :iglesia_id %>
-    <%= f.text_field :iglesia_id %>
-  </div>
-
-  <div class="field">
-    <%= f.label :iglesiascomunidad_id %>
-    <%= f.text_field :iglesiascomunidad_id %>
-  </div>
-
-  <div class="field">
-    <%= f.label :tiposevento_id %>
-    <%= f.text_field :tiposevento_id %>
-  </div>
-
-  <div class="field">
-    <%= f.label :fecha_inicio %>
-    <%= f.date_select :fecha_inicio %>
-  </div>
-
-  <div class="field">
-    <%= f.label :fecha_fin %>
-    <%= f.date_select :fecha_fin %>
-  </div>
-
-  <div class="field">
-    <%= f.label :detalle %>
-    <%= f.text_field :detalle %>
-  </div>
-
-  <div class="field">
-    <%= f.label :estado %>
-    <%= f.text_field :estado %>
-  </div>
-
-  <div class="field">
-    <%= f.label :user_id %>
-    <%= f.text_field :user_id %>
-  </div>
-
-  <div class="field">
-    <%= f.label :user_act %>
-    <%= f.number_field :user_act %>
-  </div>
-
-  <div class="actions">
-    <%= f.submit %>
-  </div>
 <% end %>
+<script>
+    $(function () {
+        $('.datetimepicker').datetimepicker({
+            format: 'DD/MM/YYYY',
+            locale: 'es',
+            viewMode: 'days'
+        });
+    });
+</script>
