@@ -2,7 +2,7 @@
   <table class="table table-bordered">
     <thead>
     <tr class="thcolor">
-      <% if is_auth_a('iglesia') %>
+      <% if is_auth_a('tiposevento') %>
         <th width="10%" class="text-table"></th>
       <% end %>
       <th width="10%" class="text-center">Id</th>
@@ -10,9 +10,9 @@
       <th class="text-table" width="10%">Estado</th>
     </tr>
     </thead>
-    <tbody id="tbody_iglesias">
-    <% @iglesias.each do |iglesia| %>
-      <%= render 'iglesias/tr', iglesia: iglesia %>
+    <tbody id="tbody_tiposeventos">
+    <% @tiposeventos.each do |tiposevento| %>
+      <%= render 'tiposeventos/tr', tiposevento: tiposevento %>
     <% end %>
     </tbody>
   </table>

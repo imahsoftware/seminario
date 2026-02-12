@@ -1,33 +1,42 @@
-<p id="notice"><%= notice %></p>
+<div class="box box-primary">
+  <div class="box-header">
+    <legend>
+      Tipo de Eventos
+    </legend>
+    <div class="box-tools pull-right">
+        <% if is_auth_c('tiposevento') %>
+        <%= link_to new_tiposevento_path, remote: true, class: 'btn btn-sm btn-info' do %>
+          <i class="fa fa-plus-square"> </i> <span>Nuevo</span>
+        <% end %>&nbsp;&nbsp;
 
-<h1>Tiposeventos</h1>
+      <% end %>
+      <div class="box-tools pull-right">
+        <%= search_form_for @q do |f| %>
+          <div class="input-group input-group-sm" style="width: 180px;">
+            <%= f.search_field :descripcion_cont, onChange: 'javascript:this.value=this.value.toUpperCase();', class: 'form-control pull-right input_uppercase', placeholder: 'Buscar...' %>
+            <div class="input-group-btn">
+              <%= button_tag(type: "submit", class: "btn btn-default") do %>
+                <i class="fa fa-search"></i>
+              <% end %>
+            </div>
+          </div>
+        <% end %>
+      </div>
+    </div>
+  </div>
+  <div class="flash_messages"></div>
 
-<table>
-  <thead>
-    <tr>
-      <th>Descripcion</th>
-      <th>Estado</th>
-      <th>User</th>
-      <th>User act</th>
-      <th colspan="3"></th>
-    </tr>
-  </thead>
-
-  <tbody>
-    <% @tiposeventos.each do |tiposevento| %>
-      <tr>
-        <td><%= tiposevento.descripcion %></td>
-        <td><%= tiposevento.estado %></td>
-        <td><%= tiposevento.user %></td>
-        <td><%= tiposevento.user_act %></td>
-        <td><%= link_to 'Show', tiposevento %></td>
-        <td><%= link_to 'Edit', edit_tiposevento_path(tiposevento) %></td>
-        <td><%= link_to 'Destroy', tiposevento, method: :delete, data: { confirm: 'Are you sure?' } %></td>
-      </tr>
-    <% end %>
-  </tbody>
-</table>
-
-<br>
-
-<%= link_to 'New Tiposevento', new_tiposevento_path %>
+  <div class="box-body">
+    <div id="tiposevento_form" class="collapse"></div>
+    <div id="tiposeventos">
+      <% if @tiposeventos.present? %>
+        <%= render 'tiposeventos/tabla' %>
+      <% else %>
+        <div class="alert alert-danger"><h4><i class="icon fa fa-info"></i> <%=t :atencion%></h4><%=t :atencion_msj%></div>
+      <% end %>
+    </div>
+    <div class="box-tools pull-right">
+      <%= will_paginate @tiposeventos, renderer: BootstrapPagination::Rails %>
+    </div>
+  </div>
+</div>

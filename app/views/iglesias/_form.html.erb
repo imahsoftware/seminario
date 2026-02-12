@@ -1,59 +1,25 @@
-<%= simple_form_for @iglesia, remote: true  do |f| %>
-
+<%= simple_form_for @iglesia, remote: true do |f| %>
   <div class="bs-callout">
-
-    <% if @iglesia.errors.any? %>
-      <div class="alert alert-danger">
-        <h4><%= pluralize(@iglesia.errors.count, "error") %> impidieron guardar el registro:</h4>
-        <ul>
-          <% @iglesia.errors.full_messages.each do |message| %>
-            <li><%= message %></li>
-          <% end %>
-        </ul>
-      </div>
-    <% end %>
-
-    <!-- FILA 1 -->
     <div class="row">
-      <div class="col-md-4">
-        <%= f.input :nombre, input_html: { class: 'clean' } %>
+      <div class="col-md-8">
+        <%= f.input :descripcion, input_html: { class: 'clean' } %>
       </div>
-
-      <div class="col-md-4">
-        <%= f.input :direccion, input_html: { class: 'clean' } %>
-      </div>
-
-      <div class="col-md-4">
-        <%= f.input :telefono, input_html: { class: 'clean' } %>
+      <div class="col-md-2">
+        <%= f.input :estado, collection: select_estado, as: :select, input_html: { data: { width: '100%' }, class: 'select2' } %>
       </div>
     </div>
-
-    <!-- FILA 2 -->
-    <div class="row">
-      <div class="col-md-4">
-        <%= f.input :presbitero, input_html: { class: 'clean' } %>
-      </div>
-
-      <div class="col-md-4">
-        <%= f.input :email, input_html: { class: 'clean' } %>
-      </div>
-
-
-    </div>
-
-    <!-- BOTONES -->
     <div class="row">
       <div class="col-md-6">
-        <%= link_to "Cancelar", iglesias_path,
-                    class: "btn btn-flat btn-default pull-left" %>
+        <% if @iglesia.new_record? %>
+          <%= button_tag "#{t :cancelar}", type: 'button', data: { target: '#iglesia_form' }, class: 'cancel_button btn btn-flat btn-default pull-left', aria_hidden: true %>
+        <% else %>
+          <%= link_to "#{t :cancelar}", iglesia_path(@iglesia), class: 'btn btn-flat btn-default pull-left', aria_hidden: true, remote: true %>
+        <% end %>
       </div>
-
       <div class="col-md-6">
-        <%= f.button :submit, "Guardar",
-                     class: "btn btn-danger pull-right" %>
+        <%= f.button :submit, "#{t :guardar}", class: "btn btn-danger pull-right" %>
       </div>
     </div>
-
   </div>
-
 <% end %>
+<br/>

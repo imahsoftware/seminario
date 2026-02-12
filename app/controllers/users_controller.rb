@@ -112,11 +112,7 @@ class UsersController < ApplicationController
       u.save
     end
     flash[:notice] = 'Archivo Cargado con Exito...'
-    if is_auth_c('cargacazadores')
-      redirect_to descargaedupol_procesos_path
-    else
-      redirect_to users_path
-    end
+    redirect_to users_path
   end
 
   def cargar2
@@ -127,11 +123,7 @@ class UsersController < ApplicationController
       buser.save
     end
     flash[:notice] = 'Archivo Cargado con Exito...'
-    if is_auth_c('cargacazadores')
-      redirect_to descargaedupol_procesos_path
-    else
-      redirect_to users_path
-    end
+    redirect_to users_path
   end
 
   def inconsistencias
