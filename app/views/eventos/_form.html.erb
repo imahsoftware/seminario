@@ -15,9 +15,6 @@
 
     <!-- FILA 1 -->
     <div class="row">
-      <div class="col-md-4">
-        <%= f.input :guid, input_html: { class: 'clean' } %>
-      </div>
 
       <div class="col-md-4">
         <%= f.input :iglesia_id,
@@ -37,10 +34,6 @@
                     include_blank: true,
                     input_html: { class: 'select2 clean' } %>
       </div>
-    </div>
-
-    <!-- FILA 2 -->
-    <div class="row">
 
       <div class="col-md-4">
         <%= f.input :tiposevento_id,
@@ -51,6 +44,10 @@
                     include_blank: true,
                     input_html: { class: 'select2 clean' } %>
       </div>
+    </div>
+
+    <!-- FILA 2 -->
+    <div class="row">
 
       <!-- FECHA INICIO -->
       <div class="col-md-4">
@@ -96,11 +93,6 @@
 
       <div class="col-md-3">
         <%= f.input :estado,
-                    input_html: { class: 'clean' } %>
-      </div>
-
-      <div class="col-md-3">
-        <%= f.input :user_act,
                     input_html: { class: 'clean' } %>
       </div>
     </div>

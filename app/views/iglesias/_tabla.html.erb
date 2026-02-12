@@ -1,0 +1,23 @@
+<div class="table-responsive">
+  <table class="table table-bordered table-condensed table-striped">
+    <thead>
+      <tr class="thcolor">
+        <th class="text-center">Acciones</th>
+        <th>Nombre</th>
+        <th>Dirección</th>
+        <th>Presbítero</th>
+        <th>Correo</th>
+      </tr>
+    </thead>
+    <tbody id="tbody_iglesias">
+      <% @iglesias.order(created_at: :desc).each do |iglesia| %>
+	      <%= render 'iglesias/tr', iglesia: iglesia %>
+	    <% end %>
+    </tbody>
+  </table>
+</div>
+<div class="box-footer clear-fix">
+  <div class="box-tools pull-right">
+    <%= will_paginate @modulos, renderer: BootstrapPagination::Rails %>
+  </div>
+</div><!-- box-footer -->

@@ -4,12 +4,18 @@ class IglesiasController < ApplicationController
   # GET /iglesias
   # GET /iglesias.json
   def index
-    @iglesias = Iglesia.all
+        @q = Iglesia.ransack(params[:q])
+        @iglesias = @q.result.paginate(:page => params[:page], :per_page => 10)
+        respond_to do |format|
+          format.html
+        end
   end
 
   # GET /iglesias/1
   # GET /iglesias/1.json
   def show
+    respond_to { |format| format.js }
+
   end
 
   # GET /iglesias/new
@@ -19,6 +25,8 @@ class IglesiasController < ApplicationController
 
   # GET /iglesias/1/edit
   def edit
+    respond_to { |format| format.js }
+
   end
 
   # POST /iglesias
@@ -42,11 +50,10 @@ class IglesiasController < ApplicationController
   def update
     respond_to do |format|
       if @iglesia.update(iglesia_params)
-        format.html { redirect_to @iglesia, notice: 'Iglesia was successfully updated.' }
-        format.json { render :show, status: :ok, location: @iglesia }
+        flash[:notice] = "#{t :notice_actualiza_msj}"
+        format.js
       else
-        format.html { render :edit }
-        format.json { render json: @iglesia.errors, status: :unprocessable_entity }
+        format.js { render 'layouts/errors', locals: { object: @iglesia } }
       end
     end
   end

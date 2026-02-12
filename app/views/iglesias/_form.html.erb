@@ -1,52 +1,59 @@
-<%= form_for(iglesia) do |f| %>
-  <% if iglesia.errors.any? %>
-    <div id="error_explanation">
-      <h2><%= pluralize(iglesia.errors.count, "error") %> prohibited this iglesia from being saved:</h2>
+<%= simple_form_for @iglesia, remote: true  do |f| %>
 
-      <ul>
-      <% iglesia.errors.full_messages.each do |message| %>
-        <li><%= message %></li>
-      <% end %>
-      </ul>
+  <div class="bs-callout">
+
+    <% if @iglesia.errors.any? %>
+      <div class="alert alert-danger">
+        <h4><%= pluralize(@iglesia.errors.count, "error") %> impidieron guardar el registro:</h4>
+        <ul>
+          <% @iglesia.errors.full_messages.each do |message| %>
+            <li><%= message %></li>
+          <% end %>
+        </ul>
+      </div>
+    <% end %>
+
+    <!-- FILA 1 -->
+    <div class="row">
+      <div class="col-md-4">
+        <%= f.input :nombre, input_html: { class: 'clean' } %>
+      </div>
+
+      <div class="col-md-4">
+        <%= f.input :direccion, input_html: { class: 'clean' } %>
+      </div>
+
+      <div class="col-md-4">
+        <%= f.input :telefono, input_html: { class: 'clean' } %>
+      </div>
     </div>
-  <% end %>
 
-  <div class="field">
-    <%= f.label :nombre %>
-    <%= f.text_field :nombre %>
+    <!-- FILA 2 -->
+    <div class="row">
+      <div class="col-md-4">
+        <%= f.input :presbitero, input_html: { class: 'clean' } %>
+      </div>
+
+      <div class="col-md-4">
+        <%= f.input :email, input_html: { class: 'clean' } %>
+      </div>
+
+
+    </div>
+
+    <!-- BOTONES -->
+    <div class="row">
+      <div class="col-md-6">
+        <%= link_to "Cancelar", iglesias_path,
+                    class: "btn btn-flat btn-default pull-left" %>
+      </div>
+
+      <div class="col-md-6">
+        <%= f.button :submit, "Guardar",
+                     class: "btn btn-danger pull-right" %>
+      </div>
+    </div>
+
   </div>
 
-  <div class="field">
-    <%= f.label :direccion %>
-    <%= f.text_field :direccion %>
-  </div>
-
-  <div class="field">
-    <%= f.label :telefono %>
-    <%= f.text_field :telefono %>
-  </div>
-
-  <div class="field">
-    <%= f.label :presbitero %>
-    <%= f.text_field :presbitero %>
-  </div>
-
-  <div class="field">
-    <%= f.label :email %>
-    <%= f.text_field :email %>
-  </div>
-
-  <div class="field">
-    <%= f.label :user_id %>
-    <%= f.text_field :user_id %>
-  </div>
-
-  <div class="field">
-    <%= f.label :user_act %>
-    <%= f.number_field :user_act %>
-  </div>
-
-  <div class="actions">
-    <%= f.submit %>
-  </div>
 <% end %>
