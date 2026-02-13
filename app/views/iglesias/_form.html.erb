@@ -31,11 +31,11 @@
     <!-- FILA 2 -->
     <div class="row">
       <div class="col-md-6">
-        <%= f.input :presbitero, onChange: 'javascript:this.value=this.value.toUpperCase();',input_html: { class: 'clean' } %>
+        <%= f.input :presbitero,input_html: { class: 'clean', onChange: 'javascript:this.value=this.value.toUpperCase();' } %>
       </div>
 
       <div class="col-md-6">
-        <%= f.input :email, onChange: 'javascript:this.value=this.value.toUpperCase();',input_html: { class: 'clean' } %>
+        <%= f.input :email,input_html: { class: 'clean' , onChange: 'javascript:this.value=this.value.toUpperCase();' } %>
       </div>
     </div>
 

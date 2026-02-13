@@ -7,9 +7,14 @@ Rails.application.routes.draw do
   end
 
   resources :tiposeventos
-  resources :iglesiascomunidades
   resources :iglesias
   mount ActionCable.server => '/cable'
+
+  resources :iglesias do
+    resources :iglesiascomunidades
+  end
+
+
 
   resources :notificacionesplataformas, only: [:index] do
     member do
@@ -20,6 +25,9 @@ Rails.application.routes.draw do
       get :contador # ← AGREGAR ESTA LÍNEA
     end
   end
+
+
+
 
   resources :iparametros do
     resources :iparametrosformatos
