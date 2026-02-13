@@ -12,16 +12,15 @@
         <li class="treeview">
         <li class="<%= active_class(edit_evento_path(etapa: "A", id: @evento.id)) %>">
           <%= link_to edit_evento_path(etapa: "A", id: @evento.id) do %>
-            <i class="fa fa-bullseye"></i><span>Compañia</span>
+            <i class="fa fa-info-circle"></i><span>Compañia</span>
           <% end %>
         </li>
 
         <li class="<%= active_class(edit_evento_path(etapa: "B", id: @evento.id)) %>">
           <%= link_to edit_evento_path(etapa: "B", id: @evento.id) do %>
-            <i class="fa fa-bullseye"></i><span>Barberos</span>
+            <i class="fa fa-users"></i><span>Personas</span>
           <% end %>
         </li>
-
       <% end %>
       </li>
     </ul>

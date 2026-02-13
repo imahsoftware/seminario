@@ -31,32 +31,27 @@
         <table class="table table-bordered table-condensed table-striped">
           <thead>
           <tr class="thcolor">
-            <th class="text-center">Acciones</th>
-            <th>Descripción</th>
-            <th>Controlador</th>
-            <th>Imagen</th>
-            <th>Mensaje</th>
-            <th>Nivel</th>
-            <th>Autorizado</th>
+            <th class="text-center"></th>
+            <th>Detalle</th>
+            <th>Tipo Evento</th>
+            <th>Fecha Inicio</th>
+            <th>Fecha Fin</th>
+            <th>Estado</th>
           </tr>
           </thead>
           <tbody id="eventos-tbody">
           <% @eventos.order(created_at: :desc).each do |evento| %>
             <tr id="evento_<%= evento.id %>">
               <td class="text-center">
-                <%= link_to edit_evento_path(evento), remote: true, class: 'edit_modulo_button', data: { toggle: 'tooltip' }, title: "#{t :title_editar}" do %>
+                <%= link_to edit_evento_path(evento.id, etapa: 'A'), class: 'edit_eproveedor_button', data: { toggle: 'tooltip' }, title: "#{t :title_editar}" do %>
                   <button class="btn btn-xs btn-warning"><i class="fa fa-edit"></i></button>
                 <% end %>
-                <%= link_to modulo, remote: true, method: :delete, data: { confirm: "#{t :elimina_confirma}", toggle: 'tooltip' }, title: "#{t :title_elimina}" do %>
-                  <button class="btn btn-xs btn-danger"><i class="fa fa-trash"></i></button>
-                <% end %>
               </td>
-              <td><%= evento.descripcion %></td>
-              <td><%= evento.controlador %></td>
-              <td><%= evento.imagen %></td>
-              <td><%= evento.mensaje %></td>
-              <td><%= evento.nivel %></td>
-              <td><%= evento.autorizado %></td>
+              <td><%= evento.detalle %></td>
+              <td><%= evento.tiposevento.descripcion rescue nil %></td>
+              <td><%= evento.fecha_inicio %></td>
+              <td><%= evento.fecha_fin %></td>
+              <td><%= evento.estado %></td>
             </tr>
           <% end %>
           </tbody>
