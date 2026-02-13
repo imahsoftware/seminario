@@ -20,7 +20,9 @@ class IglesiasController < ApplicationController
 
   # GET /iglesias/new
   def new
+    @active_record = Iglesia.find(params[:active_id]) if params[:active_id].present?
     @iglesia = Iglesia.new
+    respond_to { |format| format.js }
   end
 
   # GET /iglesias/1/edit
@@ -33,14 +35,12 @@ class IglesiasController < ApplicationController
   # POST /iglesias.json
   def create
     @iglesia = Iglesia.new(iglesia_params)
-
     respond_to do |format|
       if @iglesia.save
-        format.html { redirect_to @iglesia, notice: 'Iglesia was successfully created.' }
-        format.json { render :show, status: :created, location: @iglesia }
+        flash[:notice] = "#{t :notice_crea_msj}"
+        format.js
       else
-        format.html { render :new }
-        format.json { render json: @iglesia.errors, status: :unprocessable_entity }
+        format.js { render 'layouts/errors', locals: { object: @iglesia } }
       end
     end
   end
@@ -62,10 +62,7 @@ class IglesiasController < ApplicationController
   # DELETE /iglesias/1.json
   def destroy
     @iglesia.destroy
-    respond_to do |format|
-      format.html { redirect_to iglesias_url, notice: 'Iglesia was successfully destroyed.' }
-      format.json { head :no_content }
-    end
+    flash['success'] = 'Eliminado con Exito'
   end
 
   private

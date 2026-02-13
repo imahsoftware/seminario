@@ -1,5 +1,5 @@
 <tr id="iglesia_<%= iglesia.id %>">
-  <% if is_auth_a('iglesia') %>
+  <% if is_auth_a('iglesias') %>
   	<td class="text-center">
       <%= link_to edit_iglesia_path(iglesia), class: 'edit_iglesia_button', remote: true, data: { toggle: 'tooltip' }, title: "#{t :title_editar}" do %>
          <button class="btn btn-xs btn-warning"><i class="fa fa-edit"></i></button>
