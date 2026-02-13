@@ -7,6 +7,8 @@ class ApplicationController < ActionController::Base
 
   protect_from_forgery with: :exception
 
+  before_action :authenticate_user!, unless: :public_controller?
+
   before_action :authenticate_user!, except: [:validatesession]
   before_action :validatesession
   #before_action :soportespendientes, :soportespendientescant, :agendasmenus
@@ -768,5 +770,9 @@ class ApplicationController < ActionController::Base
         redirect_to root_path
       end
     end
+  end
+
+  def public_controller?
+    controller_name == 'registro_eventos'
   end
 end

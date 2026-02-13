@@ -2,7 +2,16 @@ Rails.application.routes.draw do
 
   resources :eventospersonas
 
+
+  get 'registro/:guid', to: 'registro_eventos#show', as: 'registro_evento'
+  post 'registro/:guid', to: 'registro_eventos#create'
+  get 'registro/:guid/exito', to: 'registro_eventos#exito', as: 'exito_registro_evento'
+
+
   resources :eventos do
+    member do
+      get :copiar_url
+    end
     resources :eventospersonas
   end
 

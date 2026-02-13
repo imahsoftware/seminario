@@ -1,9 +1,10 @@
+<!-- app/views/eventos/index.html.erb -->
 <div class="box box-primary">
   <div class="box-header with-border">
     <legend>
-      Compañias
-      <%= link_to new_evento_path, class: 'btn btn-sm btn-info' do %>
-        <i class="fa fa-plus-square"> </i> <span>Nueva compañia</span>
+      Eventos
+      <%= link_to new_evento_path, class: 'btn btn-xs btn-success' do %>
+        <i class="fa fa-plus-square"> </i> <span>Nuevo Evento</span>
       <% end %>
     </legend>
     <div class="box-tools pull-right">
@@ -27,42 +28,93 @@
     </div>
     <div class="row">
       <div class="col-md-12">
-      <div class="box-body table-responsive">
-        <table class="table table-bordered table-condensed table-striped">
-          <thead>
-          <tr class="thcolor">
-            <th class="text-center"></th>
-            <th>Detalle</th>
-            <th>Tipo Evento</th>
-            <th>Fecha Inicio</th>
-            <th>Fecha Fin</th>
-            <th>Estado</th>
-          </tr>
-          </thead>
-          <tbody id="eventos-tbody">
-          <% @eventos.order(created_at: :desc).each do |evento| %>
-            <tr id="evento_<%= evento.id %>">
-              <td class="text-center">
-                <%= link_to edit_evento_path(evento.id, etapa: 'A'), class: 'edit_eproveedor_button', data: { toggle: 'tooltip' }, title: "#{t :title_editar}" do %>
-                  <button class="btn btn-xs btn-warning"><i class="fa fa-edit"></i></button>
-                <% end %>
-              </td>
-              <td><%= evento.detalle %></td>
-              <td><%= evento.tiposevento.descripcion rescue nil %></td>
-              <td><%= evento.fecha_inicio %></td>
-              <td><%= evento.fecha_fin %></td>
-              <td><%= evento.estado %></td>
+        <div class="box-body table-responsive">
+          <table class="table table-bordered table-condensed table-striped">
+            <thead>
+            <tr class="thcolor">
+              <th class="text-center">Acciones</th>
+              <th>Detalle</th>
+              <th>Tipo Evento</th>
+              <th>Fecha Inicio</th>
+              <th>Fecha Fin</th>
+              <th>Estado</th>
+              <th class="text-center">URL Registro</th>
+              <th class="text-center">Vigencia</th>
             </tr>
-          <% end %>
-          </tbody>
-        </table>
-      </div>
+            </thead>
+            <tbody id="eventos-tbody">
+            <% @eventos.order(created_at: :desc).each do |evento| %>
+              <tr id="evento_<%= evento.guid %>">
+                <td class="text-center">
+                  <%= link_to edit_evento_path(evento.guid, etapa: 'A'), class: 'edit_eproveedor_button', data: { toggle: 'tooltip' }, title: "#{t :title_editar}" do %>
+                    <button class="btn btn-xs btn-warning"><i class="fa fa-edit"></i></button>
+                  <% end %>
+                </td>
+                <td><%= evento.detalle %></td>
+                <td><%= evento.tiposevento.descripcion rescue nil %></td>
+                <td><%= evento.fecha_inicio.strftime("%d/%m/%Y") rescue '' %></td>
+                <td><%= evento.fecha_fin.strftime("%d/%m/%Y") rescue '' %></td>
+                <td><%= evento.estado %></td>
+                <td class="text-center">
+                  <% if evento.url_publica.present? %>
+                    <button class="btn btn-xs btn-info copiar-url"
+                            data-url="<%= evento.url_publica %>"
+                            data-toggle="tooltip"
+                            title="Copiar URL">
+                      <i class="fa fa-copy"></i>
+                    </button>
+                    <a href="<%= evento.url_publica %>"
+                       target="_blank"
+                       class="btn btn-xs btn-success"
+                       data-toggle="tooltip"
+                       title="Ver formulario">
+                      <i class="fa fa-external-link"></i>
+                    </a>
+                  <% end %>
+                </td>
+                <td class="text-center">
+                  <% if evento.vigente? %>
+                    <span class="label label-success">VIGENTE</span>
+                  <% elsif evento.vencido? %>
+                    <span class="label label-danger">VENCIDO</span>
+                  <% else %>
+                    <span class="label label-warning">NO INICIADO</span>
+                  <% end %>
+                </td>
+              </tr>
+            <% end %>
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
   </div><!-- /.box-body -->
   <div class="box-footer clear-fix">
-		<div class="box-tools pull-right">
-			<%= will_paginate @eventos, renderer: BootstrapPagination::Rails %>
-		</div>
+    <div class="box-tools pull-right">
+      <%= will_paginate @eventos, renderer: BootstrapPagination::Rails %>
+    </div>
   </div><!-- box-footer -->
 </div><!-- /.box -->
+
+<!-- Script para copiar URL desde el índice -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.11/clipboard.min.js"></script>
+<script>
+    $(document).ready(function() {
+        // Inicializar tooltips
+        $('[data-toggle="tooltip"]').tooltip();
+
+        // Copiar URL al hacer click
+        $('.copiar-url').on('click', function() {
+            var url = $(this).data('url');
+
+            // Crear elemento temporal para copiar
+            var $temp = $("<input>");
+            $("body").append($temp);
+            $temp.val(url).select();
+            document.execCommand("copy");
+            $temp.remove();
+
+            toastr.success('URL copiada al portapapeles');
+        });
+    });
+</script>

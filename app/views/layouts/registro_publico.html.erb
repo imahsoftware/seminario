@@ -1,0 +1,278 @@
+<!-- app/views/layouts/registro_publico.html.erb -->
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <title>Registro de Evento - <%= ENV['NOMBRE_APLICACION'] || 'Sistema de Eventos' %></title>
+
+  <%= csrf_meta_tags %>
+
+  <!-- Tus assets de aplicación -->
+  <%= stylesheet_link_tag 'application', media: 'all' %>
+  <%= javascript_include_tag 'application' %>
+
+  <style>
+      body {
+          background: linear-gradient(135deg, #071B7D 0%, #0a2db5 100%);
+          min-height: 100vh;
+          font-family: 'Source Sans Pro', sans-serif;
+          padding: 20px 0;
+      }
+
+      .panel {
+          margin-top: 20px;
+          margin-bottom: 40px;
+          box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+          border: none;
+          border-radius: 8px;
+          overflow: hidden;
+      }
+
+      .panel-primary > .panel-heading {
+          background: #071B7D;
+          color: white;
+          padding: 20px;
+          border: none;
+      }
+
+      .panel-success > .panel-heading {
+          background: #5cb85c;
+          color: white;
+          padding: 20px;
+          border: none;
+      }
+
+      .panel-danger > .panel-heading {
+          background: #d9534f;
+          color: white;
+          padding: 20px;
+          border: none;
+      }
+
+      .panel-warning > .panel-heading {
+          background: #f0ad4e;
+          color: white;
+          padding: 20px;
+          border: none;
+      }
+
+      .panel-title {
+          font-size: 24px;
+          font-weight: 600;
+          margin: 0;
+      }
+
+      .panel-body {
+          padding: 30px;
+          background: white;
+      }
+
+      .alert {
+          border-radius: 4px;
+          margin-bottom: 20px;
+      }
+
+      .btn-primary {
+          background: #071B7D;
+          border-color: #071B7D;
+          padding: 12px 30px;
+          font-size: 16px;
+          font-weight: 600;
+          transition: all 0.3s ease;
+      }
+
+      .btn-primary:hover,
+      .btn-primary:focus,
+      .btn-primary:active {
+          background: #05145a;
+          border-color: #05145a;
+          transform: translateY(-2px);
+          box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+      }
+
+      .text-primary {
+          color: #071B7D !important;
+      }
+
+      hr {
+          border-top: 2px solid #f0f0f0;
+          margin: 20px 0;
+      }
+
+      .checkbox label {
+          font-weight: normal;
+          padding-left: 25px;
+      }
+
+      .alert-info {
+          background-color: #e8f4fd;
+          border-color: #bee5eb;
+          color: #0c5460;
+      }
+
+      .flash-messages {
+          position: fixed;
+          top: 20px;
+          right: 20px;
+          z-index: 9999;
+          max-width: 400px;
+      }
+
+      .alert-dismissible {
+          padding-right: 35px;
+      }
+
+      /* Estilos para Select2 */
+      .select2-container--default .select2-selection--single {
+          height: 34px;
+          border: 1px solid #d2d6de;
+          border-radius: 0;
+      }
+
+      .select2-container--default .select2-selection--single .select2-selection__rendered {
+          line-height: 32px;
+          padding-left: 12px;
+      }
+
+      .select2-container--default .select2-selection--single .select2-selection__arrow {
+          height: 32px;
+      }
+
+      /* Ajustes para required fields */
+      .required .control-label:after {
+          content: " *";
+          color: #d9534f;
+      }
+
+      /* Checkbox personalizado */
+      .checkbox input[type="checkbox"] {
+          width: 18px;
+          height: 18px;
+          margin-right: 8px;
+          cursor: pointer;
+      }
+
+      .checkbox-required {
+          border: 2px solid #d9534f;
+          padding: 15px;
+          border-radius: 4px;
+          background: #fff5f5;
+          margin-bottom: 15px;
+      }
+
+      .checkbox-required label {
+          font-weight: 600;
+          color: #333;
+          margin: 0;
+      }
+
+      @media (max-width: 768px) {
+          .panel-body {
+              padding: 20px 15px;
+          }
+
+          .flash-messages {
+              right: 10px;
+              left: 10px;
+              max-width: none;
+          }
+      }
+  </style>
+</head>
+
+<body>
+<!-- Mensajes Flash -->
+<div class="flash-messages">
+  <% if flash[:notice] %>
+    <div class="alert alert-success alert-dismissible fade in" role="alert">
+      <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+        <span aria-hidden="true">&times;</span>
+      </button>
+      <i class="fa fa-check-circle"></i> <%= flash[:notice] %>
+    </div>
+  <% end %>
+
+  <% if flash[:alert] %>
+    <div class="alert alert-danger alert-dismissible fade in" role="alert">
+      <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+        <span aria-hidden="true">&times;</span>
+      </button>
+      <i class="fa fa-exclamation-triangle"></i> <%= flash[:alert] %>
+    </div>
+  <% end %>
+
+  <% if flash[:warning] %>
+    <div class="alert alert-warning alert-dismissible fade in" role="alert">
+      <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+        <span aria-hidden="true">&times;</span>
+      </button>
+      <i class="fa fa-warning"></i> <%= flash[:warning] %>
+    </div>
+  <% end %>
+</div>
+
+<!-- Contenido Principal -->
+<%= yield %>
+
+<!-- Script para inicializar Select2 y Datepicker -->
+<script>
+    $(document).ready(function() {
+        // Inicializar Select2
+        if (typeof $.fn.select2 !== 'undefined') {
+            $('.select2').select2({
+                width: '100%',
+                placeholder: 'Seleccione...',
+                allowClear: true
+            });
+        }
+
+        // Inicializar Datepicker
+        if (typeof $.fn.datepicker !== 'undefined') {
+            $('.datepicker').datepicker({
+                format: 'dd/mm/yyyy',
+                autoclose: true,
+                todayHighlight: true,
+                language: 'es'
+            });
+        }
+
+        // Auto-cerrar alertas de éxito después de 5 segundos
+        setTimeout(function() {
+            $('.alert-success').fadeOut('slow');
+        }, 5000);
+
+        // Auto-cerrar alertas de advertencia después de 7 segundos
+        setTimeout(function() {
+            $('.alert-warning').fadeOut('slow');
+        }, 7000);
+
+        // Validación de formularios
+        $('form').on('submit', function(e) {
+            var politica = $('input[name="eventospersona[acepta_politica]"]');
+            var cultura = $('input[name="eventospersona[acepta_cultura]"]');
+
+            if (politica.length && !politica.is(':checked')) {
+                e.preventDefault();
+                alert('Debe aceptar las políticas de tratamiento de datos personales');
+                politica.focus();
+                return false;
+            }
+
+            if (cultura.length && !cultura.is(':checked')) {
+                e.preventDefault();
+                alert('Debe aceptar la cultura organizacional');
+                cultura.focus();
+                return false;
+            }
+
+            var $submitBtn = $(this).find('button[type="submit"]');
+            $submitBtn.prop('disabled', true);
+            $submitBtn.html('<i class="fa fa-spinner fa-spin"></i> Procesando...');
+        });
+    });
+</script>
+</body>
+</html>

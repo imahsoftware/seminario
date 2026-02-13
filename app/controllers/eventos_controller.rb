@@ -1,5 +1,6 @@
+# app/controllers/eventos_controller.rb
 class EventosController < ApplicationController
-  before_action :set_evento, only: [:show, :edit, :update, :destroy, :vertasas]
+  before_action :set_evento, only: [:show, :edit, :update, :destroy, :vertasas, :copiar_url]
 
   layout :set_layout
   before_action :checkaccess
@@ -32,8 +33,9 @@ class EventosController < ApplicationController
     @evento = Evento.new(evento_params)
     @evento.etapa = params[:etapa]
     @evento.user_id = is_admin
+
     if @evento.save
-      flash[:notice] = "Creado con Exito."
+      flash[:notice] = "Evento creado con éxito. URL de registro generada."
       redirect_to edit_evento_path(@evento)
     else
       render "evento_form"
@@ -43,7 +45,7 @@ class EventosController < ApplicationController
   def update
     @evento.user_act = is_admin
     if @evento.update(evento_params)
-      flash[:notice] = "El registro ha sido actualizado con Exito."
+      flash[:notice] = "El registro ha sido actualizado con Éxito."
       redirect_to edit_evento_path(@evento)
     else
       render "evento_form"
@@ -52,10 +54,17 @@ class EventosController < ApplicationController
 
   def destroy
     @evento.destroy
-    flash[:notice] = "El registro ha sido borrado con Exito."
+    flash[:notice] = "El registro ha sido borrado con Éxito."
     respond_to do |format|
       format.html { redirect_to(eventos_url) }
       format.xml { head :ok }
+    end
+  end
+
+  # Acción para copiar URL al portapapeles (AJAX)
+  def copiar_url
+    respond_to do |format|
+      format.json { render json: { url: @evento.url_publica, success: true } }
     end
   end
 
@@ -72,8 +81,12 @@ class EventosController < ApplicationController
   end
 
   def set_evento
-    params[:etapa].to_s != "" ? Evento.find(params[:id]).update_columns(etapa: params[:etapa].to_s) : nil
-    @evento = Evento.find(params[:id])
+    # Usar GUID en lugar de ID
+    params[:etapa].to_s != "" ? Evento.find_by_guid!(params[:id]).update_columns(etapa: params[:etapa].to_s) : nil
+    @evento = Evento.find_by_guid!(params[:id])
+  rescue ActiveRecord::RecordNotFound
+    flash[:alert] = "Evento no encontrado"
+    redirect_to eventos_path
   end
 
   def evento_params

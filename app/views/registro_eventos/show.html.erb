@@ -1,0 +1,193 @@
+<!-- app/views/registro_eventos/show.html.erb -->
+<div class="container" style="margin-top: 30px;">
+  <div class="row">
+    <div class="col-md-10 col-md-offset-1">
+      <div class="panel panel-primary">
+        <div class="panel-heading">
+          <h3 class="panel-title">
+            <i class="fa fa-calendar"></i> Registro de Evento
+          </h3>
+        </div>
+        <div class="panel-body">
+          <div class="alert alert-info">
+            <h4><strong><%= @evento.detalle %></strong></h4>
+            <p><strong>Tipo de Evento:</strong> <%= @evento.tiposevento.descripcion rescue 'N/A' %></p>
+            <p><strong>Fecha del Evento:</strong> <%= @evento.fecha_inicio.strftime("%d/%m/%Y") rescue '' %></p>
+            <p><strong>Vigencia de Registro:</strong> Hasta el <%= @evento.fecha_fin.strftime("%d/%m/%Y") rescue '' %></p>
+          </div>
+
+          <%= simple_form_for @eventospersona, url: registro_evento_path(@evento.guid), method: :post, html: { id: 'form-registro-evento' } do |f| %>
+
+            <h4 class="text-primary">
+              <i class="fa fa-user"></i> Información Personal
+            </h4>
+            <hr>
+
+            <div class="row">
+              <div class="col-md-4">
+                <%= f.input :identificacion, label: "Identificación", required: true, input_html: { class: 'form-control' } %>
+              </div>
+              <div class="col-md-4">
+                <%= f.input :nombre, label: "Nombre", required: true, input_html: { class: 'form-control', onchange: 'this.value=this.value.toUpperCase();' } %>
+              </div>
+              <div class="col-md-4">
+                <%= f.input :apellido, label: "Apellido", required: true, input_html: { class: 'form-control', onchange: 'this.value=this.value.toUpperCase();' } %>
+              </div>
+            </div>
+
+            <div class="row">
+              <div class="col-md-4">
+                <label>Fecha de Nacimiento <span class="text-danger">*</span></label>
+                <div class="input-group">
+                  <div class="input-group-addon" style="background: #EDEDED;">
+                    <i class="fa fa-calendar"></i>
+                  </div>
+                  <%= f.input :fecha_nacimiento, as: :string, label: false, required: true, input_html: { class: 'form-control datepicker', autocomplete: 'off', placeholder: 'dd/mm/yyyy' } %>
+                </div>
+              </div>
+              <div class="col-md-4">
+                <%= f.input :celular, label: "Celular", required: true, input_html: { class: 'form-control', maxlength: 20 } %>
+              </div>
+              <div class="col-md-4">
+                <%= f.input :email, label: "Email", required: true, input_html: { class: 'form-control', type: 'email' } %>
+              </div>
+            </div>
+
+            <div class="row">
+              <div class="col-md-8">
+                <%= f.input :direccion, label: "Dirección", required: true, input_html: { class: 'form-control', onchange: 'this.value=this.value.toUpperCase();' } %>
+              </div>
+              <div class="col-md-2">
+                <%= f.input :sexo, label: "Sexo", collection: [['MASCULINO', 'M'], ['FEMENINO', 'F']], required: true, input_html: { class: 'select2' }, include_blank: 'Seleccione...' %>
+              </div>
+              <div class="col-md-2">
+                <%= f.input :estado_civil, label: "Estado Civil", collection: ['SOLTERO', 'CASADO', 'UNION LIBRE', 'DIVORCIADO', 'VIUDO'], required: true, input_html: { class: 'select2' }, include_blank: 'Seleccione...' %>
+              </div>
+            </div>
+
+            <h4 class="text-primary" style="margin-top: 30px;">
+              <i class="fa fa-users"></i> Información del Acudiente (Opcional)
+            </h4>
+            <p class="text-muted"><small>Complete esta sección solo si es menor de edad o requiere un acudiente</small></p>
+            <hr>
+
+            <div class="row">
+              <div class="col-md-4">
+                <%= f.input :acudiente_nombre, label: "Nombre del Acudiente", input_html: { class: 'form-control', onchange: 'this.value=this.value.toUpperCase();' } %>
+              </div>
+              <div class="col-md-4">
+                <%= f.input :acudiente_apellido, label: "Apellido del Acudiente", input_html: { class: 'form-control', onchange: 'this.value=this.value.toUpperCase();' } %>
+              </div>
+              <div class="col-md-4">
+                <%= f.input :acudiente_identificacion, label: "Identificación del Acudiente", input_html: { class: 'form-control', maxlength: 30 } %>
+              </div>
+            </div>
+
+            <div class="row">
+              <div class="col-md-6">
+                <%= f.input :acudiente_email, label: "Email del Acudiente", input_html: { class: 'form-control', type: 'email' } %>
+              </div>
+              <div class="col-md-6">
+                <%= f.input :acudiente_celular, label: "Celular del Acudiente", input_html: { class: 'form-control', maxlength: 20 } %>
+              </div>
+            </div>
+
+            <h4 class="text-primary" style="margin-top: 30px;">
+              <i class="fa fa-file-text-o"></i> Aceptación de Políticas
+            </h4>
+            <hr>
+
+            <!-- Políticas de Tratamiento de Datos - OBLIGATORIO -->
+            <div class="checkbox-required">
+              <div class="checkbox">
+                <label>
+                  <%= f.check_box :acepta_politica, { required: true }, "SI", "NO" %>
+                  <strong style="color: #071B7D;">
+                    <i class="fa fa-shield"></i> Acepto las políticas de tratamiento de datos personales
+                    <span class="text-danger">*</span>
+                  </strong>
+                </label>
+              </div>
+              <small class="text-muted" style="display: block; margin-top: 10px; padding-left: 26px;">
+                Al marcar esta casilla, acepto que mis datos personales sean utilizados de acuerdo con la política de privacidad.
+              </small>
+            </div>
+
+            <!-- Cultura Organizacional - OBLIGATORIO -->
+            <div class="checkbox-required">
+              <div class="checkbox">
+                <label>
+                  <%= f.check_box :acepta_cultura, { required: true }, "SI", "NO" %>
+                  <strong style="color: #071B7D;">
+                    <i class="fa fa-heart"></i> Acepto la cultura organizacional
+                    <span class="text-danger">*</span>
+                  </strong>
+                </label>
+              </div>
+              <small class="text-muted" style="display: block; margin-top: 10px; padding-left: 26px;">
+                Me comprometo a seguir los valores y principios de la organización.
+              </small>
+            </div>
+
+            <div class="form-group" style="margin-top: 30px;">
+              <%= f.button :submit, class: "btn btn-primary btn-lg btn-block" do %>
+                <i class="fa fa-check-circle"></i> Registrarse en el Evento
+              <% end %>
+            </div>
+
+            <p class="text-muted text-center">
+              <small>
+                <i class="fa fa-info-circle"></i> Los campos marcados con (<span class="text-danger">*</span>) son obligatorios
+              </small>
+            </p>
+
+          <% end %>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+    $(document).ready(function() {
+        // Validación adicional en el cliente
+        $('#form-registro-evento').on('submit', function(e) {
+            var politica = $('input[name="eventospersona[acepta_politica]"]');
+            var cultura = $('input[name="eventospersona[acepta_cultura]"]');
+
+            if (!politica.is(':checked')) {
+                e.preventDefault();
+                alert('⚠️ Debe aceptar las políticas de tratamiento de datos personales para continuar.');
+                politica.closest('.checkbox-required').addClass('animated shake');
+                setTimeout(function() {
+                    politica.closest('.checkbox-required').removeClass('animated shake');
+                }, 1000);
+                return false;
+            }
+
+            if (!cultura.is(':checked')) {
+                e.preventDefault();
+                alert('⚠️ Debe aceptar la cultura organizacional para continuar.');
+                cultura.closest('.checkbox-required').addClass('animated shake');
+                setTimeout(function() {
+                    cultura.closest('.checkbox-required').removeClass('animated shake');
+                }, 1000);
+                return false;
+            }
+        });
+
+        // Animación de shake (agregar al CSS si no existe)
+        if (!$('style#shake-animation').length) {
+            $('<style id="shake-animation">').text(`
+        @keyframes shake {
+          0%, 100% { transform: translateX(0); }
+          10%, 30%, 50%, 70%, 90% { transform: translateX(-10px); }
+          20%, 40%, 60%, 80% { transform: translateX(10px); }
+        }
+        .animated.shake {
+          animation: shake 0.5s;
+        }
+      `).appendTo('head');
+        }
+    });
+</script>

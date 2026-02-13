@@ -1,3 +1,4 @@
+<!-- app/views/eventos/evento_form.html.erb -->
 <% if @evento.etapa.to_s == "A" %>
   <%= simple_form_for @evento do |f| %>
     <%= hidden_field_tag :etapa, @evento.etapa.to_s %>
@@ -33,7 +34,6 @@
           </div>
         </div>
 
-
         <div class="row">
           <div class="col-md-10">
             <%= f.input :detalle, as: :text, input_html: {:onchange => "javascript:this.value=this.value.toUpperCase();"} %>
@@ -42,6 +42,41 @@
             <%= f.input :estado, collection: select_estado, as: :select, input_html: { data: { width: '100%' }, class: 'select2' } %>
           </div>
         </div>
+
+        <!-- Sección de URL pública (solo si el evento ya fue creado) -->
+        <% if @evento.persisted? && @evento.url_publica.present? %>
+          <div class="row">
+            <div class="col-md-12">
+
+                <h4><i class="icon fa fa-link"></i> URL de Registro Público</h4>
+                <p>Comparte esta URL para que las personas se registren en el evento:</p>
+                <div class="input-group">
+                  <input type="text" class="form-control" id="url_publica" value="<%= @evento.url_publica %>" readonly>
+                  <span class="input-group-btn">
+                    <button class="btn btn-primary" type="button" id="btn_copiar_url" data-clipboard-target="#url_publica">
+                      <i class="fa fa-copy"></i> Copiar URL
+                    </button>
+                    <a href="<%= @evento.url_publica %>" target="_blank" class="btn btn-success">
+                      <i class="fa fa-external-link"></i> Ver formulario
+                    </a>
+                  </span>
+                </div>
+                <small class="help-block">
+                  <strong>Vigencia:</strong>
+                  Del <%= @evento.fecha_inicio.strftime("%d/%m/%Y") %> al <%= @evento.fecha_fin.strftime("%d/%m/%Y") %>
+                  <% if @evento.vigente? %>
+                    <span class="label label-success">VIGENTE</span>
+                  <% elsif @evento.vencido? %>
+                    <span class="label label-danger">VENCIDO</span>
+                  <% else %>
+                    <span class="label label-warning">NO INICIADO</span>
+                  <% end %>
+                </small>
+
+            </div>
+          </div>
+        <% end %>
+
         <div class="box-footer">
         </div>
         <div class="box-tools pull-right">
@@ -54,5 +89,21 @@
   <%#= render 'eventospersonas/eventospersonas' %>
 <% end %>
 
+<% if @evento.persisted? && @evento.url_publica.present? %>
+  <!-- Script para copiar al portapapeles -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.11/clipboard.min.js"></script>
+  <script>
+      $(document).ready(function() {
+          var clipboard = new ClipboardJS('#btn_copiar_url');
 
+          clipboard.on('success', function(e) {
+              toastr.success('URL copiada al portapapeles');
+              e.clearSelection();
+          });
 
+          clipboard.on('error', function(e) {
+              toastr.error('Error al copiar la URL');
+          });
+      });
+  </script>
+<% end %>
