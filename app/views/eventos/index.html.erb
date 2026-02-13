@@ -32,14 +32,14 @@
           <table class="table table-bordered table-condensed table-striped">
             <thead>
             <tr class="thcolor">
-              <th class="text-center">Acciones</th>
-              <th>Detalle</th>
-              <th>Tipo Evento</th>
-              <th>Fecha Inicio</th>
-              <th>Fecha Fin</th>
-              <th>Estado</th>
-              <th class="text-center">URL Registro</th>
-              <th class="text-center">Vigencia</th>
+              <th class="text-center" width="5%"></th>
+              <th class="text-table">Detalle</th>
+              <th class="text-table" width="20%">Tipo Evento</th>
+              <th class="text-table" width="10%">Fecha Inicio</th>
+              <th class="text-table" width="10%">Fecha Fin</th>
+              <th class="text-table" width="10%">Estado</th>
+              <th class="text-center text-table" width="10%">URL</th>
+              <th class="text-center text-table" width="10%">Vigencia</th>
             </tr>
             </thead>
             <tbody id="eventos-tbody">
@@ -50,12 +50,12 @@
                     <button class="btn btn-xs btn-warning"><i class="fa fa-edit"></i></button>
                   <% end %>
                 </td>
-                <td><%= evento.detalle %></td>
-                <td><%= evento.tiposevento.descripcion rescue nil %></td>
-                <td><%= evento.fecha_inicio.strftime("%d/%m/%Y") rescue '' %></td>
-                <td><%= evento.fecha_fin.strftime("%d/%m/%Y") rescue '' %></td>
-                <td><%= evento.estado %></td>
-                <td class="text-center">
+                <td class="text-table"><%= evento.detalle %></td>
+                <td class="text-table"><%= evento.tiposevento.descripcion rescue nil %></td>
+                <td class="text-table"><%= evento.fecha_inicio.strftime("%d/%m/%Y") rescue '' %></td>
+                <td class="text-table"><%= evento.fecha_fin.strftime("%d/%m/%Y") rescue '' %></td>
+                <td class="text-table"><%= evento.estado %></td>
+                <td class="text-center text-table">
                   <% if evento.url_publica.present? %>
                     <button class="btn btn-xs btn-info copiar-url"
                             data-url="<%= evento.url_publica %>"
