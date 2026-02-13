@@ -1,0 +1,29 @@
+<aside class="main-sidebar">
+  <section class="sidebar">
+    <ul class="sidebar-menu" data-widget="tree">
+      <li>
+        <%= link_to eventos_path do %>
+          <i class="fa fa-arrow-left text-danger"></i> Regresar a eventos
+        <% end %>
+      </li>
+      <li class="header"><%= t :menu %></li>
+      <!-- Optionally, you can add icons to the links -->
+      <% unless @evento.new_record? %>
+        <li class="treeview">
+        <li class="<%= active_class(edit_evento_path(etapa: "A", id: @evento.id)) %>">
+          <%= link_to edit_evento_path(etapa: "A", id: @evento.id) do %>
+            <i class="fa fa-bullseye"></i><span>Compañia</span>
+          <% end %>
+        </li>
+
+        <li class="<%= active_class(edit_evento_path(etapa: "B", id: @evento.id)) %>">
+          <%= link_to edit_evento_path(etapa: "B", id: @evento.id) do %>
+            <i class="fa fa-bullseye"></i><span>Barberos</span>
+          <% end %>
+        </li>
+
+      <% end %>
+      </li>
+    </ul>
+  </section>
+</aside>

@@ -1,89 +1,82 @@
 class EventosController < ApplicationController
-  before_action :set_evento, only: [:show, :edit, :update, :destroy]
-  before_action :load_collections, only: [:new, :create, :edit, :update]
+  before_action :set_evento, only: [:show, :edit, :update, :destroy, :vertasas]
 
-  # GET /eventos
-  # GET /eventos.json
+  layout :set_layout
+  before_action :checkaccess
+
+  def checkaccess
+    return is_permit('eventos')
+  end
+
   def index
-    if is_sygma
-      @q = Evento.ransack(params[:q])
-      @eventos = @q.result.paginate(:page => params[:page], :per_page => 10)
-      respond_to do |format|
-        format.html
-      end
-    else
-      redirect_to root_path
-    end
+    @q = Evento.ransack(params[:q])
+    @eventos = @q.result.paginate(:page => params[:page], :per_page => 10)
   end
 
-  # GET /eventos/1
-  # GET /eventos/1.json
-  def show
-  end
-
-  # GET /eventos/new
   def new
     @evento = Evento.new
+    @evento.etapa = 'A'
+    render "evento_form"
   end
 
-  # GET /eventos/1/edit
   def edit
+    if @evento.etapa.to_s == "B"
+      @eventospersonas = @evento.eventospersonas.all
+    end
+    respond_to do |format|
+      format.html { render :action => "evento_form" }
+    end
   end
 
-  # POST /eventos
-  # POST /eventos.json
   def create
     @evento = Evento.new(evento_params)
-
-    respond_to do |format|
-      if @evento.save
-        format.html { redirect_to @evento, notice: 'Evento was successfully created.' }
-        format.json { render :show, status: :created, location: @evento }
-      else
-        format.html { render :new }
-        format.json { render json: @evento.errors, status: :unprocessable_entity }
-      end
+    @evento.etapa = params[:etapa]
+    @evento.user_id = is_admin
+    if @evento.save
+      flash[:notice] = "Creado con Exito."
+      redirect_to edit_evento_path(@evento)
+    else
+      render "evento_form"
     end
   end
 
-  def load_collections
-    @iglesias = Iglesia.order(:nombre)
-    @iglesias_comunidad = Iglesiascomunidad.order(:nombre)
-    @tipos_evento = Tiposevento.order(:descripcion)
-  end
-
-  # PATCH/PUT /eventos/1
-  # PATCH/PUT /eventos/1.json
   def update
-    respond_to do |format|
-      if @evento.update(evento_params)
-        format.html { redirect_to @evento, notice: 'Evento was successfully updated.' }
-        format.json { render :show, status: :ok, location: @evento }
-      else
-        format.html { render :edit }
-        format.json { render json: @evento.errors, status: :unprocessable_entity }
-      end
+    @evento.user_act = is_admin
+    if @evento.update(evento_params)
+      flash[:notice] = "El registro ha sido actualizado con Exito."
+      redirect_to edit_evento_path(@evento)
+    else
+      render "evento_form"
     end
   end
 
-  # DELETE /eventos/1
-  # DELETE /eventos/1.json
   def destroy
     @evento.destroy
+    flash[:notice] = "El registro ha sido borrado con Exito."
     respond_to do |format|
-      format.html { redirect_to eventos_url, notice: 'Evento was successfully destroyed.' }
-      format.json { head :no_content }
+      format.html { redirect_to(eventos_url) }
+      format.xml { head :ok }
     end
   end
 
   private
-    # Use callbacks to share common setup or constraints between actions.
-    def set_evento
-      @evento = Evento.find(params[:id])
-    end
 
-    # Only allow a list of trusted parameters through.
-    def evento_params
-      params.require(:evento).permit(:guid, :iglesia_id, :iglesiascomunidad_id, :tiposevento_id, :fecha_inicio, :fecha_fin, :detalle, :estado, :user_id, :user_act)
+  def set_layout
+    if ['index', 'new'].include?(action_name)
+      'application_admin'
+    elsif ['edit'].include?(action_name)
+      'application_eventos'
+    else
+      "application_admin"
     end
+  end
+
+  def set_evento
+    params[:etapa].to_s != "" ? Evento.find(params[:id]).update_columns(etapa: params[:etapa].to_s) : nil
+    @evento = Evento.find(params[:id])
+  end
+
+  def evento_params
+    params.require(:evento).permit!
+  end
 end

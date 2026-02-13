@@ -1,7 +1,11 @@
 Rails.application.routes.draw do
 
   resources :eventospersonas
-  resources :eventos
+
+  resources :eventos do
+    resources :eventospersonas
+  end
+
   resources :tiposeventos
   resources :iglesiascomunidades
   resources :iglesias
