@@ -1,11 +1,19 @@
 class IglesiascomunidadesController < ApplicationController
+  before_action :set_iglesia
   before_action :set_iglesiascomunidad, only: [:show, :edit, :update, :destroy]
 
   # GET /iglesiascomunidades
   # GET /iglesiascomunidades.json
   def index
-    @iglesiascomunidades = Iglesiascomunidad.all
+    @iglesia = Iglesia.find(params[:iglesia_id])
+
+    # Crear objeto Ransack para búsquedas
+    @q = @iglesia.iglesiascomunidades.ransack(params[:q])
+
+    # Obtener resultados filtrados
+    @iglesiascomunidades = @q.result(distinct: true).order(:nombre).paginate(page: params[:page], per_page: 10)
   end
+
 
   # GET /iglesiascomunidades/1
   # GET /iglesiascomunidades/1.json
@@ -14,8 +22,10 @@ class IglesiascomunidadesController < ApplicationController
 
   # GET /iglesiascomunidades/new
   def new
-    @iglesiascomunidad = Iglesiascomunidad.new
+    @iglesia = Iglesia.find(params[:iglesia_id])
+    @iglesiacomunidad = @iglesia.iglesiascomunidades.build
   end
+
 
   # GET /iglesiascomunidades/1/edit
   def edit
@@ -24,18 +34,20 @@ class IglesiascomunidadesController < ApplicationController
   # POST /iglesiascomunidades
   # POST /iglesiascomunidades.json
   def create
-    @iglesiascomunidad = Iglesiascomunidad.new(iglesiascomunidad_params)
+    @iglesia = Iglesia.find(params[:iglesia_id])
+    @iglesiascomunidad = @iglesia.iglesiascomunidades.build(iglesiascomunidad_params)
 
     respond_to do |format|
       if @iglesiascomunidad.save
-        format.html { redirect_to @iglesiascomunidad, notice: 'Iglesiascomunidad was successfully created.' }
-        format.json { render :show, status: :created, location: @iglesiascomunidad }
+        format.html { redirect_to @iglesia, notice: 'Registro creado correctamente.' }
+        format.js   # si usas AJAX
       else
         format.html { render :new }
-        format.json { render json: @iglesiascomunidad.errors, status: :unprocessable_entity }
+        format.js   { render :new }
       end
     end
   end
+
 
   # PATCH/PUT /iglesiascomunidades/1
   # PATCH/PUT /iglesiascomunidades/1.json
@@ -67,6 +79,9 @@ class IglesiascomunidadesController < ApplicationController
       @iglesiascomunidad = Iglesiascomunidad.find(params[:id])
     end
 
+  def set_iglesia
+    @iglesia = Iglesia.find(params[:iglesia_id])
+  end
     # Only allow a list of trusted parameters through.
     def iglesiascomunidad_params
       params.require(:iglesiascomunidad).permit(:iglesia_id, :nombre, :estado, :user_id, :user_act)

@@ -1,42 +1,62 @@
-<%= form_for(iglesiascomunidad) do |f| %>
-  <% if iglesiascomunidad.errors.any? %>
-    <div id="error_explanation">
-      <h2><%= pluralize(iglesiascomunidad.errors.count, "error") %> prohibited this iglesiascomunidad from being saved:</h2>
+<%= simple_form_for [@iglesia, @iglesiacomunidad], remote: true do |f| %>
 
-      <ul>
-      <% iglesiascomunidad.errors.full_messages.each do |message| %>
-        <li><%= message %></li>
-      <% end %>
-      </ul>
+  <div class="bs-callout">
+
+    <% if @iglesiacomunidad.errors.any? %>
+      <div class="alert alert-danger">
+        <h4><%= pluralize(@iglesiacomunidad.errors.count, "error") %> impidieron guardar el registro:</h4>
+        <ul>
+          <% @iglesiacomunidad.errors.full_messages.each do |message| %>
+            <li><%= message %></li>
+          <% end %>
+        </ul>
+      </div>
+    <% end %>
+
+    <!-- FILA 1 -->
+    <div class="row">
+      <div class="col-md-6">
+        <%= f.input :nombre,
+                    input_html: {
+                      class: 'clean',
+                      onChange: 'this.value=this.value.toUpperCase();'
+                    } %>
+      </div>
+
+      <div class="col-md-6">
+        <%= f.input :estado, collection: select_estado, as: :select, input_html: { data: { width: '100%' }, class: 'select2' } %>
+
+      </div>
     </div>
-  <% end %>
 
-  <div class="field">
-    <%= f.label :iglesia_id %>
-    <%= f.text_field :iglesia_id %>
+    <!-- FILA 2 -->
+    <%= f.hidden_field :user_id %>
+    <%= f.hidden_field :user_act %>
+
+    <!-- BOTONES -->
+    <div class="row">
+      <div class="col-md-6">
+        <% if @iglesiacomunidad.new_record? %>
+          <%= button_tag "#{t :cancelar}",
+                         type: 'button',
+                         data: { target: '#iglesiacomunidades_form' },
+                         class: 'cancel_button btn btn-flat btn-default pull-left' %>
+        <% else %>
+          <%= link_to "#{t :cancelar}",
+                      iglesia_iglesiacomunidad_path(@iglesia, @iglesiacomunidad),
+                      class: 'btn btn-flat btn-default pull-left',
+                      remote: true %>
+        <% end %>
+      </div>
+
+      <div class="col-md-6">
+        <%= f.button :submit, "#{t :guardar}",
+                     class: "btn btn-danger pull-right" %>
+      </div>
+    </div>
+
   </div>
 
-  <div class="field">
-    <%= f.label :nombre %>
-    <%= f.text_field :nombre %>
-  </div>
-
-  <div class="field">
-    <%= f.label :estado %>
-    <%= f.text_field :estado %>
-  </div>
-
-  <div class="field">
-    <%= f.label :user_id %>
-    <%= f.text_field :user_id %>
-  </div>
-
-  <div class="field">
-    <%= f.label :user_act %>
-    <%= f.number_field :user_act %>
-  </div>
-
-  <div class="actions">
-    <%= f.submit %>
-  </div>
 <% end %>
+
+<br/>

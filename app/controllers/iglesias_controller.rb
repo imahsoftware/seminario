@@ -35,6 +35,7 @@ class IglesiasController < ApplicationController
   # POST /iglesias.json
   def create
     @iglesia = Iglesia.new(iglesia_params)
+    @iglesia.user_id = is_admin
     respond_to do |format|
       if @iglesia.save
         flash[:notice] = "#{t :notice_crea_msj}"
@@ -48,6 +49,7 @@ class IglesiasController < ApplicationController
   # PATCH/PUT /iglesias/1
   # PATCH/PUT /iglesias/1.json
   def update
+    @iglesia.user_act = is_admin
     respond_to do |format|
       if @iglesia.update(iglesia_params)
         flash[:notice] = "#{t :notice_actualiza_msj}"
