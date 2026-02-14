@@ -1,29 +1,4 @@
-<p id="notice"><%= notice %></p>
+$("#iglesiascomunidad_<%= @iglesiacomunidad.id %>")
+    .replaceWith("<%= j render 'tr', iglesia: @iglesia , comunidad: @iglesiacomunidad%>");
 
-<p>
-  <strong>Iglesia:</strong>
-  <%= @iglesiascomunidad.iglesia %>
-</p>
-
-<p>
-  <strong>Nombre:</strong>
-  <%= @iglesiascomunidad.nombre %>
-</p>
-
-<p>
-  <strong>Estado:</strong>
-  <%= @iglesiascomunidad.estado %>
-</p>
-
-<p>
-  <strong>User:</strong>
-  <%= @iglesiascomunidad.user %>
-</p>
-
-<p>
-  <strong>User act:</strong>
-  <%= @iglesiascomunidad.user_act %>
-</p>
-
-<%= link_to 'Edit', edit_iglesiascomunidad_path(@iglesiascomunidad) %> |
-<%= link_to 'Back', iglesiascomunidades_path %>
+$('[data-toggle="tooltip"]').tooltip();

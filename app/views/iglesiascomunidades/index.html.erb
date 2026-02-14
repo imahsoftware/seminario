@@ -2,7 +2,7 @@
   <div class="box-header">
     <!-- Botón Atrás a la izquierda -->
     <div class="pull-left">
-      <%= link_to iglesias_path  do %>
+      <%= link_to iglesias_path do %>
         <i class="fa fa-arrow-left"></i>
       <% end %>
     </div>
@@ -23,75 +23,29 @@
       <% end %>
       <div class="box-tools pull-right">
 
-      <!-- Buscador -->
-      <%= search_form_for @q, url: iglesia_iglesiascomunidades_path(@iglesia), method: :get do |f| %>
-        <div class="input-group input-group-sm" style="width: 180px;">
-          <%= f.search_field :nombre_cont,
-                             onChange: 'javascript:this.value=this.value.toUpperCase();',
-                             class: 'form-control pull-right input_uppercase',
-                             placeholder: 'Buscar...' %>
-          <div class="input-group-btn">
-            <%= button_tag(type: "submit", class: "btn btn-default") do %>
-              <i class="fa fa-search"></i>
-            <% end %>
+        <!-- Buscador -->
+        <%= search_form_for @q, url: iglesia_iglesiascomunidades_path(@iglesia), method: :get do |f| %>
+          <div class="input-group input-group-sm" style="width: 180px;">
+            <%= f.search_field :nombre_cont,
+                               onChange: 'javascript:this.value=this.value.toUpperCase();',
+                               class: 'form-control pull-right input_uppercase',
+                               placeholder: 'Buscar...' %>
+            <div class="input-group-btn">
+              <%= button_tag(type: "submit", class: "btn btn-default") do %>
+                <i class="fa fa-search"></i>
+              <% end %>
+            </div>
           </div>
-        </div>
-      <% end %>
+        <% end %>
+      </div>
     </div>
-  </div>
   </div>
   <!-- Resto del box-body con tabla y paginador sigue igual -->
   <div class="box-body">
     <div id="iglesiascomunidades_form"></div>
 
     <div id="iglesiascomunidades">
-      <% if @iglesiascomunidades.present? %>
-        <div class="table-responsive">
-          <table class="table table-bordered">
-            <thead>
-            <tr class="thcolor">
-              <% if is_auth_a('iglesiascomunidades') %>
-                <th class="text-center">Acciones</th>
-              <% end %>
-              <th>Nombre Comunidad</th>
-              <th>Estado</th>
-            </tr>
-            </thead>
-            <tbody>
-            <% @iglesiascomunidades.each do |comunidad| %>
-              <tr>
-                <% if is_auth_a('iglesiascomunidades') %>
-                  <td class="text-center">
-                    <%= link_to edit_iglesia_iglesiascomunidad_path(@iglesia, comunidad),
-                                class: 'btn btn-xs btn-warning',
-                                remote: true,
-                                data: { toggle: 'tooltip' },
-                                title: "#{t :title_editar}" do %>
-                      <i class="fa fa-edit"></i>
-                    <% end %>
-
-                    <%= link_to iglesia_iglesiascomunidad_path(@iglesia, comunidad),
-                                method: :delete,
-                                remote: true,
-                                data: { confirm: "#{t :elimina_confirma}", toggle: 'tooltip' },
-                                title: "#{t :title_elimina}" do %>
-                      <i class="fa fa-trash btn btn-xs btn-danger"></i>
-                    <% end %>
-                  </td>
-                <% end %>
-                <td><%= comunidad.nombre %></td>
-                <td><%= comunidad.estado %></td>
-              </tr>
-            <% end %>
-            </tbody>
-          </table>
-        </div>
-      <% else %>
-        <div class="alert alert-danger">
-          <h4><i class="icon fa fa-info"></i> <%= t :atencion %></h4>
-          <%= t :atencion_msj %>
-        </div>
-      <% end %>
+      <%= render 'tabla', iglesia: @iglesia, iglesiascomunidades: @iglesiascomunidades %>
     </div>
 
     <div class="box-tools pull-right">

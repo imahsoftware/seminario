@@ -1,6 +1,17 @@
-<h1>Editing Iglesiascomunidad</h1>
+$("#iglesiascomunidades_form").collapse("hide");
+$("#iglesiascomunidades_form").empty();
 
-<%= render 'form', iglesiascomunidad: @iglesiascomunidad %>
+<% if @active_record.present? %>
+$("#iglesiascomunidad_<%= @active_record.id %>")
+    .replaceWith("<%= j render 'tr', comunidad: @active_record, iglesia: @iglesia %>");
+<% end %>
 
-<%= link_to 'Show', @iglesiascomunidad %> |
-<%= link_to 'Back', iglesiascomunidades_path %>
+$("#iglesiascomunidad_<%= @iglesiacomunidad.id %>").html("<td colspan='3'><%= j render 'form' %></td>");
+
+$("#iglesiacomunidad_<%= @iglesiacomunidad.id %>").addClass("active_iglesia");
+
+$(".select2").select2();
+
+$(".tooltip").tooltip("hide");
+
+$('[data-toggle="tooltip"]').tooltip();

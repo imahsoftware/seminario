@@ -18,6 +18,12 @@ class IglesiascomunidadesController < ApplicationController
   # GET /iglesiascomunidades/1
   # GET /iglesiascomunidades/1.json
   def show
+    @iglesia = Iglesia.find(params[:iglesia_id])
+    @iglesiacomunidad = @iglesia.iglesiascomunidades.find(params[:id])
+
+    respond_to do |format|
+      format.js
+    end
   end
 
   # GET /iglesiascomunidades/new
@@ -29,14 +35,17 @@ class IglesiascomunidadesController < ApplicationController
 
   # GET /iglesiascomunidades/1/edit
   def edit
+    @iglesia = Iglesia.find(params[:iglesia_id])
+    @iglesiacomunidad = @iglesia.iglesiascomunidades.find(params[:id])
   end
+
 
   # POST /iglesiascomunidades
   # POST /iglesiascomunidades.json
   def create
     @iglesia = Iglesia.find(params[:iglesia_id])
     @iglesiascomunidad = @iglesia.iglesiascomunidades.build(iglesiascomunidad_params)
-
+    @iglesiascomunidad.user_id = is_admin
     respond_to do |format|
       if @iglesiascomunidad.save
         format.html { redirect_to @iglesia, notice: 'Registro creado correctamente.' }
@@ -52,26 +61,33 @@ class IglesiascomunidadesController < ApplicationController
   # PATCH/PUT /iglesiascomunidades/1
   # PATCH/PUT /iglesiascomunidades/1.json
   def update
+    @iglesiascomunidad.user_act = is_admin
     respond_to do |format|
       if @iglesiascomunidad.update(iglesiascomunidad_params)
-        format.html { redirect_to @iglesiascomunidad, notice: 'Iglesiascomunidad was successfully updated.' }
-        format.json { render :show, status: :ok, location: @iglesiascomunidad }
+        flash[:notice] = "#{t :notice_actualiza_msj}"
+        format.js
       else
-        format.html { render :edit }
-        format.json { render json: @iglesiascomunidad.errors, status: :unprocessable_entity }
+        format.js { render 'layouts/errors', locals: { object: @iglesiascomunidad } }
+
       end
     end
   end
 
+
+
+
   # DELETE /iglesiascomunidades/1
   # DELETE /iglesiascomunidades/1.json
   def destroy
-    @iglesiascomunidad.destroy
-    respond_to do |format|
-      format.html { redirect_to iglesiascomunidades_url, notice: 'Iglesiascomunidad was successfully destroyed.' }
-      format.json { head :no_content }
+    @iglesiascomunidad = @iglesia.iglesiascomunidades.find(params[:id])
+
+    if @iglesiascomunidad.destroy
+      flash[:success] = 'Eliminado con éxito'
+    else
+      flash[:error] = @iglesiascomunidad.errors.full_messages.to_sentence
     end
   end
+
 
   private
     # Use callbacks to share common setup or constraints between actions.

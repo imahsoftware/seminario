@@ -29,21 +29,18 @@
       </div>
     </div>
 
-    <!-- FILA 2 -->
-    <%= f.hidden_field :user_id %>
-    <%= f.hidden_field :user_act %>
-
     <!-- BOTONES -->
     <div class="row">
       <div class="col-md-6">
         <% if @iglesiacomunidad.new_record? %>
-          <%= button_tag "#{t :cancelar}",
+          <%= button_tag t(:cancelar),
                          type: 'button',
-                         data: { target: '#iglesiacomunidades_form' },
+                         data: { target: '#iglesiascomunidades_form' },
                          class: 'cancel_button btn btn-flat btn-default pull-left' %>
-        <% else %>
+
+      <% else %>
           <%= link_to "#{t :cancelar}",
-                      iglesia_iglesiacomunidad_path(@iglesia, @iglesiacomunidad),
+                      iglesia_iglesiascomunidad_path(@iglesia, @iglesiacomunidad),
                       class: 'btn btn-flat btn-default pull-left',
                       remote: true %>
         <% end %>

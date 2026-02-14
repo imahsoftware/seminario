@@ -1,0 +1,26 @@
+<% if iglesiascomunidades.present? %>
+  <div class="table-responsive">
+    <table class="table table-bordered">
+      <thead>
+      <tr class="thcolor">
+        <% if is_auth_a('iglesiascomunidades') %>
+          <th class="text-center" style="width:10%">Acciones</th>
+        <% end %>
+        <th>Nombre Comunidad</th>
+        <th>Estado</th>
+      </tr>
+      </thead>
+      <tbody  id="tbody_iglesiascomunidades">
+      <%= render partial: 'tr',
+                 collection: iglesiascomunidades,
+                 as: :comunidad,
+                 locals: { iglesia: iglesia } %>
+      </tbody>
+    </table>
+  </div>
+<% else %>
+  <div class="alert alert-danger">
+    <h4><i class="icon fa fa-info"></i> <%= t :atencion %></h4>
+    <%= t :atencion_msj %>
+  </div>
+<% end %>

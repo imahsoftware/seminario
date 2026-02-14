@@ -2,11 +2,12 @@ $(".alert_flash").fadeOut(1000, function() {
 	$(this).remove();
 });
 
-<% if @iglesias.present? %>
-	$("#iglesias").html("<%= j render 'tabla' %>");
-<% else %>
-	$("#tbody_iglesias").prepend("<%= j render 'tr', iglesia: @iglesia, iglesiascomunidad:@iglesiacomunidad   %>");
-<% end %>
+$("#tbody_iglesiascomunidades")
+	.prepend("<%= j render partial: 'tr',
+                        locals: { iglesia: @iglesia,
+                                  comunidad: @iglesiascomunidad } %>");
+
+$("#iglesiascomunidades_form").empty();
 
 $(".clean").val("").trigger('change');
 

@@ -2,7 +2,7 @@ $(".alert_flash").fadeOut(1000, function() {
 	$(this).remove();
 });
 
-$("#iglesia_<%= @iglesia.id %>").replaceWith("<%= j render 'tr', iglesia: @iglesia %>");
+$("#iglesiascomunidad_<%= @iglesiascomunidad.id %>").replaceWith("<%= j render 'tr', iglesia: @iglesia , comunidad:@iglesiascomunidad %>");
 
 $('[data-toggle="tooltip"]').tooltip();
 

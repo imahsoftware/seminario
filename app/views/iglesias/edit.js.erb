@@ -3,7 +3,7 @@ $("#iglesia_form").collapse("hide");
 $("#iglesia_form").empty();
 
 <% if @active_record.present? %>
-	$("#iglesia_<%= @active_record.id %>").replaceWith("<%= j render 'tr', modulo: @active_record %>");
+	$("#iglesia_<%= @active_record.id %>").replaceWith("<%= j render 'tr', iglesia: @active_record %>");
 <% end %>
 
 $("#iglesia_<%= @iglesia.id %>").html("<td colspan='7'><%= j render 'form' %></td>");

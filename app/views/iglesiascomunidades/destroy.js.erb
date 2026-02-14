@@ -1,19 +1,12 @@
-$(".alert_flash").fadeOut(1000, function() {
-	$(this).remove();
-});
+$("#iglesiascomunidad_<%= @iglesiascomunidad.id %>").remove();
 
-<% if Iglesia.all.count == 0 %>
-$("#iglesias").html("<div class='alert alert-danger'><h4><i class='icon fa fa-info'></i> <%=t :atencion%></h4><%=t :atencion_msj%><span></div>");
-<% else %>
-$("#iglesia_<%= @iglesia.id %>").remove();
+<% if @iglesia.iglesiascomunidades.reload.empty? %>
+$("#iglesiascomunidades").html(`
+  <div class="alert alert-danger">
+    <h4><i class="icon fa fa-info"></i> <%= t :atencion %></h4>
+    <%= t :atencion_msj %>
+  </div>
+`);
 <% end %>
 
 $(".flash_messages").html("<%= j render 'layouts/flash_messages' %>");
-
-setTimeout(function() {
-	$(".alert_flash").fadeOut(1000, function() {
-		$(this).remove();
-	});
-}, 5000);
-
-$('.tooltip').tooltip('hide');
