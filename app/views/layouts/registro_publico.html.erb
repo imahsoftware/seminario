@@ -14,9 +14,14 @@
   <%= stylesheet_link_tag 'application', media: 'all' %>
   <%= javascript_include_tag 'application' %>
 
+  <!-- CDN de Bootstrap Datepicker con locale español -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/css/bootstrap-datepicker3.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/js/bootstrap-datepicker.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/locales/bootstrap-datepicker.es.min.js"></script>
+
   <style>
       body {
-          background: linear-gradient(135deg, #ecf0f5 0%, #ecf0f5 100%);
+          background: linear-gradient(135deg, #071B7D 0%, #0a2db5 100%);
           min-height: 100vh;
           font-family: 'Source Sans Pro', sans-serif;
           padding: 20px 0;
@@ -169,6 +174,21 @@
           margin: 0;
       }
 
+      /* Mejoras visuales para el datepicker */
+      .datepicker table tr td.today {
+          background-color: #071B7D !important;
+          color: white !important;
+      }
+
+      .datepicker table tr td.active {
+          background-color: #071B7D !important;
+          color: white !important;
+      }
+
+      .datepicker table tr td.active:hover {
+          background-color: #05145a !important;
+      }
+
       @media (max-width: 768px) {
           .panel-body {
               padding: 20px 15px;
@@ -219,60 +239,115 @@
 
 <!-- Script para inicializar Select2 y Datepicker -->
 <script>
-    $(document).ready(function() {
-        // Inicializar Select2
-        if (typeof $.fn.select2 !== 'undefined') {
-            $('.select2').select2({
-                width: '100%',
-                placeholder: 'Seleccione...',
-                allowClear: true
-            });
-        }
+    (function() {
+        console.log('📅 Inicializando datepicker con selectores...');
 
-        // Inicializar Datepicker
-        if (typeof $.fn.datepicker !== 'undefined') {
-            $('.datepicker').datepicker({
-                format: 'dd/mm/yyyy',
-                autoclose: true,
-                todayHighlight: true,
-                language: 'es'
-            });
-        }
-
-        // Auto-cerrar alertas de éxito después de 5 segundos
-        setTimeout(function() {
-            $('.alert-success').fadeOut('slow');
-        }, 5000);
-
-        // Auto-cerrar alertas de advertencia después de 7 segundos
-        setTimeout(function() {
-            $('.alert-warning').fadeOut('slow');
-        }, 7000);
-
-        // Validación de formularios
-        $('form').on('submit', function(e) {
-            var politica = $('input[name="eventospersona[acepta_politica]"]');
-            var cultura = $('input[name="eventospersona[acepta_cultura]"]');
-
-            if (politica.length && !politica.is(':checked')) {
-                e.preventDefault();
-                alert('Debe aceptar las políticas de tratamiento de datos personales');
-                politica.focus();
-                return false;
+        jQuery(document).ready(function($) {
+            // Inicializar Select2
+            if (typeof $.fn.select2 !== 'undefined') {
+                $('.select2').select2({
+                    width: '100%',
+                    placeholder: 'Seleccione...',
+                    allowClear: true
+                });
+                console.log('✅ Select2 inicializado');
             }
 
-            if (cultura.length && !cultura.is(':checked')) {
-                e.preventDefault();
-                alert('Debe aceptar la cultura organizacional');
-                cultura.focus();
-                return false;
+            // CONFIGURACIÓN DEL DATEPICKER CON TÍTULO CLICKEABLE (pseudo-selectores)
+            if (typeof $.fn.datepicker !== 'undefined') {
+
+                // DESTRUIR cualquier datepicker existente primero
+                $('.datepicker').datepicker('destroy');
+
+                // Inicializar con configuración COMPLETA EN ESPAÑOL
+                $('.datepicker').datepicker({
+                    format: 'dd/mm/yyyy',              // ✅ FORMATO dd/mm/yyyy
+                    language: 'es',                    // ✅ ESPAÑOL
+                    autoclose: true,                   // Cierra al seleccionar
+                    todayHighlight: true,              // Resalta hoy
+                    orientation: 'bottom auto',        // Orientación automática
+                    endDate: new Date(),               // ✅ No permite fechas futuras (hoy como máximo)
+                    startDate: '-100y',                // Hasta 100 años atrás
+                    forceParse: true,                  // Fuerza el parseo
+                    todayBtn: 'linked',                // Botón "Hoy" enlazado
+                    clearBtn: false,                   // Sin botón limpiar
+                    disableTouchKeyboard: true,        // Deshabilita teclado táctil
+                    enableOnReadonly: true,            // Funciona en readonly
+                    immediateUpdates: true,            // Actualiza inmediatamente
+                    weekStart: 1,                      // ✅ Semana empieza en Lunes (Europa/Latinoamérica)
+                    daysOfWeekHighlighted: [0,6],      // Resalta fines de semana
+                    calendarWeeks: false,              // Sin número de semana
+                    // ✅ CLAVE: Al hacer click en el título, navega por años/meses
+                    title: 'Seleccione una fecha',
+                    maxViewMode: 2,                    // 0=días, 1=meses, 2=años
+                    minViewMode: 0                     // Vista mínima: días
+                });
+
+                console.log('✅ Datepicker configurado: español + navegación por título');
+                console.log('💡 Haz click en "Marzo 2022" para navegar por meses/años');
+
+                // EVENTO: Cuando se selecciona una fecha
+                $('.datepicker').on('changeDate', function(e) {
+                    if (e.date) {
+                        var dia = ("0" + e.date.getDate()).slice(-2);
+                        var mes = ("0" + (e.date.getMonth() + 1)).slice(-2);
+                        var anio = e.date.getFullYear();
+                        var fechaFormateada = dia + '/' + mes + '/' + anio;
+
+                        console.log('📅 Fecha seleccionada:', fechaFormateada);
+
+                        $(this).val(fechaFormateada);
+                        $(this).trigger('change');
+                    }
+                });
+
+                // Prevenir escritura manual
+                $('.datepicker').on('keydown', function(e) {
+                    if ($.inArray(e.keyCode, [46, 8, 9, 27, 13]) !== -1) {
+                        return;
+                    }
+                    e.preventDefault();
+                });
+
+                // Click para abrir
+                $('.datepicker').on('click focus', function() {
+                    $(this).datepicker('show');
+                });
+
+            } else {
+                console.error('❌ Bootstrap Datepicker no está disponible');
             }
 
-            var $submitBtn = $(this).find('button[type="submit"]');
-            $submitBtn.prop('disabled', true);
-            $submitBtn.html('<i class="fa fa-spinner fa-spin"></i> Procesando...');
+            // Auto-cerrar alertas
+            setTimeout(function() { $('.alert-success').fadeOut('slow'); }, 5000);
+            setTimeout(function() { $('.alert-warning').fadeOut('slow'); }, 7000);
+
+            // Validación de formularios
+            $('form').on('submit', function(e) {
+                var politica = $('input[name="eventospersona[acepta_politica]"]');
+                var cultura = $('input[name="eventospersona[acepta_cultura]"]');
+
+                if (politica.length && !politica.is(':checked')) {
+                    e.preventDefault();
+                    alert('Debe aceptar las políticas de tratamiento de datos personales');
+                    return false;
+                }
+
+                if (cultura.length && !cultura.is(':checked')) {
+                    e.preventDefault();
+                    alert('Debe aceptar la cultura organizacional');
+                    return false;
+                }
+
+                var $submitBtn = $(this).find('button[type="submit"]');
+                $submitBtn.prop('disabled', true);
+                $submitBtn.html('<i class="fa fa-spinner fa-spin"></i> Procesando...');
+            });
+
+            console.log('✅ Inicialización completa');
+            console.log('💡 TIP: Haz click en el título del mes/año para navegar rápidamente');
         });
-    });
+    })();
 </script>
 </body>
 </html>

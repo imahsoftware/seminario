@@ -3,10 +3,11 @@ Rails.application.routes.draw do
   resources :eventospersonas
 
 
-  get 'registro/:guid', to: 'registro_eventos#show', as: 'registro_evento'
-  post 'registro/:guid', to: 'registro_eventos#create'
-  get 'registro/:guid/exito', to: 'registro_eventos#exito', as: 'exito_registro_evento'
+  guid_constraint = { guid: /[A-Z0-9]{8}/ }
 
+  get 'registro/:guid', to: 'registro_eventos#show', as: 'registro_evento', constraints: guid_constraint
+  post 'registro/:guid', to: 'registro_eventos#create', constraints: guid_constraint
+  get 'registro/:guid/exito', to: 'registro_eventos#exito', as: 'exito_registro_evento', constraints: guid_constraint
 
   resources :eventos do
     member do

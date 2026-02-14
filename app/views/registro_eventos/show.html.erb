@@ -16,6 +16,18 @@
             <p><strong>Vigencia de Registro:</strong> Hasta el <%= @evento.fecha_fin.strftime("%d/%m/%Y") rescue '' %></p>
           </div>
 
+          <!-- Mostrar errores de validación -->
+          <% if @eventospersona.errors.any? %>
+            <div class="alert alert-danger">
+              <h4><i class="fa fa-exclamation-triangle"></i> Se encontraron <%= @eventospersona.errors.count %> errores:</h4>
+              <ul style="margin-bottom: 0;">
+                <% @eventospersona.errors.full_messages.each do |message| %>
+                  <li><%= message %></li>
+                <% end %>
+              </ul>
+            </div>
+          <% end %>
+
           <%= simple_form_for @eventospersona, url: registro_evento_path(@evento.guid), method: :post, html: { id: 'form-registro-evento' } do |f| %>
 
             <h4 class="text-primary">
@@ -24,14 +36,17 @@
             <hr>
 
             <div class="row">
-              <div class="col-md-4">
+              <div class="col-md-3">
                 <%= f.input :identificacion, label: "Identificación", required: true, input_html: { class: 'form-control' } %>
               </div>
-              <div class="col-md-4">
+              <div class="col-md-3">
                 <%= f.input :nombre, label: "Nombre", required: true, input_html: { class: 'form-control', onchange: 'this.value=this.value.toUpperCase();' } %>
               </div>
-              <div class="col-md-4">
+              <div class="col-md-3">
                 <%= f.input :apellido, label: "Apellido", required: true, input_html: { class: 'form-control', onchange: 'this.value=this.value.toUpperCase();' } %>
+              </div>
+              <div class="col-md-3">
+                <%= f.input :tipo_persona, label: "Tipo", collection: ['CASADO', 'SEMINARISTA', 'SOLTERO'], required: true, input_html: { class: 'select2', id: 'tipo_persona' }, include_blank: 'Seleccione...' %>
               </div>
             </div>
 
@@ -42,8 +57,11 @@
                   <div class="input-group-addon" style="background: #EDEDED;">
                     <i class="fa fa-calendar"></i>
                   </div>
-                  <%= f.input :fecha_nacimiento, as: :string, label: false, required: true, input_html: { class: 'form-control datepicker', autocomplete: 'off', placeholder: 'dd/mm/yyyy' } %>
+                  <%= f.input :fecha_nacimiento, as: :string, label: false, required: true, input_html: { class: 'form-control datepicker', autocomplete: 'off', placeholder: 'dd/mm/yyyy', id: 'fecha_nacimiento', readonly: true } %>
                 </div>
+                <small class="text-muted" id="edad-info" style="margin-top: 5px; display: none;">
+                  <i class="fa fa-info-circle"></i> <span id="edad-texto"></span>
+                </small>
               </div>
               <div class="col-md-4">
                 <%= f.input :celular, label: "Celular", required: true, input_html: { class: 'form-control', maxlength: 20 } %>
@@ -54,41 +72,45 @@
             </div>
 
             <div class="row">
-              <div class="col-md-8">
+              <div class="col-md-6">
                 <%= f.input :direccion, label: "Dirección", required: true, input_html: { class: 'form-control', onchange: 'this.value=this.value.toUpperCase();' } %>
               </div>
-              <div class="col-md-2">
+              <div class="col-md-3">
                 <%= f.input :sexo, label: "Sexo", collection: [['MASCULINO', 'M'], ['FEMENINO', 'F']], required: true, input_html: { class: 'select2' }, include_blank: 'Seleccione...' %>
               </div>
-              <div class="col-md-2">
+              <div class="col-md-3">
                 <%= f.input :estado_civil, label: "Estado Civil", collection: ['SOLTERO', 'CASADO', 'UNION LIBRE', 'DIVORCIADO', 'VIUDO'], required: true, input_html: { class: 'select2' }, include_blank: 'Seleccione...' %>
               </div>
             </div>
 
-            <h4 class="text-primary" style="margin-top: 30px;">
-              <i class="fa fa-users"></i> Información del Acudiente (Opcional)
-            </h4>
-            <p class="text-muted"><small>Complete esta sección solo si es menor de edad o requiere un acudiente</small></p>
-            <hr>
+            <!-- Sección de Acudiente - Oculta por defecto -->
+            <div id="seccion-acudiente" style="display: none;">
+              <h4 class="text-primary" style="margin-top: 30px;">
+                <i class="fa fa-users"></i> Información del Acudiente
+                <span class="label label-danger">OBLIGATORIO - MENOR DE EDAD</span>
+              </h4>
+              <p class="text-danger"><small><i class="fa fa-exclamation-triangle"></i> Debes completar esta sección porque eres menor de 18 años</small></p>
+              <hr>
 
-            <div class="row">
-              <div class="col-md-4">
-                <%= f.input :acudiente_nombre, label: "Nombre del Acudiente", input_html: { class: 'form-control', onchange: 'this.value=this.value.toUpperCase();' } %>
+              <div class="row">
+                <div class="col-md-4">
+                  <%= f.input :acudiente_nombre, label: "Nombre del Acudiente", input_html: { class: 'form-control acudiente-field', onchange: 'this.value=this.value.toUpperCase();', id: 'acudiente_nombre' } %>
+                </div>
+                <div class="col-md-4">
+                  <%= f.input :acudiente_apellido, label: "Apellido del Acudiente", input_html: { class: 'form-control acudiente-field', onchange: 'this.value=this.value.toUpperCase();', id: 'acudiente_apellido' } %>
+                </div>
+                <div class="col-md-4">
+                  <%= f.input :acudiente_identificacion, label: "Identificación del Acudiente", input_html: { class: 'form-control acudiente-field', maxlength: 30, id: 'acudiente_identificacion' } %>
+                </div>
               </div>
-              <div class="col-md-4">
-                <%= f.input :acudiente_apellido, label: "Apellido del Acudiente", input_html: { class: 'form-control', onchange: 'this.value=this.value.toUpperCase();' } %>
-              </div>
-              <div class="col-md-4">
-                <%= f.input :acudiente_identificacion, label: "Identificación del Acudiente", input_html: { class: 'form-control', maxlength: 30 } %>
-              </div>
-            </div>
 
-            <div class="row">
-              <div class="col-md-6">
-                <%= f.input :acudiente_email, label: "Email del Acudiente", input_html: { class: 'form-control', type: 'email' } %>
-              </div>
-              <div class="col-md-6">
-                <%= f.input :acudiente_celular, label: "Celular del Acudiente", input_html: { class: 'form-control', maxlength: 20 } %>
+              <div class="row">
+                <div class="col-md-6">
+                  <%= f.input :acudiente_email, label: "Email del Acudiente", input_html: { class: 'form-control acudiente-field', type: 'email', id: 'acudiente_email' } %>
+                </div>
+                <div class="col-md-6">
+                  <%= f.input :acudiente_celular, label: "Celular del Acudiente", input_html: { class: 'form-control acudiente-field', maxlength: 20, id: 'acudiente_celular' } %>
+                </div>
               </div>
             </div>
 
@@ -149,45 +171,242 @@
 </div>
 
 <script>
-    $(document).ready(function() {
-        // Validación adicional en el cliente
-        $('#form-registro-evento').on('submit', function(e) {
-            var politica = $('input[name="eventospersona[acepta_politica]"]');
-            var cultura = $('input[name="eventospersona[acepta_cultura]"]');
+    (function() {
+        'use strict';
 
-            if (!politica.is(':checked')) {
-                e.preventDefault();
-                alert('⚠️ Debe aceptar las políticas de tratamiento de datos personales para continuar.');
-                politica.closest('.checkbox-required').addClass('animated shake');
-                setTimeout(function() {
-                    politica.closest('.checkbox-required').removeClass('animated shake');
-                }, 1000);
-                return false;
+        // Verificar que jQuery está cargado
+        if (typeof jQuery === 'undefined') {
+            console.error('❌ ERROR: jQuery no está cargado!');
+            alert('Error: jQuery no está cargado. Contacta al administrador.');
+            return;
+        }
+
+        console.log('✅ jQuery versión:', jQuery.fn.jquery);
+
+        jQuery(document).ready(function($) {
+            console.log('🔍 Script de validación de edad cargado');
+
+            // Verificar que el elemento existe
+            var $fechaNacimiento = $('#fecha_nacimiento');
+            if ($fechaNacimiento.length === 0) {
+                console.error('❌ ERROR: No se encontró el campo #fecha_nacimiento');
+                return;
+            }
+            console.log('✅ Campo fecha_nacimiento encontrado');
+
+            // Verificar que datepicker está disponible
+            if (typeof $.fn.datepicker === 'undefined') {
+                console.error('❌ ERROR: Bootstrap Datepicker no está cargado!');
+                alert('Error: El selector de fechas no está disponible. Contacta al administrador.');
+                return;
+            }
+            console.log('✅ Bootstrap Datepicker disponible');
+
+            // Función para calcular edad
+            function calcularEdad(fechaNacimiento) {
+                try {
+                    var hoy = new Date();
+                    var cumpleanos = new Date(fechaNacimiento);
+                    var edad = hoy.getFullYear() - cumpleanos.getFullYear();
+                    var mes = hoy.getMonth() - cumpleanos.getMonth();
+
+                    if (mes < 0 || (mes === 0 && hoy.getDate() < cumpleanos.getDate())) {
+                        edad--;
+                    }
+
+                    return edad;
+                } catch (error) {
+                    console.error('❌ Error calculando edad:', error);
+                    return null;
+                }
             }
 
-            if (!cultura.is(':checked')) {
-                e.preventDefault();
-                alert('⚠️ Debe aceptar la cultura organizacional para continuar.');
-                cultura.closest('.checkbox-required').addClass('animated shake');
-                setTimeout(function() {
-                    cultura.closest('.checkbox-required').removeClass('animated shake');
-                }, 1000);
-                return false;
+            // Función para convertir fecha dd/mm/yyyy a objeto Date
+            function convertirFecha(fechaStr) {
+                try {
+                    if (!fechaStr) return null;
+
+                    console.log('📅 Convirtiendo fecha:', fechaStr);
+
+                    var partes = fechaStr.split('/');
+                    if (partes.length !== 3) {
+                        console.log('❌ Formato de fecha inválido');
+                        return null;
+                    }
+
+                    var dia = parseInt(partes[0], 10);
+                    var mes = parseInt(partes[1], 10) - 1;
+                    var anio = parseInt(partes[2], 10);
+
+                    if (isNaN(dia) || isNaN(mes) || isNaN(anio)) {
+                        console.log('❌ Partes de fecha inválidas');
+                        return null;
+                    }
+
+                    var fecha = new Date(anio, mes, dia);
+                    console.log('✅ Fecha convertida:', fecha);
+                    return fecha;
+                } catch (error) {
+                    console.error('❌ Error convirtiendo fecha:', error);
+                    return null;
+                }
             }
+
+            // Función para validar y mostrar/ocultar sección de acudiente
+            function validarEdad() {
+                try {
+                    var fechaStr = $fechaNacimiento.val();
+
+                    console.log('🔍 Validando edad con fecha:', fechaStr);
+
+                    if (!fechaStr || fechaStr.trim() === '') {
+                        console.log('⚠️ Fecha vacía, ocultando sección');
+                        $('#seccion-acudiente').hide();
+                        $('#edad-info').hide();
+                        $('.acudiente-field').prop('required', false);
+                        return;
+                    }
+
+                    var fecha = convertirFecha(fechaStr);
+                    if (!fecha || isNaN(fecha.getTime())) {
+                        console.log('❌ Fecha inválida');
+                        return;
+                    }
+
+                    var edad = calcularEdad(fecha);
+                    if (edad === null) {
+                        console.log('❌ No se pudo calcular la edad');
+                        return;
+                    }
+
+                    console.log('🎂 Edad calculada:', edad);
+
+                    if (edad < 18) {
+                        // Es menor de edad
+                        console.log('👶 MENOR DE EDAD - Mostrando sección de acudiente');
+                        $('#edad-texto').text('Edad: ' + edad + ' años - Debes completar la información del acudiente');
+                        $('#edad-info').show().css('color', '#d9534f');
+                        $('#seccion-acudiente').slideDown(400);
+                        $('.acudiente-field').prop('required', true);
+                    } else {
+                        // Es mayor de edad
+                        console.log('👨 MAYOR DE EDAD - Ocultando sección de acudiente');
+                        $('#edad-texto').text('Edad: ' + edad + ' años');
+                        $('#edad-info').show().css('color', '#5cb85c');
+                        $('#seccion-acudiente').slideUp(400);
+                        $('.acudiente-field').prop('required', false);
+                        $('.acudiente-field').val('');
+                    }
+                } catch (error) {
+                    console.error('❌ Error en validarEdad:', error);
+                }
+            }
+
+            // Escuchar eventos del datepicker
+            try {
+                $fechaNacimiento
+                    .on('changeDate', function(e) {
+                        console.log('🗓️ Evento changeDate disparado');
+                        setTimeout(validarEdad, 100);
+                    })
+                    .on('change', function() {
+                        console.log('📝 Evento change disparado');
+                        setTimeout(validarEdad, 100);
+                    })
+                    .on('blur', function() {
+                        console.log('👁️ Evento blur disparado');
+                        setTimeout(validarEdad, 100);
+                    });
+
+                console.log('✅ Eventos del datepicker configurados');
+            } catch (error) {
+                console.error('❌ Error configurando eventos:', error);
+            }
+
+            // Validar al cargar si ya hay fecha
+            setTimeout(function() {
+                try {
+                    var fechaInicial = $fechaNacimiento.val();
+                    if (fechaInicial) {
+                        console.log('🔄 Validando fecha inicial:', fechaInicial);
+                        validarEdad();
+                    }
+                } catch (error) {
+                    console.error('❌ Error en validación inicial:', error);
+                }
+            }, 500);
+
+            // Validación del formulario antes de enviar
+            $('#form-registro-evento').on('submit', function(e) {
+                try {
+                    console.log('📤 Enviando formulario...');
+
+                    // Validar políticas
+                    var politica = $('input[name="eventospersona[acepta_politica]"]');
+                    var cultura = $('input[name="eventospersona[acepta_cultura]"]');
+
+                    if (!politica.is(':checked')) {
+                        e.preventDefault();
+                        alert('⚠️ Debe aceptar las políticas de tratamiento de datos personales.');
+                        return false;
+                    }
+
+                    if (!cultura.is(':checked')) {
+                        e.preventDefault();
+                        alert('⚠️ Debe aceptar la cultura organizacional.');
+                        return false;
+                    }
+
+                    // Validar acudiente si es menor de edad
+                    var fechaStr = $fechaNacimiento.val();
+                    if (fechaStr) {
+                        var fecha = convertirFecha(fechaStr);
+                        if (fecha) {
+                            var edad = calcularEdad(fecha);
+
+                            if (edad !== null && edad < 18) {
+                                console.log('⚠️ Validando campos de acudiente para menor de edad');
+                                var camposVacios = [];
+
+                                if (!$('#acudiente_nombre').val() || $('#acudiente_nombre').val().trim() === '') {
+                                    camposVacios.push('Nombre del Acudiente');
+                                }
+                                if (!$('#acudiente_apellido').val() || $('#acudiente_apellido').val().trim() === '') {
+                                    camposVacios.push('Apellido del Acudiente');
+                                }
+                                if (!$('#acudiente_identificacion').val() || $('#acudiente_identificacion').val().trim() === '') {
+                                    camposVacios.push('Identificación del Acudiente');
+                                }
+                                if (!$('#acudiente_email').val() || $('#acudiente_email').val().trim() === '') {
+                                    camposVacios.push('Email del Acudiente');
+                                }
+                                if (!$('#acudiente_celular').val() || $('#acudiente_celular').val().trim() === '') {
+                                    camposVacios.push('Celular del Acudiente');
+                                }
+
+                                if (camposVacios.length > 0) {
+                                    e.preventDefault();
+                                    alert('⚠️ Eres menor de edad (' + edad + ' años).\n\nDebes completar los siguientes campos del acudiente:\n\n• ' + camposVacios.join('\n• '));
+
+                                    // Scroll suave
+                                    var seccion = document.getElementById('seccion-acudiente');
+                                    if (seccion) {
+                                        seccion.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                                    }
+                                    return false;
+                                }
+                            }
+                        }
+                    }
+
+                    console.log('✅ Formulario válido, enviando...');
+                } catch (error) {
+                    console.error('❌ Error en validación de formulario:', error);
+                    // No prevenir el envío si hay un error en la validación JS
+                }
+            });
+
+            console.log('✅ Script completo y listo');
         });
-
-        // Animación de shake (agregar al CSS si no existe)
-        if (!$('style#shake-animation').length) {
-            $('<style id="shake-animation">').text(`
-        @keyframes shake {
-          0%, 100% { transform: translateX(0); }
-          10%, 30%, 50%, 70%, 90% { transform: translateX(-10px); }
-          20%, 40%, 60%, 80% { transform: translateX(10px); }
-        }
-        .animated.shake {
-          animation: shake 0.5s;
-        }
-      `).appendTo('head');
-        }
-    });
+    })();
 </script>

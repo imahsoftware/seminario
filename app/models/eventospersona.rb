@@ -2,9 +2,12 @@
 class Eventospersona < ApplicationRecord
   belongs_to :evento
 
+  # Constantes
+  TIPOS_PERSONA = ['CASADO', 'SEMINARISTA', 'SOLTERO'].freeze
+
   # Validaciones de campos obligatorios
   validates :identificacion, :nombre, :apellido, :fecha_nacimiento,
-            :direccion, :celular, :email, :sexo, :estado_civil,
+            :direccion, :celular, :email, :sexo, :estado_civil, :tipo_persona,
             presence: { message: "es obligatorio" }
 
   validates :email, format: {
@@ -20,6 +23,11 @@ class Eventospersona < ApplicationRecord
   validates :identificacion, length: {
     maximum: 20,
     message: "no puede tener más de 20 caracteres"
+  }
+
+  validates :tipo_persona, inclusion: {
+    in: TIPOS_PERSONA,
+    message: "debe ser CASADO, SEMINARISTA o SOLTERO"
   }
 
   # VALIDACIONES OBLIGATORIAS DE ACEPTACIÓN
@@ -43,9 +51,35 @@ class Eventospersona < ApplicationRecord
     message: "ya está registrado para este evento"
   }
 
+  # VALIDACIONES CONDICIONALES PARA MENORES DE EDAD
+  validates :acudiente_nombre, :acudiente_apellido, :acudiente_identificacion,
+            :acudiente_celular, :acudiente_email,
+            presence: { message: "es obligatorio para menores de edad" },
+            if: :menor_de_edad?
+
+  validates :acudiente_email,
+            format: { with: URI::MailTo::EMAIL_REGEXP, message: "no es válido" },
+            if: :menor_de_edad?
+
   # Callbacks
   before_save :normalizar_datos
   before_validation :asegurar_aceptaciones
+
+  # Método para verificar si es menor de edad
+  def menor_de_edad?
+    return false if fecha_nacimiento.blank?
+    edad = calcular_edad
+    edad < 18
+  end
+
+  # Método para calcular la edad
+  def calcular_edad
+    return 0 if fecha_nacimiento.blank?
+    hoy = Date.current
+    edad = hoy.year - fecha_nacimiento.year
+    edad -= 1 if hoy < fecha_nacimiento + edad.years
+    edad
+  end
 
   private
 
