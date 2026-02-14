@@ -1,26 +1,22 @@
 <div class="box box-primary">
-  <div class="box-header">
+  <div class="box-header with-border">
     <!-- Botón Atrás a la izquierda -->
     <div class="pull-left">
       <%= link_to iglesias_path do %>
         <i class="fa fa-arrow-left"></i>
-      <% end %>
+      <% end %>&nbsp;&nbsp;
     </div>
 
     <!-- Título centrado o alineado correctamente -->
-    <h3 class="box-title" style="margin-left: 10px;">
+    <legend >
       Comunidades de <%= @iglesia.nombre %>
-    </h3>
-
-    <!-- Herramientas a la derecha -->
-    <div class="box-tools pull-right">
       <% if is_auth_c('iglesiascomunidades') %>
-        <%= link_to new_iglesia_iglesiascomunidad_path(@iglesia),
-                    remote: true,
-                    class: 'btn btn-sm btn-info' do %>
-          <i class="fa fa-plus-square"></i> <span>Nuevo</span>
-        <% end %>&nbsp;&nbsp;
+      <%= link_to new_iglesia_iglesiascomunidad_path(@iglesia), remote: true, class: 'btn btn-xs btn-success' do %>
+        <i class="fa fa-plus-square"> </i> <span>Nueva Comunidad</span>
       <% end %>
+      <% end %>
+    </legend>
+    <!-- Herramientas a la derecha -->
       <div class="box-tools pull-right">
 
         <!-- Buscador -->
@@ -39,7 +35,6 @@
         <% end %>
       </div>
     </div>
-  </div>
   <!-- Resto del box-body con tabla y paginador sigue igual -->
   <div class="box-body">
     <div id="iglesiascomunidades_form"></div>

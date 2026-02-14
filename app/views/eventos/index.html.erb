@@ -1,6 +1,7 @@
 <!-- app/views/eventos/index.html.erb -->
 <div class="box box-primary">
-  <div class="box-header with-border">
+  <div class="box-header ">
+
     <legend>
       Eventos
       <%= link_to new_evento_path, class: 'btn btn-xs btn-success' do %>
@@ -99,12 +100,12 @@
 <!-- Script para copiar URL desde el índice -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.11/clipboard.min.js"></script>
 <script>
-    $(document).ready(function() {
+    $(document).ready(function () {
         // Inicializar tooltips
         $('[data-toggle="tooltip"]').tooltip();
 
         // Copiar URL al hacer click
-        $('.copiar-url').on('click', function() {
+        $('.copiar-url').on('click', function () {
             var url = $(this).data('url');
 
             // Crear elemento temporal para copiar
