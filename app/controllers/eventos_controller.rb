@@ -21,12 +21,9 @@ class EventosController < ApplicationController
   end
 
   def edit
-    if @evento.etapa.to_s == "B"
-      @eventospersonas = @evento.eventospersonas.all
-    end
-    respond_to do |format|
-      format.html { render :action => "evento_form" }
-    end
+    return redirect_to evento_eventospersonas_path(@evento) if @evento.etapa.to_s == "B"
+
+    render :evento_form
   end
 
   def create

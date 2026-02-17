@@ -1,0 +1,32 @@
+<div class="table-responsive">
+  <table class="table table-bordered">
+    <thead>
+    <tr class="thcolor">
+
+      <% if is_auth_a('eventospersonas') %>
+        <th class="text-center">Acciones</th>
+      <% end %>
+
+      <th>Evento</th>
+      <th>Identificación</th>
+      <th>Nombre</th>
+      <th>Apellido</th>
+      <th>Celular</th>
+      <th>Email</th>
+
+    </tr>
+    </thead>
+
+    <tbody id="tbody_eventospersonas">
+    <% @eventospersonas.order(created_at: :desc).each do |eventospersona| %>
+      <%= render 'eventospersonas/tr', eventospersona: eventospersona %>
+    <% end %>
+    </tbody>
+  </table>
+</div>
+
+<div class="box-footer clear-fix">
+  <div class="box-tools pull-right">
+    <%= will_paginate @eventospersonas, renderer: BootstrapPagination::Rails %>
+  </div>
+</div>

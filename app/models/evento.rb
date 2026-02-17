@@ -1,4 +1,3 @@
-# app/models/evento.rb
 class Evento < ApplicationRecord
   belongs_to :iglesia
   belongs_to :iglesiascomunidad
@@ -7,14 +6,24 @@ class Evento < ApplicationRecord
   has_many :eventospersonas, dependent: :destroy
 
   before_validation :asegurar_guid, on: :create
-  after_create :generar_url_publica
-  after_update :actualizar_url_si_necesario
+  before_save :actualizar_url_si_necesario # usamos before_save seguro
 
   validates :guid, presence: true, uniqueness: true
   validates :fecha_inicio, :fecha_fin, presence: true
   validate :fecha_fin_mayor_que_inicio
 
-  def self.find_by_guid!(guid)
+  # Genera o actualiza la URL antes de guardar
+  def actualizar_url_si_necesario
+    return if guid.blank?
+
+    # Rails <5.1 usa `guid_changed?`, >=5.1 puede usar `saved_change_to_guid?` en after_save
+    if new_record? || guid_changed?
+      base_url = Rails.env.production? ? "https://tudominio.com" : "http://localhost:3000"
+      self.url_publica = "#{base_url}/registro/#{self.guid}"
+    end
+  end
+
+def self.find_by_guid!(guid)
     find_by!(guid: guid)
   end
 
@@ -68,11 +77,7 @@ class Evento < ApplicationRecord
     self.update_column(:url_publica, "#{base_url}/registro/#{self.guid}")
   end
 
-  def actualizar_url_si_necesario
-    if saved_change_to_guid? && guid.present?
-      generar_url_publica
-    end
-  end
+
 
   def fecha_fin_mayor_que_inicio
     return if fecha_inicio.blank? || fecha_fin.blank?

@@ -8,15 +8,17 @@
     </div>
 
     <!-- Título centrado o alineado correctamente -->
-    <legend >
+    <legend>
       Comunidades de <%= @iglesia.nombre %>
-      <% if is_auth_c('iglesiascomunidades') %>
-      <%= link_to new_iglesia_iglesiascomunidad_path(@iglesia), remote: true, class: 'btn btn-xs btn-success' do %>
-        <i class="fa fa-plus-square"> </i> <span>Nueva Comunidad</span>
-      <% end %>
-      <% end %>
     </legend>
-    <!-- Herramientas a la derecha -->
+    <div class="box-tools pull-right">
+      <% if is_auth_c('iglesiascomunidades') %>
+        <%= link_to new_iglesia_iglesiascomunidad_path(@iglesia), remote: true, class: 'btn btn-sm btn-info' do %>
+          <i class="fa fa-plus-square"> </i> <span>Nueva Comunidad</span>
+        <% end %>&nbsp;&nbsp;
+      <% end %>
+
+      <!-- Herramientas a la derecha -->
       <div class="box-tools pull-right">
 
         <!-- Buscador -->
@@ -35,6 +37,7 @@
         <% end %>
       </div>
     </div>
+  </div>
   <!-- Resto del box-body con tabla y paginador sigue igual -->
   <div class="box-body">
     <div id="iglesiascomunidades_form"></div>

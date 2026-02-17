@@ -1,65 +1,58 @@
-<p id="notice"><%= notice %></p>
+<div class="box box-primary">
+  <div class="box-header">
+    <legend>
+      Personas Inscritas
+    </legend>
 
-<h1>Eventospersonas</h1>
+    <!-- Botón Nuevo a la izquierda -->
+    <div class="box-tools pull-left">
+      <% if is_auth_c('eventospersonas') %>
+        <%= link_to new_eventospersona_path, remote: true, class: 'btn btn-sm btn-info' do %>
+          <i class="fa fa-plus-square"></i> <span>Nuevo</span>
+        <% end %>&nbsp;&nbsp;
+      <% end %>
 
-<table>
-  <thead>
-    <tr>
-      <th>Evento</th>
-      <th>Identificacion</th>
-      <th>Nombre</th>
-      <th>Apellido</th>
-      <th>Fecha nacimiento</th>
-      <th>Direccion</th>
-      <th>Celular</th>
-      <th>Email</th>
-      <th>Sexo</th>
-      <th>Estado civil</th>
-      <th>Acudiente nombre</th>
-      <th>Acudiente apellido</th>
-      <th>Acudiente identificacion</th>
-      <th>Acudiente email</th>
-      <th>Acudiente celular</th>
-      <th>Acudiente codigoval</th>
-      <th>Acudiente codigorec</th>
-      <th>Acudiente firma</th>
-      <th>Acepta politica</th>
-      <th>Acepta cultura</th>
-      <th colspan="3"></th>
-    </tr>
-  </thead>
+      <!-- Buscador a la derecha -->
+      <div class="box-tools pull-right">
+        <%= search_form_for @q do |f| %>
+          <div class="input-group input-group-sm" style="width: 200px;">
+            <%= f.search_field :identificacion_or_nombre_or_apellido_cont,
+                               onChange: 'javascript:this.value=this.value.toUpperCase();',
+                               class: 'form-control pull-right input_uppercase',
+                               placeholder: 'Buscar...' %>
+            <div class="input-group-btn">
+              <%= button_tag(type: "submit", class: "btn btn-default") do %>
+                <i class="fa fa-search"></i>
+              <% end %>
+            </div>
+          </div>
+        <% end %>
+      </div>
+    </div>
 
-  <tbody>
-    <% @eventospersonas.each do |eventospersona| %>
-      <tr>
-        <td><%= eventospersona.evento %></td>
-        <td><%= eventospersona.identificacion %></td>
-        <td><%= eventospersona.nombre %></td>
-        <td><%= eventospersona.apellido %></td>
-        <td><%= eventospersona.fecha_nacimiento %></td>
-        <td><%= eventospersona.direccion %></td>
-        <td><%= eventospersona.celular %></td>
-        <td><%= eventospersona.email %></td>
-        <td><%= eventospersona.sexo %></td>
-        <td><%= eventospersona.estado_civil %></td>
-        <td><%= eventospersona.acudiente_nombre %></td>
-        <td><%= eventospersona.acudiente_apellido %></td>
-        <td><%= eventospersona.acudiente_identificacion %></td>
-        <td><%= eventospersona.acudiente_email %></td>
-        <td><%= eventospersona.acudiente_celular %></td>
-        <td><%= eventospersona.acudiente_codigoval %></td>
-        <td><%= eventospersona.acudiente_codigorec %></td>
-        <td><%= eventospersona.acudiente_firma %></td>
-        <td><%= eventospersona.acepta_politica %></td>
-        <td><%= eventospersona.acepta_cultura %></td>
-        <td><%= link_to 'Show', eventospersona %></td>
-        <td><%= link_to 'Edit', edit_eventospersona_path(eventospersona) %></td>
-        <td><%= link_to 'Destroy', eventospersona, method: :delete, data: { confirm: 'Are you sure?' } %></td>
-      </tr>
-    <% end %>
-  </tbody>
-</table>
+  </div>
 
-<br>
+  <div class="flash_messages"></div>
 
-<%= link_to 'New Eventospersona', new_eventospersona_path %>
+  <div class="box-body">
+
+    <div id="eventospersonas_form"></div>
+
+    <div id="eventospersonas">
+      <% if @eventospersonas.present? %>
+        <%= render 'tabla' %>
+      <% else %>
+        <div class="alert alert-warning">
+          <h4><i class="fa fa-info-circle"></i> Atención</h4>
+          No hay registros disponibles.
+        </div>
+      <% end %>
+    </div>
+
+    <!-- Paginación -->
+    <div class="box-tools pull-right">
+      <%= will_paginate @eventospersonas, renderer: BootstrapPagination::Rails %>
+    </div>
+
+  </div>
+</div>
