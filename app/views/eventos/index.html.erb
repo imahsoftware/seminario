@@ -38,10 +38,11 @@
             <tr class="thcolor">
               <th class="text-center" width="5%"></th>
               <th class="text-table">Detalle</th>
-              <th class="text-table" width="20%">Tipo Evento</th>
-              <th class="text-table" width="10%">Fecha Inicio</th>
-              <th class="text-table" width="10%">Fecha Fin</th>
+              <th class="text-table" width="10%">Tipo Evento</th>
+              <th class="text-table" width="15%">Fecha Inicio Inscripción</th>
+              <th class="text-table" width="15%">Fecha Fin Inscripción</th>
               <th class="text-table" width="10%">Estado</th>
+              <th class="text-center text-table" width="10%">Habeas Data</th>
               <th class="text-center text-table" width="10%">URL</th>
               <th class="text-center text-table" width="10%">Vigencia</th>
             </tr>
@@ -59,33 +60,40 @@
                 <td class="text-table"><%= evento.fecha_inicio.strftime("%d/%m/%Y") rescue '' %></td>
                 <td class="text-table"><%= evento.fecha_fin.strftime("%d/%m/%Y") rescue '' %></td>
                 <td class="text-table"><%= evento.estado %></td>
-                <td class="text-center text-table">
-                  <% if evento.url_publica.present? %>
-                    <button class="btn btn-xs btn-info copiar-url"
-                            data-url="<%= evento.url_publica %>"
-                            data-toggle="tooltip"
-                            title="Copiar URL">
-                      <i class="fa fa-copy"></i>
-                    </button>
-                    <a href="<%= evento.url_publica %>"
-                       target="_blank"
-                       class="btn btn-xs btn-success"
-                       data-toggle="tooltip"
-                       title="Ver formulario">
-                      <i class="fa fa-external-link"></i>
-                    </a>
+                <td class=" text-center  text-table">
+                  <% if evento.habeas_data.present? %>
+                    <%= link_to "Descargar",
+                                evento.habeas_data.url,
+                                download: evento.habeas_data_file_name,
+                                class: "btn btn-xs btn-success" %> </td>
                   <% end %>
-                </td>
-                <td class="text-center">
-                  <% if evento.vigente? %>
-                    <span class="label label-success">VIGENTE</span>
-                  <% elsif evento.vencido? %>
-                    <span class="label label-danger">VENCIDO</span>
-                  <% else %>
-                    <span class="label label-warning">NO INICIADO</span>
-                  <% end %>
-                </td>
-              </tr>
+                  <td class="text-center text-table">
+                    <% if evento.url_publica.present? %>
+                      <button class="btn btn-xs btn-info copiar-url"
+                              data-url="<%= evento.url_publica %>"
+                              data-toggle="tooltip"
+                              title="Copiar URL">
+                        <i class="fa fa-copy"></i>
+                      </button>
+                      <a href="<%= evento.url_publica %>"
+                         target="_blank"
+                         class="btn btn-xs btn-success"
+                         data-toggle="tooltip"
+                         title="Ver formulario">
+                        <i class="fa fa-external-link"></i>
+                      </a>
+                    <% end %>
+                  </td>
+                  <td class="text-center">
+                    <% if evento.vigente? %>
+                      <span class="label label-success">VIGENTE</span>
+                    <% elsif evento.vencido? %>
+                      <span class="label label-danger">VENCIDO</span>
+                    <% else %>
+                      <span class="label label-warning">NO INICIADO</span>
+                    <% end %>
+                  </td>
+                  </tr>
             <% end %>
             </tbody>
           </table>

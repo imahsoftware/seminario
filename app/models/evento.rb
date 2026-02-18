@@ -9,8 +9,18 @@ class Evento < ApplicationRecord
   before_save :actualizar_url_si_necesario # usamos before_save seguro
 
   validates :guid, presence: true, uniqueness: true
-  validates :fecha_inicio, :fecha_fin, presence: true
-  validate :fecha_fin_mayor_que_inicio
+  validates :habeas_data, :fecha_fin, :fecha_inicio_e, :fecha_fin_e, presence: true
+
+  has_attached_file :habeas_data
+  validates_attachment_content_type :habeas_data, content_type: [
+    "application/pdf",
+    "image/jpeg",
+    "image/png"
+  ]
+
+
+
+  validate :validar_fechas
 
   # Genera o actualiza la URL antes de guardar
   def actualizar_url_si_necesario
@@ -79,11 +89,25 @@ def self.find_by_guid!(guid)
 
 
 
-  def fecha_fin_mayor_que_inicio
-    return if fecha_inicio.blank? || fecha_fin.blank?
+  def validar_fechas
+    return if fecha_inicio.blank? || fecha_fin.blank? ||
+              fecha_inicio_e.blank? || fecha_fin_e.blank?
 
+    # 1️⃣ El evento no puede terminar antes de empezar
+    if fecha_fin_e < fecha_inicio_e
+      errors.add(:fecha_fin_e, "debe ser mayor o igual a la fecha de inicio del evento")
+    end
+
+    # 2️⃣ La inscripción debe terminar antes de que empiece el evento
+    if fecha_fin > fecha_inicio_e
+      errors.add(:fecha_fin, "no puede ser posterior al inicio del evento")
+      errors.add(:fecha_inicio_e, "no puede empezar el evento sin cerrar inscripción")
+    end
+
+    # 3️⃣ La inscripción no puede terminar antes de empezar
     if fecha_fin < fecha_inicio
-      errors.add(:fecha_fin, "debe ser mayor o igual a la fecha de inicio")
+      errors.add(:fecha_fin, "debe ser mayor o igual a la fecha de inicio de inscripción")
     end
   end
+
 end

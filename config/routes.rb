@@ -8,7 +8,7 @@ Rails.application.routes.draw do
   get 'registro/:guid', to: 'registro_eventos#show', as: 'registro_evento', constraints: guid_constraint
   post 'registro/:guid', to: 'registro_eventos#create', constraints: guid_constraint
   get 'registro/:guid/exito', to: 'registro_eventos#exito', as: 'exito_registro_evento', constraints: guid_constraint
-
+  get 'registro/:guid/autorizacion', to: 'registro_eventos#autorizacion',  as: 'autorizacion', constraints: guid_constraint
   resources :eventos do
     member do
       get :copiar_url

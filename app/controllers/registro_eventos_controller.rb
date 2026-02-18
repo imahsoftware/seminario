@@ -34,7 +34,8 @@ class RegistroEventosController < ApplicationController
     Rails.logger.info "Fecha de nacimiento recibida: #{eventospersona_params[:fecha_nacimiento]}"
     Rails.logger.info "Es menor de edad: #{@eventospersona.menor_de_edad?}"
     Rails.logger.info "Edad: #{@eventospersona.calcular_edad}" if @eventospersona.fecha_nacimiento.present?
-
+    byebug
+    WssmsController.envio_sms_colombiaredenvio(@eventospersona)
     if @eventospersona.save
       flash[:notice] = "¡Registro exitoso! Gracias por inscribirte al evento."
       redirect_to exito_registro_evento_path(@evento.guid)
@@ -58,6 +59,9 @@ class RegistroEventosController < ApplicationController
     render :no_encontrado
   end
 
+
+  def autorizacion
+  end
   private
 
   def eventospersona_params
