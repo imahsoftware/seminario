@@ -18,8 +18,6 @@ class Evento < ApplicationRecord
     "image/png"
   ]
 
-
-
   validate :validar_fechas
 
   # Genera o actualiza la URL antes de guardar
@@ -33,7 +31,7 @@ class Evento < ApplicationRecord
     end
   end
 
-def self.find_by_guid!(guid)
+  def self.find_by_guid!(guid)
     find_by!(guid: guid)
   end
 
@@ -51,6 +49,15 @@ def self.find_by_guid!(guid)
     return false if fecha_inicio.nil?
     Date.current < fecha_inicio
   end
+
+  def hay_cupos?
+    eventospersonas.size < cantidad_persona
+  end
+
+  def lleno?
+    eventospersonas.size >= cantidad_persona
+  end
+
 
   def to_param
     guid
@@ -86,8 +93,6 @@ def self.find_by_guid!(guid)
     base_url = Rails.env.production? ? "https://tudominio.com" : "http://localhost:3000"
     self.update_column(:url_publica, "#{base_url}/registro/#{self.guid}")
   end
-
-
 
   def validar_fechas
     return if fecha_inicio.blank? || fecha_fin.blank? ||

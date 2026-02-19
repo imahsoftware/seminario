@@ -61,6 +61,8 @@ class Eventospersona < ApplicationRecord
             format: { with: URI::MailTo::EMAIL_REGEXP, message: "no es válido" },
             if: :menor_de_edad?
 
+  validate :validar_cupos_disponibles
+
   # Callbacks
   before_save :normalizar_datos
   before_validation :asegurar_aceptaciones
@@ -79,6 +81,12 @@ class Eventospersona < ApplicationRecord
     edad = hoy.year - fecha_nacimiento.year
     edad -= 1 if hoy < fecha_nacimiento + edad.years
     edad
+  end
+
+  def validar_cupos_disponibles
+    if evento.lleno?
+      errors.add(:base, "El evento ya alcanzó el número máximo de participantes")
+    end
   end
 
   private

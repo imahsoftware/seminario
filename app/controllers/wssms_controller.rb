@@ -16,13 +16,12 @@ require 'open-uri'
   def self.envio_sms_colombiaredenvio(eventopersona)
 
     mensaje = "Hola #{eventopersona.acudiente_nombre} Acudiente de  #{eventopersona.nombre} para completar la inscripción al evento debes abrir el siguiente enlace:"
-    url_sms = "https://4e69-186-80-29-220.ngrok-free.app/registro/#{eventopersona&.evento&.guid}/autorizacion"
+    url_sms = "https://c6a2-186-80-29-220.ngrok-free.app/registro/#{eventopersona&.evento&.guid}/autorizacion/#{eventopersona&.id}"
     username = Parametro.find(31).valor
     password = Parametro.find(32).valor
 
     token = Base64.strict_encode64("#{username}:#{password}")
     url   = URI.parse('https://apitellit.aldeamo.com/SmsiWS/smsSendPost/')
-    byebug
     headers = {
       'Authorization' => "Basic #{token}",
       'Content-Type'  => 'application/json'
