@@ -26,7 +26,7 @@ class Evento < ApplicationRecord
 
     # Rails <5.1 usa `guid_changed?`, >=5.1 puede usar `saved_change_to_guid?` en after_save
     if new_record? || guid_changed?
-      base_url = Rails.env.production? ? "https://tudominio.com" : "http://localhost:3000"
+      base_url = Rails.env.production? ? "http://165.227.63.186" : "http://localhost:3000"
       self.url_publica = "#{base_url}/registro/#{self.guid}"
     end
   end
