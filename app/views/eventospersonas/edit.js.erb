@@ -1,0 +1,24 @@
+$("#eventospersonas_form").collapse("hide");
+
+$("#eventospersonas_form").empty();
+
+<% if @active_record.present? %>
+	$("#eventospersona_<%= @active_record.id %>").replaceWith("<%= j render 'tr', eventospersona: @active_record %>");
+<% end %>
+
+$("#eventospersona_<%= @eventospersona.id %>").html("<td colspan='7'><%= j render 'form' %></td>");
+
+$("#eventospersona_<%= @eventospersona.id %>").addClass("active_iglesia");
+
+$(".select2").select2();
+
+$(".tooltip").tooltip("hide");
+
+$('[data-toggle="tooltip"]').tooltip();
+
+// Inicializar datepicker para el input de fecha_nacimiento
+$('#fecha_nacimiento').datepicker({
+	format: 'dd/mm/yyyy',
+	autoclose: true,
+	todayHighlight: true
+});

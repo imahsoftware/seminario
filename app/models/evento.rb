@@ -1,4 +1,3 @@
-# app/models/evento.rb
 class Evento < ApplicationRecord
   belongs_to :iglesia
   belongs_to :iglesiascomunidad
@@ -7,12 +6,30 @@ class Evento < ApplicationRecord
   has_many :eventospersonas, dependent: :destroy
 
   before_validation :asegurar_guid, on: :create
-  after_create :generar_url_publica
-  after_update :actualizar_url_si_necesario
+  before_save :actualizar_url_si_necesario # usamos before_save seguro
 
   validates :guid, presence: true, uniqueness: true
-  validates :fecha_inicio, :fecha_fin, presence: true
-  validate :fecha_fin_mayor_que_inicio
+  validates :habeas_data, :fecha_fin, :fecha_inicio_e, :fecha_fin_e, presence: true
+
+  has_attached_file :habeas_data
+  validates_attachment_content_type :habeas_data, content_type: [
+    "application/pdf",
+    "image/jpeg",
+    "image/png"
+  ]
+
+  validate :validar_fechas
+
+  # Genera o actualiza la URL antes de guardar
+  def actualizar_url_si_necesario
+    return if guid.blank?
+
+    # Rails <5.1 usa `guid_changed?`, >=5.1 puede usar `saved_change_to_guid?` en after_save
+    if new_record? || guid_changed?
+      base_url = Rails.env.production? ? "http://165.227.63.186" : "http://localhost:3000"
+      self.url_publica = "#{base_url}/registro/#{self.guid}"
+    end
+  end
 
   def self.find_by_guid!(guid)
     find_by!(guid: guid)
@@ -32,6 +49,15 @@ class Evento < ApplicationRecord
     return false if fecha_inicio.nil?
     Date.current < fecha_inicio
   end
+
+  def hay_cupos?
+    eventospersonas.size < cantidad_persona
+  end
+
+  def lleno?
+    eventospersonas.size >= cantidad_persona
+  end
+
 
   def to_param
     guid
@@ -68,17 +94,25 @@ class Evento < ApplicationRecord
     self.update_column(:url_publica, "#{base_url}/registro/#{self.guid}")
   end
 
-  def actualizar_url_si_necesario
-    if saved_change_to_guid? && guid.present?
-      generar_url_publica
+  def validar_fechas
+    return if fecha_inicio.blank? || fecha_fin.blank? ||
+              fecha_inicio_e.blank? || fecha_fin_e.blank?
+
+    # 1️⃣ El evento no puede terminar antes de empezar
+    if fecha_fin_e < fecha_inicio_e
+      errors.add(:fecha_fin_e, "debe ser mayor o igual a la fecha de inicio del evento")
     end
-  end
 
-  def fecha_fin_mayor_que_inicio
-    return if fecha_inicio.blank? || fecha_fin.blank?
+    # 2️⃣ La inscripción debe terminar antes de que empiece el evento
+    if fecha_fin > fecha_inicio_e
+      errors.add(:fecha_fin, "no puede ser posterior al inicio del evento")
+      errors.add(:fecha_inicio_e, "no puede empezar el evento sin cerrar inscripción")
+    end
 
+    # 3️⃣ La inscripción no puede terminar antes de empezar
     if fecha_fin < fecha_inicio
-      errors.add(:fecha_fin, "debe ser mayor o igual a la fecha de inicio")
+      errors.add(:fecha_fin, "debe ser mayor o igual a la fecha de inicio de inscripción")
     end
   end
+
 end

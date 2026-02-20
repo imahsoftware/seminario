@@ -1,0 +1,38 @@
+<tr id="eventospersona_<%= eventospersona.id %>">
+  <% if is_auth_a('eventospersonas') %>
+    <td class="text-center">
+
+      <%= link_to edit_eventospersona_path(eventospersona),
+                  class: 'edit_eventospersona_button',
+                  remote: true,
+                  data: { toggle: 'tooltip' },
+                  title: "Editar" do %>
+        <button class="btn btn-xs btn-warning">
+          <i class="fa fa-edit"></i>
+        </button>
+      <% end %>
+
+      <%= link_to eventospersona,
+                  remote: true,
+                  method: :delete,
+                  data: { confirm: "¿Está seguro?", toggle: 'tooltip' },
+                  title: "Eliminar" do %>
+        <button class="btn btn-xs btn-danger">
+          <i class="fa fa-trash"></i>
+        </button>
+      <% end %>
+
+    </td>
+  <% end %>
+
+  <td>
+    <%= eventospersona&.evento&.tiposevento&.descripcion%>
+  </td>
+  <td>
+    <%=  eventospersona.nombre  %>
+  </td>
+  <td><%= eventospersona.identificacion %></td>
+  <td><%= eventospersona.apellido %></td>
+  <td><%= eventospersona.celular %></td>
+  <td><%= eventospersona.email %></td>
+</tr>

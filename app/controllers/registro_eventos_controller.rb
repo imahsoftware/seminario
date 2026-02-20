@@ -1,5 +1,6 @@
 # app/controllers/registro_eventos_controller.rb
 class RegistroEventosController < ApplicationController
+  skip_before_action :authenticate_user!, only: [:show, :create , :exito, :pendiente, :autorizacion , :vencido , :no_encontrado , :no_iniciado , :vigente , :sin_cupos , :autorizar_participacion ]
   skip_before_action :verify_authenticity_token, only: [:create]
   layout 'registro_publico'
 
@@ -12,6 +13,8 @@ class RegistroEventosController < ApplicationController
       render :no_iniciado and return
     elsif !@evento.vigente?
       render :no_disponible and return
+    elsif @evento.lleno?
+      render :sin_cupos and return
     end
 
     @eventospersona = @evento.eventospersonas.build
@@ -19,6 +22,7 @@ class RegistroEventosController < ApplicationController
   rescue ActiveRecord::RecordNotFound
     render :no_encontrado
   end
+
 
   def create
     @evento = Evento.find_by_guid!(params[:guid])
@@ -36,8 +40,16 @@ class RegistroEventosController < ApplicationController
     Rails.logger.info "Edad: #{@eventospersona.calcular_edad}" if @eventospersona.fecha_nacimiento.present?
 
     if @eventospersona.save
-      flash[:notice] = "¡Registro exitoso! Gracias por inscribirte al evento."
-      redirect_to exito_registro_evento_path(@evento.guid)
+
+      if @eventospersona.menor_de_edad?
+        flash[:notice] = "Registro recibido. Pendiente autorización de acudiente."
+        WssmsController.envio_sms_colombiaredenvio(@eventospersona)
+        redirect_to pendiente_registro_evento_path(@evento.guid)
+      else
+        flash[:notice] = "¡Registro exitoso! Gracias por inscribirte al evento."
+        redirect_to exito_registro_evento_path(@evento.guid)
+      end
+
     else
       errores = @eventospersona.errors.full_messages
 
@@ -52,10 +64,34 @@ class RegistroEventosController < ApplicationController
     render :no_encontrado
   end
 
+
   def exito
     @evento = Evento.find_by_guid!(params[:guid])
   rescue ActiveRecord::RecordNotFound
     render :no_encontrado
+  end
+
+  def pendiente
+    @evento = Evento.find_by_guid!(params[:guid])
+  end
+
+
+  def autorizacion
+    @evento = Evento.find_by_guid!(params[:guid])
+    @eventospersona = @evento.eventospersonas.find(params[:id])
+  end
+
+
+  def autorizar_participacion
+    @evento = Evento.find_by_guid!(params[:guid])
+    @eventospersona = @evento.eventospersonas.find(params[:id])
+
+    @eventospersona.update(
+      acudiente_firma: 'SI',
+    )
+
+    flash[:notice] = "La participación del menor ha sido autorizada correctamente."
+    redirect_to exito_registro_evento_path(@evento.guid)
   end
 
   private

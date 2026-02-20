@@ -4,12 +4,15 @@ class EventospersonasController < ApplicationController
   # GET /eventospersonas
   # GET /eventospersonas.json
   def index
-    @eventospersonas = Eventospersona.all
+    @q = Eventospersona.ransack(params[:q])
+    @eventospersonas = @q.result.paginate(:page => params[:page], :per_page => 50)
   end
 
   # GET /eventospersonas/1
   # GET /eventospersonas/1.json
   def show
+    respond_to { |format| format.js }
+
   end
 
   # GET /eventospersonas/new
@@ -19,6 +22,8 @@ class EventospersonasController < ApplicationController
 
   # GET /eventospersonas/1/edit
   def edit
+    respond_to { |format| format.js }
+
   end
 
   # POST /eventospersonas

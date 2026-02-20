@@ -9,13 +9,13 @@
       <div class="box-body">
         <div class="row">
           <div class="col-md-4">
-            <%= f.input :iglesiascomunidad_id, collection: Iglesiascomunidad.where(estado: "ACTIVO").order(:nombre).collect {|p| [ p.nombre, p.id ] }, input_html: { class: 'select2' }, as: :select, include_blank: true, label: "Comunidad "%>
+            <%= f.input :iglesiascomunidad_id, collection: Iglesiascomunidad.where(estado: "ACTIVO").order(:nombre).collect { |p| [p.nombre, p.id] }, input_html: { class: 'select2' }, as: :select, include_blank: true, label: "Comunidad " %>
           </div>
           <div class="col-md-4">
-            <%= f.input :tiposevento_id, collection: Tiposevento.where(estado: "ACTIVO").order(:descripcion).collect {|p| [ p.descripcion, p.id ] }, input_html: { class: 'select2' }, as: :select, include_blank: true, label: "Tipo de Evento "%>
+            <%= f.input :tiposevento_id, collection: Tiposevento.where(estado: "ACTIVO").order(:descripcion).collect { |p| [p.descripcion, p.id] }, input_html: { class: 'select2' }, as: :select, include_blank: true, label: "Tipo de Evento " %>
           </div>
           <div class="col-md-2">
-            <label>Fecha Inicio</label>
+            <label>Fecha Inicio Inscripción</label>
             <div class="input-group">
               <div class="input-group-addon" style="background: #EDEDED;">
                 <i class="fa fa-calendar"></i>
@@ -24,7 +24,7 @@
             </div>
           </div>
           <div class="col-md-2">
-            <label>Fecha Fin</label>
+            <label>Fecha Fin Inscripción</label>
             <div class="input-group">
               <div class="input-group-addon" style="background: #EDEDED;">
                 <i class="fa fa-calendar"></i>
@@ -33,20 +33,48 @@
             </div>
           </div>
         </div>
-
         <div class="row">
-          <div class="col-md-10">
-            <%= f.input :detalle, as: :text, input_html: {:onchange => "javascript:this.value=this.value.toUpperCase();"} %>
+          <div class="col-md-3">
+            <label>Fecha Inicio Evento</label>
+            <div class="input-group">
+              <div class="input-group-addon" style="background: #EDEDED;">
+                <i class="fa fa-calendar"></i>
+              </div>
+              <%= f.input :fecha_inicio_e, as: :string, label: false, input_html: { class: 'form-control datepicker', autocomplete: 'off' } %>
+            </div>
           </div>
-          <div class="col-md-2">
+          <div class="col-md-3">
+            <label>Fecha Fin Evento</label>
+            <div class="input-group">
+              <div class="input-group-addon" style="background: #EDEDED;">
+                <i class="fa fa-calendar"></i>
+              </div>
+              <%= f.input :fecha_fin_e, as: :string, label: false, input_html: { class: 'form-control datepicker', autocomplete: 'off' } %>
+            </div>
+          </div>
+          <div class="col-md-3">
             <%= f.input :estado, collection: select_estado, as: :select, input_html: { data: { width: '100%' }, class: 'select2' } %>
           </div>
+          <div class="col-md-3">
+            <%= f.input :cantidad_persona,
+                        as: :integer,
+                        label: "Cantidad de Personas",
+                        input_html: { class: 'form-control', min: 0 } %>
+          </div>
         </div>
-
-        <!-- Sección de URL pública (solo si el evento ya fue creado) -->
-        <% if @evento.persisted? && @evento.url_publica.present? %>
           <div class="row">
-            <div class="col-md-12">
+            <div class="col-md-6">
+              <%= f.input :detalle, as: :text, input_html: { :onchange => "javascript:this.value=this.value.toUpperCase();" } %>
+            </div>
+            <div class="col-md-6">
+              <%= f.input :habeas_data, as: :file, input_html: { :onchange => "javascript:this.value=this.value.toUpperCase();" } %>
+            </div>
+          </div>
+
+          <!-- Sección de URL pública (solo si el evento ya fue creado) -->
+          <% if @evento.persisted? && @evento.url_publica.present? %>
+            <div class="row">
+              <div class="col-md-12">
 
                 <h4><i class="icon fa fa-link"></i> URL de Registro Público</h4>
                 <p>Comparte esta URL para que las personas se registren en el evento:</p>
@@ -73,17 +101,17 @@
                   <% end %>
                 </small>
 
+              </div>
             </div>
-          </div>
-        <% end %>
+          <% end %>
 
-        <div class="box-footer">
+          <div class="box-footer">
+          </div>
+          <div class="box-tools pull-right">
+            <%= f.button :submit, "#{t :guardar}", class: "btn btn-danger pull-right" %>
+          </div><!-- /.box-tools -->
         </div>
-        <div class="box-tools pull-right">
-          <%= f.button :submit, "#{t :guardar}", class: "btn btn-danger pull-right" %>
-        </div><!-- /.box-tools -->
       </div>
-    </div>
   <% end %>
 <% elsif @evento.etapa.to_s == "B" %>
   <%#= render 'eventospersonas/eventospersonas' %>
@@ -93,15 +121,15 @@
   <!-- Script para copiar al portapapeles -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.11/clipboard.min.js"></script>
   <script>
-      $(document).ready(function() {
+      $(document).ready(function () {
           var clipboard = new ClipboardJS('#btn_copiar_url');
 
-          clipboard.on('success', function(e) {
+          clipboard.on('success', function (e) {
               toastr.success('URL copiada al portapapeles');
               e.clearSelection();
           });
 
-          clipboard.on('error', function(e) {
+          clipboard.on('error', function (e) {
               toastr.error('Error al copiar la URL');
           });
       });

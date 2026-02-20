@@ -2,12 +2,11 @@ $(".alert_flash").fadeOut(1000, function() {
 	$(this).remove();
 });
 
-$("#tbody_iglesiascomunidades")
-	.prepend("<%= j render partial: 'tr',
-                        locals: { iglesia: @iglesia,
-                                  comunidad: @iglesiascomunidad } %>");
-
-$("#iglesiascomunidades_form").empty();
+<% if @iglesias.present? %>
+	$("#iglesias").html("<%= j render 'tabla' %>");
+<% else %>
+	$("#tbody_iglesias").prepend("<%= j render 'tr', iglesia: @iglesia %>");
+<% end %>
 
 $(".clean").val("").trigger('change');
 
@@ -23,7 +22,3 @@ setTimeout(function() {
 		$(this).remove();
 	});
 }, 5000);
-
-$(".select2").select2();
-$(".datetimepicker").datetimepicker();
-$(".tooltip").tooltip("hide");

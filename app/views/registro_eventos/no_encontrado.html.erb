@@ -31,12 +31,13 @@
               <i class="fa fa-phone"></i> Por favor, verifica el enlace o contacta con el organizador del evento.
             </p>
           </div>
-
+          <% if is_auth_c('eventos') %>
           <div style="margin-top: 40px;">
             <a href="/" class="btn btn-default btn-lg">
               <i class="fa fa-home"></i> Volver al Inicio
             </a>
           </div>
+            <% end  %>
         </div>
       </div>
     </div>

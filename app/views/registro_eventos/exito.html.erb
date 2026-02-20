@@ -26,7 +26,7 @@
               <strong>Tipo:</strong> <%= @evento.tiposevento.descripcion rescue 'N/A' %>
             </p>
             <p style="margin: 10px 0;">
-              <strong>Fecha del Evento:</strong> <%= @evento.fecha_inicio.strftime("%d/%m/%Y") rescue '' %>
+              <strong>Fecha del Evento:</strong> <%= @evento.fecha_inicio_e.strftime("%d/%m/%Y") rescue '' %>
             </p>
           </div>
 
@@ -36,12 +36,13 @@
               <strong>Gracias por tu participación.</strong>
             </p>
           </div>
-
+          <% if is_auth_c('eventos') %>
           <div style="margin-top: 40px;">
             <a href="/" class="btn btn-primary btn-lg" style="background: #071B7D; border-color: #071B7D;">
               <i class="fa fa-home"></i> Volver al Inicio
             </a>
           </div>
+            <% end  %>
         </div>
       </div>
     </div>

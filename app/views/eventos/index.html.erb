@@ -1,23 +1,27 @@
 <!-- app/views/eventos/index.html.erb -->
 <div class="box box-primary">
-  <div class="box-header with-border">
+  <div class="box-header ">
+
     <legend>
       Eventos
-      <%= link_to new_evento_path, class: 'btn btn-xs btn-success' do %>
-        <i class="fa fa-plus-square"> </i> <span>Nuevo Evento</span>
-      <% end %>
     </legend>
     <div class="box-tools pull-right">
-      <%= search_form_for @q do |f| %>
-        <div class="input-group input-group-sm" style="width: 180px;">
-          <%= f.search_field :detalle_cont, onChange: 'javascript:this.value=this.value.toUpperCase();', class: 'form-control pull-right input_uppercase', placeholder: 'Buscar...' %>
-          <div class="input-group-btn">
-            <%= button_tag(type: "submit", class: "btn btn-default") do %>
-              <i class="fa fa-search"></i>
-            <% end %>
+      <%= link_to new_evento_path, class: 'btn btn-sm btn-info' do %>
+        <i class="fa fa-plus-square"> </i> <span>Nuevo Evento</span>
+      <% end %>&nbsp;&nbsp;
+
+      <div class="box-tools pull-right">
+        <%= search_form_for @q do |f| %>
+          <div class="input-group input-group-sm" style="width: 180px;">
+            <%= f.search_field :detalle_cont, onChange: 'javascript:this.value=this.value.toUpperCase();', class: 'form-control pull-right input_uppercase', placeholder: 'Buscar...' %>
+            <div class="input-group-btn">
+              <%= button_tag(type: "submit", class: "btn btn-default") do %>
+                <i class="fa fa-search"></i>
+              <% end %>
+            </div>
           </div>
-        </div>
-      <% end %>
+        <% end %>
+      </div>
     </div><!-- /.box-tools -->
   </div><!-- /.box-header -->
   <div class="box-body">
@@ -34,10 +38,11 @@
             <tr class="thcolor">
               <th class="text-center" width="5%"></th>
               <th class="text-table">Detalle</th>
-              <th class="text-table" width="20%">Tipo Evento</th>
-              <th class="text-table" width="10%">Fecha Inicio</th>
-              <th class="text-table" width="10%">Fecha Fin</th>
+              <th class="text-table" width="10%">Tipo Evento</th>
+              <th class="text-table" width="15%">Fecha Inicio Inscripción</th>
+              <th class="text-table" width="15%">Fecha Fin Inscripción</th>
               <th class="text-table" width="10%">Estado</th>
+              <th class="text-center text-table" width="10%">Habeas Data</th>
               <th class="text-center text-table" width="10%">URL</th>
               <th class="text-center text-table" width="10%">Vigencia</th>
             </tr>
@@ -55,33 +60,40 @@
                 <td class="text-table"><%= evento.fecha_inicio.strftime("%d/%m/%Y") rescue '' %></td>
                 <td class="text-table"><%= evento.fecha_fin.strftime("%d/%m/%Y") rescue '' %></td>
                 <td class="text-table"><%= evento.estado %></td>
-                <td class="text-center text-table">
-                  <% if evento.url_publica.present? %>
-                    <button class="btn btn-xs btn-info copiar-url"
-                            data-url="<%= evento.url_publica %>"
-                            data-toggle="tooltip"
-                            title="Copiar URL">
-                      <i class="fa fa-copy"></i>
-                    </button>
-                    <a href="<%= evento.url_publica %>"
-                       target="_blank"
-                       class="btn btn-xs btn-success"
-                       data-toggle="tooltip"
-                       title="Ver formulario">
-                      <i class="fa fa-external-link"></i>
-                    </a>
+                <td class=" text-center  text-table">
+                  <% if evento.habeas_data.present? %>
+                    <%= link_to "Descargar",
+                                evento.habeas_data.url,
+                                download: evento.habeas_data_file_name,
+                                class: "btn btn-xs btn-success" %> </td>
                   <% end %>
-                </td>
-                <td class="text-center">
-                  <% if evento.vigente? %>
-                    <span class="label label-success">VIGENTE</span>
-                  <% elsif evento.vencido? %>
-                    <span class="label label-danger">VENCIDO</span>
-                  <% else %>
-                    <span class="label label-warning">NO INICIADO</span>
-                  <% end %>
-                </td>
-              </tr>
+                  <td class="text-center text-table">
+                    <% if evento.url_publica.present? %>
+                      <button class="btn btn-xs btn-info copiar-url"
+                              data-url="<%= evento.url_publica %>"
+                              data-toggle="tooltip"
+                              title="Copiar URL">
+                        <i class="fa fa-copy"></i>
+                      </button>
+                      <a href="<%= evento.url_publica %>"
+                         target="_blank"
+                         class="btn btn-xs btn-success"
+                         data-toggle="tooltip"
+                         title="Ver formulario">
+                        <i class="fa fa-external-link"></i>
+                      </a>
+                    <% end %>
+                  </td>
+                  <td class="text-center">
+                    <% if evento.vigente? %>
+                      <span class="label label-success">VIGENTE</span>
+                    <% elsif evento.vencido? %>
+                      <span class="label label-danger">VENCIDO</span>
+                    <% else %>
+                      <span class="label label-warning">NO INICIADO</span>
+                    <% end %>
+                  </td>
+                  </tr>
             <% end %>
             </tbody>
           </table>
@@ -99,12 +111,12 @@
 <!-- Script para copiar URL desde el índice -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.11/clipboard.min.js"></script>
 <script>
-    $(document).ready(function() {
+    $(document).ready(function () {
         // Inicializar tooltips
         $('[data-toggle="tooltip"]').tooltip();
 
         // Copiar URL al hacer click
-        $('.copiar-url').on('click', function() {
+        $('.copiar-url').on('click', function () {
             var url = $(this).data('url');
 
             // Crear elemento temporal para copiar
