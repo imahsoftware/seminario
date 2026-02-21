@@ -1,32 +1,61 @@
-<div class="table-responsive">
-  <table class="table table-bordered">
-    <thead>
-    <tr class="thcolor">
+<div class="box box-danger">
+  <div class="box-header">
+    <legend>Personas Inscriptas</legend>
+    <div class="box-tools pull-right" style="margin-bottom:10px;">
+      <%= search_form_for @q,
+                          url: edit_evento_path(@evento),
+                          method: :get do |f| %>
 
-      <% if is_auth_a('eventospersonas') %>
-        <th class="text-center">Acciones</th>
+        <div class="input-group input-group-sm" style="width: 220px;">
+
+          <%= f.search_field :identificacion_or_nombre_or_apellido_or_email_or_celular_cont,
+                             onChange: 'javascript:this.value=this.value.toUpperCase();',
+                             class: 'form-control pull-right input_uppercase',
+                             placeholder: 'Buscar...' %>
+
+          <div class="input-group-btn">
+            <%= button_tag(type: "submit", class: "btn btn-default") do %>
+              <i class="fa fa-search"></i>
+            <% end %>
+          </div>
+
+        </div>
+
       <% end %>
+    </div>
+    </div>
+    <div class="table-responsive">
+      <table class="table table-bordered">
+        <thead>
+        <tr class="thcolor">
 
-      <th>Evento</th>
-      <th>Identificación</th>
-      <th>Nombre</th>
-      <th>Apellido</th>
-      <th>Celular</th>
-      <th>Email</th>
+          <% if is_auth_a('eventospersonas') %>
+            <th class="text-center">Acciones</th>
+          <% end %>
 
-    </tr>
-    </thead>
+          <th>Evento</th>
+          <th>Identificación</th>
+          <th>Nombre</th>
+          <th>Apellido</th>
+          <th>Celular</th>
+          <th>Email</th>
+          <th>Edad</th>
 
-    <tbody id="tbody_eventospersonas">
-    <% @eventospersonas.order(created_at: :desc).each do |eventospersona| %>
-      <%= render 'eventospersonas/tr', eventospersona: eventospersona %>
-    <% end %>
-    </tbody>
-  </table>
-</div>
+        </tr>
+        </thead>
 
-<div class="box-footer clear-fix">
-  <div class="box-tools pull-right">
-    <%= will_paginate @eventospersonas, renderer: BootstrapPagination::Rails %>
+        <tbody id="tbody_eventospersonas">
+        <% @eventospersonas.each do |eventospersona| %>
+          <%= render 'eventospersonas/tr', eventospersona: eventospersona %>
+        <% end %>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="box-footer clear-fix">
+      <div class="box-tools pull-right">
+        <%= will_paginate @eventospersonas, renderer: BootstrapPagination::Rails %>
+      </div>
+    </div>
   </div>
 </div>

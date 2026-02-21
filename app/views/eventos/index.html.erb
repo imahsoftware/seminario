@@ -38,10 +38,14 @@
             <tr class="thcolor">
               <th class="text-center" width="5%"></th>
               <th class="text-table">Detalle</th>
-              <th class="text-table" width="10%">Tipo Evento</th>
-              <th class="text-table" width="15%">Fecha Inicio Inscripción</th>
-              <th class="text-table" width="15%">Fecha Fin Inscripción</th>
-              <th class="text-table" width="10%">Estado</th>
+              <th class="text-table">Tipo Evento</th>
+              <th class="text-table">Fecha Inicio Inscripción</th>
+              <th class="text-table" >Fecha Fin Inscripción</th>
+              <th class="text-table" >Fecha Inicio Evento</th>
+              <th class="text-table" >Fecha Fin Evento</th>
+              <th class="text-table">Cant. Permitidas</th>
+              <th class="text-table" >Cant. Registradas</th>
+              <th class="text-table">Estado</th>
               <th class="text-center text-table" width="10%">Habeas Data</th>
               <th class="text-center text-table" width="10%">URL</th>
               <th class="text-center text-table" width="10%">Vigencia</th>
@@ -59,6 +63,10 @@
                 <td class="text-table"><%= evento.tiposevento.descripcion rescue nil %></td>
                 <td class="text-table"><%= evento.fecha_inicio.strftime("%d/%m/%Y") rescue '' %></td>
                 <td class="text-table"><%= evento.fecha_fin.strftime("%d/%m/%Y") rescue '' %></td>
+                <td class="text-table"><%= evento.fecha_inicio_e.strftime("%d/%m/%Y") rescue '' %></td>
+                <td class="text-table"><%= evento.fecha_fin_e.strftime("%d/%m/%Y") rescue '' %></td>
+                <td class="text-table"><%= evento.cantidad_persona rescue '' %></td>
+                <td class="text-table"><%= evento.eventospersonas.size rescue '' %></td>
                 <td class="text-table"><%= evento.estado %></td>
                 <td class=" text-center  text-table">
                   <% if evento.habeas_data.present? %>

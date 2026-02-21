@@ -21,11 +21,14 @@ class EventosController < ApplicationController
   end
 
   def edit
-    return redirect_to evento_eventospersonas_path(@evento) if @evento.etapa.to_s == "B"
+    if @evento.etapa.to_s == "B"
+      @q = @evento.eventospersonas.ransack(params[:q])
+      @eventospersonas = @q.result(order: 'created_at desc')
+                           .paginate(page: params[:page], per_page: 10)
+    end
 
     render :evento_form
   end
-
   def create
     @evento = Evento.new(evento_params)
     @evento.etapa = params[:etapa]

@@ -8,13 +8,13 @@
       </div>
       <div class="box-body">
         <div class="row">
-          <div class="col-md-4">
+          <div class="col-md-3">
             <%= f.input :iglesiascomunidad_id, collection: Iglesiascomunidad.where(estado: "ACTIVO").order(:nombre).collect { |p| [p.nombre, p.id] }, input_html: { class: 'select2' }, as: :select, include_blank: true, label: "Comunidad " %>
           </div>
-          <div class="col-md-4">
+          <div class="col-md-3">
             <%= f.input :tiposevento_id, collection: Tiposevento.where(estado: "ACTIVO").order(:descripcion).collect { |p| [p.descripcion, p.id] }, input_html: { class: 'select2' }, as: :select, include_blank: true, label: "Tipo de Evento " %>
           </div>
-          <div class="col-md-2">
+          <div class="col-md-3">
             <label>Fecha Inicio Inscripción</label>
             <div class="input-group">
               <div class="input-group-addon" style="background: #EDEDED;">
@@ -23,7 +23,7 @@
               <%= f.input :fecha_inicio, as: :string, label: false, input_html: { class: 'form-control datepicker', autocomplete: 'off' } %>
             </div>
           </div>
-          <div class="col-md-2">
+          <div class="col-md-3">
             <label>Fecha Fin Inscripción</label>
             <div class="input-group">
               <div class="input-group-addon" style="background: #EDEDED;">
@@ -58,17 +58,45 @@
           <div class="col-md-3">
             <%= f.input :cantidad_persona,
                         as: :integer,
-                        label: "Cantidad de Personas",
+                        label: "Cantidad de Personas Permitidas",
                         input_html: { class: 'form-control', min: 0 } %>
+          </div>
+          <div class="col-md-3">
+            <label class="form-label">Cantidad de Personas Registradas</label>
+            <%= text_field_tag :cantidad_registradas,
+                               @evento.eventospersonas.size,
+                               class: 'form-control',
+                               disabled: true %>
+          </div>
+          <div class="col-md-6">
+            <%= f.input :detalle, as: :text, input_html: { :onchange => "javascript:this.value=this.value.toUpperCase();" } %>
+          </div>
+          <div class="col-md-3">
+            <%= f.input :habeas_data, as: :file, input_html: { :onchange => "javascript:this.value=this.value.toUpperCase();" } %>
           </div>
         </div>
           <div class="row">
-            <div class="col-md-6">
-              <%= f.input :detalle, as: :text, input_html: { :onchange => "javascript:this.value=this.value.toUpperCase();" } %>
-            </div>
-            <div class="col-md-6">
-              <%= f.input :habeas_data, as: :file, input_html: { :onchange => "javascript:this.value=this.value.toUpperCase();" } %>
-            </div>
+            <% if @evento.habeas_data.present? %>
+              <div class="row">
+                <div class="col-md-12">
+                  <div style="background:#f9f9f9; padding:20px; border-radius:5px; margin-top:20px;">
+                    <h4><i class="fa fa-shield"></i> Documento actual (Habeas Data)</h4>
+
+                    <iframe src="<%= @evento.habeas_data.url %>"
+                            width="100%"
+                            height="500px"
+                            style="border:1px solid #ccc; margin-top:15px;">
+                    </iframe>
+
+                    <br>
+                    <%= link_to "Descargar documento",
+                                @evento.habeas_data.url,
+                                class: "btn btn-default",
+                                target: "_blank" %>
+                  </div>
+                </div>
+              </div>
+            <% end %>
           </div>
 
           <!-- Sección de URL pública (solo si el evento ya fue creado) -->
@@ -114,7 +142,8 @@
       </div>
   <% end %>
 <% elsif @evento.etapa.to_s == "B" %>
-  <%#= render 'eventospersonas/eventospersonas' %>
+  <%= render "eventospersonas/tabla",
+             eventospersonas: @eventospersonas %>
 <% end %>
 
 <% if @evento.persisted? && @evento.url_publica.present? %>
