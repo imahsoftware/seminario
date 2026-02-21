@@ -15,7 +15,7 @@
             Tu registro ha sido completado con éxito.
           </p>
 
-          <div class="alert alert-success" style="margin-top: 30px; text-align: left;">
+          <div class="callout callout-success" style="margin-top: 30px; text-align: left;">
             <h4 style="margin-top: 0;">
               <i class="fa fa-info-circle"></i> Detalles del Evento
             </h4>
@@ -27,6 +27,9 @@
             </p>
             <p style="margin: 10px 0;">
               <strong>Fecha del Evento:</strong> <%= @evento.fecha_inicio_e.strftime("%d/%m/%Y") rescue '' %>
+            </p>
+            <p style="margin: 10px 0;">
+              <strong>Fecha del Fin:</strong> <%= @evento.fecha_fin_e.strftime("%d/%m/%Y") rescue '' %>
             </p>
           </div>
 
