@@ -1,61 +1,192 @@
+<%
+  # ── Cálculo de indicadores ──────────────────────────────────────────
+  hoy            = Date.today
+  todos          = @q.result   # sin paginar, para totales reales
+  menores        = todos.select { |p| p.fecha_nacimiento.present? && ((hoy - p.fecha_nacimiento.to_date).to_i / 365.25) < 18 }
+  mayores        = todos.select { |p| p.fecha_nacimiento.present? && ((hoy - p.fecha_nacimiento.to_date).to_i / 365.25) >= 18 }
+  sin_fecha      = todos.select { |p| p.fecha_nacimiento.blank? }
+%>
+
 <div class="box box-danger">
-  <div class="box-header">
-    <legend>Personas Inscriptas</legend>
-    <div class="box-tools pull-right" style="margin-bottom:10px;">
+
+  <%# ── HEADER ──────────────────────────────────────────────────────── %>
+  <div class="box-header with-border">
+    <h3 class="box-title"><i class="fa fa-users"></i> Personas Inscritas</h3>
+
+    <div class="box-tools pull-right">
       <%= search_form_for @q,
                           url: edit_evento_path(@evento),
                           method: :get do |f| %>
-
-        <div class="input-group input-group-sm" style="width: 220px;">
-
+        <div class="input-group input-group-sm" style="width: 250px;">
           <%= f.search_field :identificacion_or_nombre_or_apellido_or_email_or_celular_cont,
                              onChange: 'javascript:this.value=this.value.toUpperCase();',
-                             class: 'form-control pull-right input_uppercase',
+                             class: 'form-control input_uppercase',
                              placeholder: 'Buscar...' %>
-
           <div class="input-group-btn">
             <%= button_tag(type: "submit", class: "btn btn-default") do %>
               <i class="fa fa-search"></i>
             <% end %>
           </div>
-
         </div>
-
       <% end %>
     </div>
-    </div>
-    <div class="table-responsive">
-      <table class="table table-bordered">
-        <thead>
-        <tr class="thcolor">
+  </div>
 
-          <% if is_auth_a('eventospersonas') %>
-            <th class="text-center">Acciones</th>
-          <% end %>
+  <%# ── INDICADORES ─────────────────────────────────────────────────── %>
+  <div class="box-body" style="padding-bottom: 0;">
+    <div class="row">
 
-          <th>Evento</th>
-          <th>Identificación</th>
-          <th>Nombre</th>
-          <th>Apellido</th>
-          <th>Celular</th>
-          <th>Email</th>
-          <th>Edad</th>
-
-        </tr>
-        </thead>
-
-        <tbody id="tbody_eventospersonas">
-        <% @eventospersonas.each do |eventospersona| %>
-          <%= render 'eventospersonas/tr', eventospersona: eventospersona %>
-        <% end %>
-        </tbody>
-      </table>
-    </div>
-
-    <div class="box-footer clear-fix">
-      <div class="box-tools pull-right">
-        <%= will_paginate @eventospersonas, renderer: BootstrapPagination::Rails %>
+      <div class="col-md-3 col-sm-6 col-xs-12">
+        <div class="info-box bg-aqua">
+          <span class="info-box-icon"><i class="fa fa-users"></i></span>
+          <div class="info-box-content">
+            <span class="info-box-text">Total Inscritos</span>
+            <span class="info-box-number"><%= todos.count %></span>
+          </div>
+        </div>
       </div>
+
+      <div class="col-md-3 col-sm-6 col-xs-12">
+        <div class="info-box bg-green">
+          <span class="info-box-icon"><i class="fa fa-user"></i></span>
+          <div class="info-box-content">
+            <span class="info-box-text">Mayores de Edad</span>
+            <span class="info-box-number"><%= mayores.count %></span>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-md-3 col-sm-6 col-xs-12">
+        <div class="info-box bg-yellow">
+          <span class="info-box-icon"><i class="fa fa-child"></i></span>
+          <div class="info-box-content">
+            <span class="info-box-text">Menores de Edad</span>
+            <span class="info-box-number"><%= menores.count %></span>
+          </div>
+        </div>
+      </div>
+
+      <% if sin_fecha.any? %>
+        <div class="col-md-3 col-sm-6 col-xs-12">
+          <div class="info-box bg-red">
+            <span class="info-box-icon"><i class="fa fa-question-circle"></i></span>
+            <div class="info-box-content">
+              <span class="info-box-text">Sin Fecha Nac.</span>
+              <span class="info-box-number"><%= sin_fecha.count %></span>
+            </div>
+          </div>
+        </div>
+      <% end %>
+
     </div>
   </div>
+
+  <%# ── TABLA ───────────────────────────────────────────────────────── %>
+  <div class="box-body table-responsive">
+    <table class="table table-bordered table-hover table-striped">
+      <thead>
+      <tr class="thcolor">
+        <% if is_auth_a('eventospersonas') %>
+          <th class="text-center" style="width: 80px;">Acciones</th>
+        <% end %>
+        <th class="text-center">Identificación</th>
+        <th>Nombre Completo</th>
+        <th class="text-center">Edad</th>
+        <th class="text-center">Celular</th>
+        <th>Email</th>
+        <th class="text-center">Inscripción</th>
+        <th>Acudiente / Celular</th>
+
+      </tr>
+      </thead>
+
+      <tbody id="tbody_eventospersonas">
+      <% @eventospersonas.each do |ep| %>
+        <%
+          edad = ep.fecha_nacimiento.present? ? ((Date.today - ep.fecha_nacimiento.to_date).to_i / 365.25).floor : nil
+          es_menor = edad.present? && edad < 18
+        %>
+        <tr class="<%= es_menor ? 'warning' : '' %>">
+
+          <% if is_auth_a('eventospersonas') %>
+            <td class="text-center">
+              <%= render 'eventospersonas/acciones', eventospersona: ep %>
+            </td>
+          <% end %>
+
+          <%# Identificación %>
+          <td class="text-center"><%= ep.identificacion %></td>
+
+          <%# Nombre completo %>
+          <td><%= "#{ep.nombre} #{ep.apellido}".strip %></td>
+
+          <%# Edad %>
+          <td class="text-center">
+            <% if edad.present? %>
+                <span class="badge <%= es_menor ? 'bg-yellow' : 'bg-green' %>">
+                  <%= edad %> años
+                </span>
+            <% else %>
+              <span class="label label-default">N/D</span>
+            <% end %>
+          </td>
+
+          <%# Celular %>
+          <td class="text-center"><%= ep.celular %></td>
+
+          <%# Email %>
+          <td><%= ep.email %></td>
+
+          <%# Fecha de inscripción %>
+          <td class="text-center">
+            <%= ep.created_at.strftime('%d/%m/%Y %H:%M') rescue 'N/D' %>
+          </td>
+
+          <%# Acudiente (solo si es menor) %>
+          <td>
+            <% if es_menor %>
+              <% nombre_ac = "#{ep.acudiente_nombre} #{ep.acudiente_apellido}".strip %>
+              <% if nombre_ac.present? %>
+                <i class="fa fa-user-circle text-yellow"></i>
+                <strong><%= nombre_ac %></strong><br>
+                <% if ep.acudiente_celular.present? %>
+                  <i class="fa fa-phone text-muted"></i>
+                  <small><%= ep.acudiente_celular %></small>
+                <% end %>
+              <% else %>
+                <span class="label label-danger">Sin acudiente</span>
+              <% end %>
+            <% else %>
+              <span class="text-muted">—</span>
+            <% end %>
+          </td>
+
+        </tr>
+      <% end %>
+
+      <% if @eventospersonas.empty? %>
+        <tr>
+          <td colspan="8" class="text-center text-muted">
+            <i class="fa fa-info-circle"></i> No se encontraron personas inscritas.
+          </td>
+        </tr>
+      <% end %>
+      </tbody>
+    </table>
+  </div>
+
+  <%# ── PAGINACIÓN ──────────────────────────────────────────────────── %>
+  <div class="box-footer clearfix">
+    <div class="pull-right">
+      <%= will_paginate @eventospersonas, renderer: BootstrapPagination::Rails %>
+    </div>
+    <div class="pull-left text-muted" style="padding-top: 6px;">
+      <small>
+        Mostrando <%= @eventospersonas.offset_value + 1 %> –
+        <%= [@eventospersonas.offset_value + @eventospersonas.length, @eventospersonas.total_entries].min %>
+        de <%= @eventospersonas.total_entries %> registros
+      </small>
+    </div>
+  </div>
+
 </div>

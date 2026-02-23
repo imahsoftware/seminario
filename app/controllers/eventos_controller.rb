@@ -23,12 +23,28 @@ class EventosController < ApplicationController
   def edit
     if @evento.etapa.to_s == "B"
       @q = @evento.eventospersonas.ransack(params[:q])
-      @eventospersonas = @q.result(order: 'created_at desc')
+      resultado_completo = @q.result(distinct: true)
+
+      hoy = Date.today
+
+      @total_inscritos  = resultado_completo.count
+      @total_menores    = resultado_completo.where(
+        "fecha_nacimiento > ?", hoy - 18.years
+      ).count
+      @total_mayores    = resultado_completo.where(
+        "fecha_nacimiento <= ?", hoy - 18.years
+      ).count
+      @sin_fecha        = resultado_completo.where(fecha_nacimiento: nil).count
+
+      @eventospersonas = resultado_completo
+                           .order('created_at desc')
                            .paginate(page: params[:page], per_page: 10)
     end
 
     render :evento_form
   end
+
+
   def create
     @evento = Evento.new(evento_params)
     @evento.etapa = params[:etapa]

@@ -1,140 +1,160 @@
-<!-- app/views/eventos/index.html.erb -->
+<%# app/views/eventos/index.html.erb %>
+
 <div class="box box-primary">
-  <div class="box-header ">
 
-    <legend>
-      Eventos
-    </legend>
-    <div class="box-tools pull-right">
-      <%= link_to new_evento_path, class: 'btn btn-sm btn-info' do %>
-        <i class="fa fa-plus-square"> </i> <span>Nuevo Evento</span>
-      <% end %>&nbsp;&nbsp;
+  <%# ── HEADER ────────────────────────────────────────────────────── %>
+  <div class="box-header with-border">
+    <h3 class="box-title"><i class="fa fa-calendar"></i> Eventos</h3>
+    <div class="box-tools pull-right" style="display:flex; gap:6px; align-items:center;">
 
-      <div class="box-tools pull-right">
-        <%= search_form_for @q do |f| %>
-          <div class="input-group input-group-sm" style="width: 180px;">
-            <%= f.search_field :detalle_cont, onChange: 'javascript:this.value=this.value.toUpperCase();', class: 'form-control pull-right input_uppercase', placeholder: 'Buscar...' %>
-            <div class="input-group-btn">
-              <%= button_tag(type: "submit", class: "btn btn-default") do %>
-                <i class="fa fa-search"></i>
-              <% end %>
-            </div>
-          </div>
-        <% end %>
-      </div>
-    </div><!-- /.box-tools -->
-  </div><!-- /.box-header -->
-  <div class="box-body">
-    <div class="row">
-      <div class="col-md-12">
-        <div id="eventos-form" hidden></div>
-      </div>
-    </div>
-    <div class="row">
-      <div class="col-md-12">
-        <div class="box-body table-responsive">
-          <table class="table table-bordered table-condensed table-striped">
-            <thead>
-            <tr class="thcolor">
-              <th class="text-center" width="5%"></th>
-              <th class="text-table">Detalle</th>
-              <th class="text-table">Tipo Evento</th>
-              <th class="text-table">Fecha Inicio Inscripción</th>
-              <th class="text-table" >Fecha Fin Inscripción</th>
-              <th class="text-table" >Fecha Inicio Evento</th>
-              <th class="text-table" >Fecha Fin Evento</th>
-              <th class="text-table">Cant. Permitidas</th>
-              <th class="text-table" >Cant. Registradas</th>
-              <th class="text-table">Estado</th>
-              <th class="text-center text-table" width="10%">Habeas Data</th>
-              <th class="text-center text-table" width="10%">URL</th>
-              <th class="text-center text-table" width="10%">Vigencia</th>
-            </tr>
-            </thead>
-            <tbody id="eventos-tbody">
-            <% @eventos.order(created_at: :desc).each do |evento| %>
-              <tr id="evento_<%= evento.guid %>">
-                <td class="text-center">
-                  <%= link_to edit_evento_path(evento.guid, etapa: 'A'), class: 'edit_eproveedor_button', data: { toggle: 'tooltip' }, title: "#{t :title_editar}" do %>
-                    <button class="btn btn-xs btn-warning"><i class="fa fa-edit"></i></button>
-                  <% end %>
-                </td>
-                <td class="text-table"><%= evento.detalle %></td>
-                <td class="text-table"><%= evento.tiposevento.descripcion rescue nil %></td>
-                <td class="text-table"><%= evento.fecha_inicio.strftime("%d/%m/%Y") rescue '' %></td>
-                <td class="text-table"><%= evento.fecha_fin.strftime("%d/%m/%Y") rescue '' %></td>
-                <td class="text-table"><%= evento.fecha_inicio_e.strftime("%d/%m/%Y") rescue '' %></td>
-                <td class="text-table"><%= evento.fecha_fin_e.strftime("%d/%m/%Y") rescue '' %></td>
-                <td class="text-table"><%= evento.cantidad_persona rescue '' %></td>
-                <td class="text-table"><%= evento.eventospersonas.size rescue '' %></td>
-                <td class="text-table"><%= evento.estado %></td>
-                <td class=" text-center  text-table">
-                  <% if evento.habeas_data.present? %>
-                    <%= link_to "Descargar",
-                                evento.habeas_data.url,
-                                download: evento.habeas_data_file_name,
-                                class: "btn btn-xs btn-success" %> </td>
-                  <% end %>
-                  <td class="text-center text-table">
-                    <% if evento.url_publica.present? %>
-                      <button class="btn btn-xs btn-info copiar-url"
-                              data-url="<%= evento.url_publica %>"
-                              data-toggle="tooltip"
-                              title="Copiar URL">
-                        <i class="fa fa-copy"></i>
-                      </button>
-                      <a href="<%= evento.url_publica %>"
-                         target="_blank"
-                         class="btn btn-xs btn-success"
-                         data-toggle="tooltip"
-                         title="Ver formulario">
-                        <i class="fa fa-external-link"></i>
-                      </a>
-                    <% end %>
-                  </td>
-                  <td class="text-center">
-                    <% if evento.vigente? %>
-                      <span class="label label-success">VIGENTE</span>
-                    <% elsif evento.vencido? %>
-                      <span class="label label-danger">VENCIDO</span>
-                    <% else %>
-                      <span class="label label-warning">NO INICIADO</span>
-                    <% end %>
-                  </td>
-                  </tr>
+      <%= link_to new_evento_path, class: 'btn btn-sm btn-success' do %>
+        <i class="fa fa-plus-square"></i> Nuevo Evento
+      <% end %>
+
+      <%= search_form_for @q do |f| %>
+        <div class="input-group input-group-sm" style="width: 220px;">
+          <%= f.search_field :detalle_cont,
+                             onChange: 'javascript:this.value=this.value.toUpperCase();',
+                             class: 'form-control input_uppercase',
+                             placeholder: 'Buscar evento...' %>
+          <div class="input-group-btn">
+            <%= button_tag(type: "submit", class: "btn btn-default") do %>
+              <i class="fa fa-search"></i>
             <% end %>
-            </tbody>
-          </table>
+          </div>
         </div>
-      </div>
+      <% end %>
+
     </div>
-  </div><!-- /.box-body -->
-  <div class="box-footer clear-fix">
-    <div class="box-tools pull-right">
+  </div>
+
+  <%# ── BODY ──────────────────────────────────────────────────────── %>
+  <div class="box-body table-responsive">
+    <table class="table table-bordered table-hover table-striped" style="font-size: 13px;">
+      <thead>
+      <tr class="thcolor">
+        <th class="text-center" width="8%"></th>
+        <th>Detalle</th>
+        <th width="18%">Tipo Evento</th>
+        <th class="text-center" width="12%">Fechas Inscripción</th>
+        <th class="text-center" width="12%">Fechas Evento</th>
+        <th class="text-center" width="12%">Cupos</th>
+        <th class="text-center" width="12%">Estado</th>
+      </tr>
+      </thead>
+      <tbody>
+
+      <% if @eventos.empty? %>
+        <tr>
+          <td colspan="7" class="text-center text-muted" style="padding: 30px;">
+            <i class="fa fa-calendar-o fa-2x"></i><br>
+            <small>No se encontraron eventos.</small>
+          </td>
+        </tr>
+
+      <% else %>
+        <% @eventos.order(created_at: :desc).each do |evento| %>
+          <%
+            inscritos  = evento.eventospersonas.size rescue 0
+            permitidos = evento.cantidad_persona.to_i
+            porcentaje = permitidos > 0 ? [(inscritos * 100.0 / permitidos).round, 100].min : 0
+            color_barra = porcentaje >= 100 ? 'danger' : porcentaje >= 75 ? 'warning' : 'success'
+          %>
+          <tr>
+            <td class="text-center">
+              <%= link_to edit_evento_path(evento.guid, etapa: 'A'),
+                          class: 'btn btn-xs btn-warning',
+                          title: 'Editar',
+                          data: { toggle: 'tooltip' } do %>
+                <i class="fa fa-edit"></i>
+              <% end %>
+              <%= link_to edit_evento_path(evento.guid, etapa: 'B'),
+                          class: 'btn btn-xs btn-info',
+                          title: 'Ver inscritos',
+                          data: { toggle: 'tooltip' } do %>
+                <i class="fa fa-users"></i>
+              <% end %>
+            </td>
+            <td><%= evento.detalle rescue nil %></td>
+            <td><%= evento.tiposevento.descripcion rescue '—' %></td>
+            <td class="text-center">
+              <small>
+                <i class="fa fa-calendar text-muted"></i>
+                <%= evento.fecha_inicio.strftime("%d/%m/%Y") rescue '—' %>
+              </small><br>
+              <small>
+                <i class="fa fa-calendar-check-o text-muted"></i>
+                <%= evento.fecha_fin.strftime("%d/%m/%Y") rescue '—' %>
+              </small>
+            </td>
+
+            <%# Fechas Evento %>
+            <td class="text-center">
+              <small>
+                <i class="fa fa-calendar text-muted"></i>
+                <%= evento.fecha_inicio_e.strftime("%d/%m/%Y") rescue '—' %>
+              </small><br>
+              <small>
+                <i class="fa fa-calendar-check-o text-muted"></i>
+                <%= evento.fecha_fin_e.strftime("%d/%m/%Y") rescue '—' %>
+              </small>
+            </td>
+
+            <%# Cupos %>
+            <td class="text-center">
+                <span>
+                  <strong><%= inscritos %></strong>
+                  <% if permitidos > 0 %>
+                    <span class="text-muted">/ <%= permitidos %></span>
+                  <% end %>
+                </span>
+              <% if permitidos > 0 %>
+                <div class="progress progress-xs" style="margin: 4px 0 0 0;">
+                  <div class="progress-bar progress-bar-<%= color_barra %>"
+                       style="width: <%= porcentaje %>%"
+                       title="<%= porcentaje %>% ocupado">
+                  </div>
+                </div>
+              <% end %>
+            </td>
+
+
+            <td class="text-center">
+              <% if evento.vigente? %>
+                <span class="label label-success">VIGENTE</span>
+              <% elsif evento.vencido? %>
+                <span class="label label-danger">VENCIDO</span>
+              <% else %>
+                <span class="label label-warning">NO INICIADO</span>
+              <% end %>
+            </td>
+
+          </tr>
+        <% end %>
+      <% end %>
+
+      </tbody>
+    </table>
+  </div>
+
+  <%# ── FOOTER PAGINACIÓN ─────────────────────────────────────────── %>
+  <div class="box-footer clearfix">
+    <div class="pull-right">
       <%= will_paginate @eventos, renderer: BootstrapPagination::Rails %>
     </div>
-  </div><!-- box-footer -->
-</div><!-- /.box -->
+    <div class="pull-left text-muted" style="padding-top: 6px;">
+      <small>
+        Mostrando <%= @eventos.offset_value + 1 %> –
+        <%= [@eventos.offset_value + @eventos.length, @eventos.total_entries].min %>
+        de <%= @eventos.total_entries %> eventos
+      </small>
+    </div>
+  </div>
 
-<!-- Script para copiar URL desde el índice -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.11/clipboard.min.js"></script>
+</div>
+
 <script>
     $(document).ready(function () {
-        // Inicializar tooltips
         $('[data-toggle="tooltip"]').tooltip();
-
-        // Copiar URL al hacer click
-        $('.copiar-url').on('click', function () {
-            var url = $(this).data('url');
-
-            // Crear elemento temporal para copiar
-            var $temp = $("<input>");
-            $("body").append($temp);
-            $temp.val(url).select();
-            document.execCommand("copy");
-            $temp.remove();
-
-            toastr.success('URL copiada al portapapeles');
-        });
     });
 </script>

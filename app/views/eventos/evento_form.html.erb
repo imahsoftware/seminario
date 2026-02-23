@@ -142,8 +142,7 @@
       </div>
   <% end %>
 <% elsif @evento.etapa.to_s == "B" %>
-  <%= render "eventospersonas/tabla",
-             eventospersonas: @eventospersonas %>
+  <%= render "eventospersonas/tabla", eventospersonas: @eventospersonas %>
 <% end %>
 
 <% if @evento.persisted? && @evento.url_publica.present? %>
