@@ -1,10 +1,9 @@
 <%
-  # ── Cálculo de indicadores ──────────────────────────────────────────
-  hoy            = Date.today
-  todos          = @q.result   # sin paginar, para totales reales
-  menores        = todos.select { |p| p.fecha_nacimiento.present? && ((hoy - p.fecha_nacimiento.to_date).to_i / 365.25) < 18 }
-  mayores        = todos.select { |p| p.fecha_nacimiento.present? && ((hoy - p.fecha_nacimiento.to_date).to_i / 365.25) >= 18 }
-  sin_fecha      = todos.select { |p| p.fecha_nacimiento.blank? }
+  hoy       = Date.today
+  todos     = @q.result
+  menores   = todos.select { |p| p.fecha_nacimiento.present? && ((hoy - p.fecha_nacimiento.to_date).to_i / 365.25) < 18 }
+  mayores   = todos.select { |p| p.fecha_nacimiento.present? && ((hoy - p.fecha_nacimiento.to_date).to_i / 365.25) >= 18 }
+  sin_fecha = todos.select { |p| p.fecha_nacimiento.blank? }
 %>
 
 <div class="box box-danger">
@@ -12,7 +11,6 @@
   <%# ── HEADER ──────────────────────────────────────────────────────── %>
   <div class="box-header with-border">
     <h3 class="box-title"><i class="fa fa-users"></i> Personas Inscritas</h3>
-
     <div class="box-tools pull-right">
       <%= search_form_for @q,
                           url: edit_evento_path(@evento),
@@ -86,9 +84,7 @@
     <table class="table table-bordered table-hover table-striped">
       <thead>
       <tr class="thcolor">
-        <% if is_auth_a('eventospersonas') %>
-          <th class="text-center" style="width: 80px;">Acciones</th>
-        <% end %>
+        <th class="text-center" style="width: 60px;">Ver</th>
         <th class="text-center">Identificación</th>
         <th>Nombre Completo</th>
         <th class="text-center">Edad</th>
@@ -96,31 +92,31 @@
         <th>Email</th>
         <th class="text-center">Inscripción</th>
         <th>Acudiente / Celular</th>
-
       </tr>
       </thead>
 
       <tbody id="tbody_eventospersonas">
       <% @eventospersonas.each do |ep| %>
         <%
-          edad = ep.fecha_nacimiento.present? ? ((Date.today - ep.fecha_nacimiento.to_date).to_i / 365.25).floor : nil
+          edad     = ep.fecha_nacimiento.present? ? ((Date.today - ep.fecha_nacimiento.to_date).to_i / 365.25).floor : nil
           es_menor = edad.present? && edad < 18
         %>
+
         <tr class="<%= es_menor ? 'warning' : '' %>">
 
-          <% if is_auth_a('eventospersonas') %>
-            <td class="text-center">
-              <%= render 'eventospersonas/acciones', eventospersona: ep %>
-            </td>
-          <% end %>
+          <%# Botón Ver Detalle %>
+          <td class="text-center">
+            <button class="btn btn-xs btn-primary btn-detalle-persona"
+                    data-id="<%= ep.id %>"
+                    data-toggle="tooltip"
+                    title="Ver detalle completo">
+              <i class="fa fa-eye"></i>
+            </button>
+          </td>
 
-          <%# Identificación %>
           <td class="text-center"><%= ep.identificacion %></td>
-
-          <%# Nombre completo %>
           <td><%= "#{ep.nombre} #{ep.apellido}".strip %></td>
 
-          <%# Edad %>
           <td class="text-center">
             <% if edad.present? %>
                 <span class="badge <%= es_menor ? 'bg-yellow' : 'bg-green' %>">
@@ -131,18 +127,13 @@
             <% end %>
           </td>
 
-          <%# Celular %>
           <td class="text-center"><%= ep.celular %></td>
-
-          <%# Email %>
           <td><%= ep.email %></td>
 
-          <%# Fecha de inscripción %>
           <td class="text-center">
             <%= ep.created_at.strftime('%d/%m/%Y %H:%M') rescue 'N/D' %>
           </td>
 
-          <%# Acudiente (solo si es menor) %>
           <td>
             <% if es_menor %>
               <% nombre_ac = "#{ep.acudiente_nombre} #{ep.acudiente_apellido}".strip %>
@@ -162,15 +153,264 @@
           </td>
 
         </tr>
-      <% end %>
+
+        <%# ── MODAL DE DETALLE ─────────────────────────────────────── %>
+        <div class="modal fade"
+             id="modal-persona-<%= ep.id %>"
+             tabindex="-1"
+             role="dialog">
+          <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content">
+
+              <div class="modal-header <%= es_menor ? 'bg-yellow' : 'bg-primary' %>"
+                   style="color:#fff; border-radius: 3px 3px 0 0;">
+                <button type="button" class="close" data-dismiss="modal"
+                        style="color:#fff; opacity:1;">
+                  <span>&times;</span>
+                </button>
+                <h4 class="modal-title">
+                  <i class="fa fa-user"></i>
+                  <%= "#{ep.nombre} #{ep.apellido}".strip %>
+                  <% if es_menor %>
+                    <small style="font-size:12px; margin-left:8px;">
+                        <span class="label label-warning">
+                          <i class="fa fa-child"></i> MENOR DE EDAD
+                        </span>
+                    </small>
+                  <% end %>
+                </h4>
+              </div>
+
+              <div class="modal-body" style="padding: 20px 25px;">
+
+                <%# Datos Personales %>
+                <div class="box box-solid box-primary" style="margin-bottom:15px;">
+                  <div class="box-header with-border" style="padding: 8px 12px;">
+                    <h4 class="box-title"><i class="fa fa-id-card"></i> Datos Personales</h4>
+                  </div>
+                  <div class="box-body" style="padding: 12px 15px;">
+                    <div class="row">
+
+                      <div class="col-md-4 col-sm-6">
+                        <p class="text-muted" style="margin-bottom:2px;"><small>Identificación</small></p>
+                        <p><strong><%= ep.identificacion %></strong></p>
+                      </div>
+
+                      <div class="col-md-4 col-sm-6">
+                        <p class="text-muted" style="margin-bottom:2px;"><small>Nombre Completo</small></p>
+                        <p><strong><%= "#{ep.nombre} #{ep.apellido}".strip %></strong></p>
+                      </div>
+
+                      <div class="col-md-4 col-sm-6">
+                        <p class="text-muted" style="margin-bottom:2px;"><small>Fecha de Nacimiento</small></p>
+                        <p>
+                          <strong><%= ep.fecha_nacimiento.present? ? ep.fecha_nacimiento.strftime('%d/%m/%Y') : 'N/D' %></strong>
+                          <% if edad.present? %>
+                              <span class="badge <%= es_menor ? 'bg-yellow' : 'bg-green' %>">
+                                <%= edad %> años
+                              </span>
+                          <% end %>
+                        </p>
+                      </div>
+
+                      <div class="col-md-4 col-sm-6">
+                        <p class="text-muted" style="margin-bottom:2px;"><small>Sexo</small></p>
+                        <p>
+                          <% if ep.sexo == 'M' %>
+                            <i class="fa fa-mars text-primary"></i> <strong>Masculino</strong>
+                          <% elsif ep.sexo == 'F' %>
+                            <i class="fa fa-venus text-danger"></i> <strong>Femenino</strong>
+                          <% else %>
+                            <strong><%= ep.sexo.presence || 'N/D' %></strong>
+                          <% end %>
+                        </p>
+                      </div>
+
+                      <div class="col-md-4 col-sm-6">
+                        <p class="text-muted" style="margin-bottom:2px;"><small>Estado Civil</small></p>
+                        <p><strong><%= ep.estado_civil.presence || 'N/D' %></strong></p>
+                      </div>
+
+                      <div class="col-md-4 col-sm-6">
+                        <p class="text-muted" style="margin-bottom:2px;"><small>Tipo Persona</small></p>
+                        <p><strong><%= ep.tipo_persona.presence || 'N/D' %></strong></p>
+                      </div>
+
+                    </div>
+                  </div>
+                </div>
+
+                <%# Contacto %>
+                <div class="box box-solid box-info" style="margin-bottom:15px;">
+                  <div class="box-header with-border" style="padding: 8px 12px;">
+                    <h4 class="box-title"><i class="fa fa-phone"></i> Contacto</h4>
+                  </div>
+                  <div class="box-body" style="padding: 12px 15px;">
+                    <div class="row">
+
+                      <div class="col-md-4 col-sm-6">
+                        <p class="text-muted" style="margin-bottom:2px;"><small>Celular</small></p>
+                        <p>
+                          <i class="fa fa-mobile text-info"></i>
+                          <strong><%= ep.celular.presence || 'N/D' %></strong>
+                        </p>
+                      </div>
+
+                      <div class="col-md-4 col-sm-6">
+                        <p class="text-muted" style="margin-bottom:2px;"><small>Email</small></p>
+                        <p>
+                          <i class="fa fa-envelope text-info"></i>
+                          <strong><%= ep.email.presence || 'N/D' %></strong>
+                        </p>
+                      </div>
+
+                      <div class="col-md-4 col-sm-6">
+                        <p class="text-muted" style="margin-bottom:2px;"><small>Dirección</small></p>
+                        <p>
+                          <i class="fa fa-map-marker text-info"></i>
+                          <strong><%= ep.direccion.presence || 'N/D' %></strong>
+                        </p>
+                      </div>
+
+                    </div>
+                  </div>
+                </div>
+
+                <%# Acudiente (solo menores) %>
+                <% if es_menor %>
+                  <div class="box box-solid box-warning" style="margin-bottom:15px;">
+                    <div class="box-header with-border" style="padding: 8px 12px;">
+                      <h4 class="box-title"><i class="fa fa-user-plus"></i> Datos del Acudiente</h4>
+                    </div>
+                    <div class="box-body" style="padding: 12px 15px;">
+                      <div class="row">
+
+                        <div class="col-md-4 col-sm-6">
+                          <p class="text-muted" style="margin-bottom:2px;"><small>Nombre Acudiente</small></p>
+                          <p><strong><%= "#{ep.acudiente_nombre} #{ep.acudiente_apellido}".strip.presence || 'N/D' %></strong></p>
+                        </div>
+
+                        <div class="col-md-4 col-sm-6">
+                          <p class="text-muted" style="margin-bottom:2px;"><small>Identificación</small></p>
+                          <p><strong><%= ep.acudiente_identificacion.presence || 'N/D' %></strong></p>
+                        </div>
+
+                        <div class="col-md-4 col-sm-6">
+                          <p class="text-muted" style="margin-bottom:2px;"><small>Celular</small></p>
+                          <p>
+                            <i class="fa fa-mobile text-warning"></i>
+                            <strong><%= ep.acudiente_celular.presence || 'N/D' %></strong>
+                          </p>
+                        </div>
+
+                        <div class="col-md-4 col-sm-6">
+                          <p class="text-muted" style="margin-bottom:2px;"><small>Email</small></p>
+                          <p>
+                            <i class="fa fa-envelope text-warning"></i>
+                            <strong><%= ep.acudiente_email.presence || 'N/D' %></strong>
+                          </p>
+                        </div>
+
+                        <div class="col-md-4 col-sm-6">
+                          <p class="text-muted" style="margin-bottom:2px;"><small>Código Validación</small></p>
+                          <p><strong><%= ep.acudiente_codigoval.presence || 'N/D' %></strong></p>
+                        </div>
+
+                        <div class="col-md-4 col-sm-6">
+                          <p class="text-muted" style="margin-bottom:2px;"><small>Código Recepción</small></p>
+                          <p><strong><%= ep.acudiente_codigorec.presence || 'N/D' %></strong></p>
+                        </div>
+
+                        <% if ep.acudiente_firma.present? %>
+                          <div class="col-md-12">
+                            <p class="text-muted" style="margin-bottom:2px;"><small>Firma Acudiente</small></p>
+                            <div style="border:1px solid #ddd; padding:5px; display:inline-block; background:#fff;">
+                              <%= image_tag ep.acudiente_firma, style: 'max-height:80px;', alt: 'Firma' %>
+                            </div>
+                          </div>
+                        <% end %>
+
+                      </div>
+                    </div>
+                  </div>
+                <% end %>
+
+                <%# Autorizaciones y Registro %>
+                <div class="box box-solid box-default" style="margin-bottom:0;">
+                  <div class="box-header with-border" style="padding: 8px 12px;">
+                    <h4 class="box-title"><i class="fa fa-check-square-o"></i> Autorizaciones y Registro</h4>
+                  </div>
+                  <div class="box-body" style="padding: 12px 15px;">
+                    <div class="row">
+
+                      <div class="col-md-3 col-sm-6">
+                        <p class="text-muted" style="margin-bottom:2px;"><small>Acepta Política</small></p>
+                        <p>
+                          <% if ep.acepta_politica == 'SI' %>
+                            <span class="label label-success"><i class="fa fa-check"></i> SI</span>
+                          <% else %>
+                            <span class="label label-danger"><i class="fa fa-times"></i> NO</span>
+                          <% end %>
+                        </p>
+                      </div>
+
+                      <div class="col-md-3 col-sm-6">
+                        <p class="text-muted" style="margin-bottom:2px;"><small>Acepta Cultura</small></p>
+                        <p>
+                          <% if ep.acepta_cultura == 'SI' %>
+                            <span class="label label-success"><i class="fa fa-check"></i> SI</span>
+                          <% else %>
+                            <span class="label label-danger"><i class="fa fa-times"></i> NO</span>
+                          <% end %>
+                        </p>
+                      </div>
+
+                      <div class="col-md-3 col-sm-6">
+                        <p class="text-muted" style="margin-bottom:2px;"><small>Fecha Inscripción</small></p>
+                        <p>
+                          <i class="fa fa-calendar text-muted"></i>
+                          <strong><%= ep.created_at.strftime('%d/%m/%Y %H:%M') rescue 'N/D' %></strong>
+                        </p>
+                      </div>
+
+                      <div class="col-md-3 col-sm-6">
+                        <p class="text-muted" style="margin-bottom:2px;"><small>Última Actualización</small></p>
+                        <p>
+                          <i class="fa fa-refresh text-muted"></i>
+                          <strong><%= ep.updated_at.strftime('%d/%m/%Y %H:%M') rescue 'N/D' %></strong>
+                        </p>
+                      </div>
+
+                    </div>
+                  </div>
+                </div>
+
+              </div><%# fin modal-body %>
+
+              <div class="modal-footer">
+                <small class="text-muted pull-left">
+                  ID: <strong>#<%= ep.id %></strong> &nbsp;|&nbsp;
+                  Evento: <strong>#<%= ep.evento_id %></strong>
+                </small>
+                <button type="button" class="btn btn-default" data-dismiss="modal">
+                  <i class="fa fa-times"></i> Cerrar
+                </button>
+              </div>
+
+            </div>
+          </div>
+        </div><%# fin modal %>
+
+        <% end %><%# fin each %>
 
       <% if @eventospersonas.empty? %>
         <tr>
-          <td colspan="8" class="text-center text-muted">
+          <td colspan="8" class="text-center text-muted" style="padding: 30px;">
             <i class="fa fa-info-circle"></i> No se encontraron personas inscritas.
           </td>
         </tr>
       <% end %>
+
       </tbody>
     </table>
   </div>
@@ -190,3 +430,14 @@
   </div>
 
 </div>
+
+<script>
+    $(document).ready(function () {
+        $('[data-toggle="tooltip"]').tooltip();
+
+        $('.btn-detalle-persona').on('click', function () {
+            var id = $(this).data('id');
+            $('#modal-persona-' + id).modal('show');
+        });
+    });
+</script>
