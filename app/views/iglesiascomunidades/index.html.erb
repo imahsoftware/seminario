@@ -1,5 +1,5 @@
 <div class="box box-primary">
-  <div class="box-header with-border">
+  <div class="box-header">
     <!-- Botón Atrás a la izquierda -->
     <div class="pull-left">
       <%= link_to iglesias_path do %>
@@ -42,9 +42,19 @@
   <div class="box-body">
     <div id="iglesiascomunidades_form"></div>
 
+
+
     <div id="iglesiascomunidades">
-      <%= render 'tabla', iglesia: @iglesia, iglesiascomunidades: @iglesiascomunidades %>
+      <% if @iglesiascomunidades.present? %>
+        <%= render 'tabla', iglesia: @iglesia, iglesiascomunidades: @iglesiascomunidades %>
+      <% else %>
+        <div class="alert alert-danger">
+          <h4><i class="icon fa fa-info"></i> <%= t :atencion %></h4>
+          <%= t :atencion_msj %>
+        </div>
+      <% end %>
     </div>
+
 
     <div class="box-tools pull-right">
       <%= will_paginate @iglesiascomunidades, renderer: BootstrapPagination::Rails %>

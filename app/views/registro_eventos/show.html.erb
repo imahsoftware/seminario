@@ -12,8 +12,8 @@
           <div class="alert alert-info">
             <h4><strong><%= @evento.detalle %></strong></h4>
             <p><strong>Tipo de Evento:</strong> <%= @evento.tiposevento.descripcion rescue 'N/A' %></p>
-            <p><strong>Fecha del Evento:</strong> <%= @evento.fecha_inicio.strftime("%d/%m/%Y") rescue '' %></p>
-            <p><strong>Vigencia de Registro:</strong> Hasta el <%= @evento.fecha_fin.strftime("%d/%m/%Y") rescue '' %></p>
+            <p><strong>Fecha del Evento:</strong> <%= @evento.fecha_inicio_e.strftime("%d/%m/%Y") rescue '' %></p>
+            <p><strong>Vigencia de Registro:</strong> Hasta el <%= @evento.fecha_fin_e.strftime("%d/%m/%Y") rescue '' %></p>
           </div>
 
           <!-- Mostrar errores de validación -->

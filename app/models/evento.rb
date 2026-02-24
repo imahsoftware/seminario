@@ -26,7 +26,7 @@ class Evento < ApplicationRecord
 
     # Rails <5.1 usa `guid_changed?`, >=5.1 puede usar `saved_change_to_guid?` en after_save
     if new_record? || guid_changed?
-      base_url = Rails.env.production? ? "http://165.227.63.186" : "http://localhost:3000"
+      base_url = Rails.env.production? ?  "https://fd4f-186-80-30-23.ngrok-free.app " : "https://fd4f-186-80-30-23.ngrok-free.app "
       self.url_publica = "#{base_url}/registro/#{self.guid}"
     end
   end
@@ -51,11 +51,11 @@ class Evento < ApplicationRecord
   end
 
   def hay_cupos?
-    eventospersonas.size < cantidad_persona
+    eventospersonas.count < cantidad_persona
   end
 
   def lleno?
-    eventospersonas.size >= cantidad_persona
+    eventospersonas.count >= cantidad_persona
   end
 
 
@@ -89,8 +89,7 @@ class Evento < ApplicationRecord
 
   def generar_url_publica
     return if guid.blank?
-
-    base_url = Rails.env.production? ? "https://tudominio.com" : "http://localhost:3000"
+    base_url = Rails.env.production? ? "https://fd4f-186-80-30-23.ngrok-free.app" : "https://fd4f-186-80-30-23.ngrok-free.app"
     self.update_column(:url_publica, "#{base_url}/registro/#{self.guid}")
   end
 

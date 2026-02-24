@@ -2,10 +2,13 @@ $(".alert_flash").fadeOut(1000, function() {
 	$(this).remove();
 });
 
-$("#tbody_iglesiascomunidades")
-	.prepend("<%= j render partial: 'tr',
-                        locals: { iglesia: @iglesia,
-                                  comunidad: @iglesiascomunidad } %>");
+<% if @iglesiascomunidades.present? %>1
+$("#iglesiascomunidades").html("<%= j render 'tabla', iglesia: @iglesia, iglesiascomunidades: @iglesiascomunidades %>");
+<% else %>
+$("#tbody_iglesiascomunidades").prepend("<%= j render partial: 'tr',
+                                                      locals: { iglesia: @iglesia,
+                                                                comunidad: @iglesiascomunidad } %>");
+<% end %>
 
 $("#iglesiascomunidades_form").empty();
 

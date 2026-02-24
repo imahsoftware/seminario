@@ -48,6 +48,7 @@ class IglesiascomunidadesController < ApplicationController
     @iglesiascomunidad.user_id = is_admin
     respond_to do |format|
       if @iglesiascomunidad.save
+        @iglesiascomunidades = @iglesia.iglesiascomunidades
         format.html { redirect_to @iglesia, notice: 'Registro creado correctamente.' }
         format.js   # si usas AJAX
       else

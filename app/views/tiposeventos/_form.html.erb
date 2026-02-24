@@ -2,7 +2,7 @@
   <div class="bs-callout">
     <div class="row">
       <div class="col-md-8">
-        <%= f.input :descripcion, input_html: { class: 'clean' } %>
+        <%= f.input :descripcion, input_html: { class: 'clean', onChange: 'javascript:this.value=this.value.toUpperCase();' } %>
       </div>
       <div class="col-md-2">
         <%= f.input :estado, collection: select_estado, as: :select, input_html: { data: { width: '100%' }, class: 'select2' } %>
