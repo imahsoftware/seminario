@@ -1,6 +1,9 @@
 # app/models/eventospersona.rb
 class Eventospersona < ApplicationRecord
   belongs_to :evento
+  belongs_to :persona
+  belongs_to :acudiente, class_name: 'Persona', optional: true
+  accepts_nested_attributes_for :persona  # <-- Esto permite crear la persona desde eventospersona
 
   # Constantes
   TIPOS_PERSONA = ['CASADO', 'SEMINARISTA', 'SOLTERO'].freeze
@@ -103,5 +106,13 @@ class Eventospersona < ApplicationRecord
     # Si los checkboxes no están marcados, asignar "NO"
     self.acepta_politica = "NO" if acepta_politica.blank?
     self.acepta_cultura = "NO" if acepta_cultura.blank?
+  end
+
+
+  def eventospersona_params
+    params.require(:eventospersona).permit(
+      :fecha_nacimiento, :evento_id,
+      persona_attributes: {}  # permite **todos** los atributos de persona
+    )
   end
 end

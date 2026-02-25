@@ -4,7 +4,7 @@ class Evento < ApplicationRecord
   belongs_to :tiposevento
   belongs_to :user
   has_many :eventospersonas, dependent: :destroy
-
+  has_many :personas, through: :eventospersonas
   before_validation :asegurar_guid, on: :create
   before_save :actualizar_url_si_necesario # usamos before_save seguro
 
