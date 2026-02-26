@@ -1,17 +1,22 @@
 # app/models/eventospersona.rb
 class Eventospersona < ApplicationRecord
   belongs_to :evento
-  belongs_to :persona
+  belongs_to :estado_civil
+  belongs_to :documento_tipo, optional: true
+  belongs_to :persona, optional: true
   belongs_to :acudiente, class_name: 'Persona', optional: true
-  accepts_nested_attributes_for :persona  # <-- Esto permite crear la persona desde eventospersona
 
-  # Constantes
+  # Campos virtuales para recibir archivos del formulario
+  attr_accessor :cedula_frente, :cedula_reverso  # <-- AGREGADO
+
   TIPOS_PERSONA = ['CASADO', 'SEMINARISTA', 'SOLTERO'].freeze
 
-  # Validaciones de campos obligatorios
+  # Validaciones
   validates :identificacion, :nombre, :apellido, :fecha_nacimiento,
-            :direccion, :celular, :email, :sexo, :estado_civil, :tipo_persona,
+            :direccion, :celular, :email, :sexo, :tipo_persona,
             presence: { message: "es obligatorio" }
+
+  validates :estado_civil_id, presence: { message: "es obligatorio" }  # <-- CORREGIDO, era :estado_civil
 
   validates :email, format: {
     with: URI::MailTo::EMAIL_REGEXP,
@@ -33,7 +38,6 @@ class Eventospersona < ApplicationRecord
     message: "debe ser CASADO, SEMINARISTA o SOLTERO"
   }
 
-  # VALIDACIONES OBLIGATORIAS DE ACEPTACIÓN
   validates :acepta_politica,
             acceptance: {
               accept: 'SI',
@@ -48,13 +52,11 @@ class Eventospersona < ApplicationRecord
             },
             presence: { message: 'Debes aceptar la cultura organizacional' }
 
-  # Validación personalizada para no permitir duplicados en el mismo evento
   validates :identificacion, uniqueness: {
     scope: :evento_id,
     message: "ya está registrado para este evento"
   }
 
-  # VALIDACIONES CONDICIONALES PARA MENORES DE EDAD
   validates :acudiente_nombre, :acudiente_apellido, :acudiente_identificacion,
             :acudiente_celular, :acudiente_email,
             presence: { message: "es obligatorio para menores de edad" },
@@ -67,17 +69,17 @@ class Eventospersona < ApplicationRecord
   validate :validar_cupos_disponibles
 
   # Callbacks
-  before_save :normalizar_datos
   before_validation :asegurar_aceptaciones
+  before_save :normalizar_datos
+  before_save :buscar_o_crear_persona
 
-  # Método para verificar si es menor de edad
+  # -------------------------------------------------------
+
   def menor_de_edad?
     return false if fecha_nacimiento.blank?
-    edad = calcular_edad
-    edad < 18
+    calcular_edad < 18
   end
 
-  # Método para calcular la edad
   def calcular_edad
     return 0 if fecha_nacimiento.blank?
     hoy = Date.current
@@ -87,32 +89,57 @@ class Eventospersona < ApplicationRecord
   end
 
   def validar_cupos_disponibles
-    if evento.lleno?
-      errors.add(:base, "El evento ya alcanzó el número máximo de participantes")
-    end
+    return unless evento
+    errors.add(:base, "El evento ya alcanzó el número máximo de participantes") if evento.lleno?
   end
 
   private
 
+  def buscar_o_crear_persona
+    persona = Persona.find_or_initialize_by(identificacion: self.identificacion)
+    persona.nombre           = self.nombre
+    persona.apellido         = self.apellido
+    persona.fecha_nacimiento = self.fecha_nacimiento
+    persona.direccion        = self.direccion
+    persona.celular          = self.celular
+    persona.email            = self.email
+    persona.sexo             = self.sexo
+    persona.estado_civil_id  = self.estado_civil_id
+
+    if persona.save
+      self.persona_id = persona.id
+      guardar_documentos(persona)  # <-- AGREGADO
+    else
+      Rails.logger.warn "⚠️ No se pudo guardar Persona: #{persona.errors.full_messages}"
+    end
+  end
+
+  def guardar_documentos(persona)
+    return if cedula_frente.blank? && cedula_reverso.blank?
+
+    documento = Documento.find_or_initialize_by(
+      persona_id:        persona.id,
+      tipo_documento_id: self.documento_tipo_id || 1
+    )
+    documento.eventospersona_id = self.id
+    documento.cedula_frente     = cedula_frente  if cedula_frente.present?
+    documento.cedula_reverso    = cedula_reverso if cedula_reverso.present?
+
+    unless documento.save
+      Rails.logger.warn "⚠️ No se pudo guardar Documento: #{documento.errors.full_messages}"
+    end
+  end
+
   def normalizar_datos
-    self.nombre = nombre.upcase if nombre.present?
-    self.apellido = apellido.upcase if apellido.present?
+    self.nombre    = nombre.upcase if nombre.present?
+    self.apellido  = apellido.upcase if apellido.present?
     self.direccion = direccion.upcase if direccion.present?
-    self.acudiente_nombre = acudiente_nombre.upcase if acudiente_nombre.present?
+    self.acudiente_nombre   = acudiente_nombre.upcase if acudiente_nombre.present?
     self.acudiente_apellido = acudiente_apellido.upcase if acudiente_apellido.present?
   end
 
   def asegurar_aceptaciones
-    # Si los checkboxes no están marcados, asignar "NO"
     self.acepta_politica = "NO" if acepta_politica.blank?
-    self.acepta_cultura = "NO" if acepta_cultura.blank?
-  end
-
-
-  def eventospersona_params
-    params.require(:eventospersona).permit(
-      :fecha_nacimiento, :evento_id,
-      persona_attributes: {}  # permite **todos** los atributos de persona
-    )
+    self.acepta_cultura  = "NO" if acepta_cultura.blank?
   end
 end

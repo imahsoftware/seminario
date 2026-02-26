@@ -13,13 +13,14 @@
             <h4><strong><%= @evento.detalle %></strong></h4>
             <p><strong>Tipo de Evento:</strong> <%= @evento.tiposevento.descripcion rescue 'N/A' %></p>
             <p><strong>Fecha del Evento:</strong> <%= @evento.fecha_inicio_e.strftime("%d/%m/%Y") rescue '' %></p>
-            <p><strong>Vigencia de Registro:</strong> Hasta el <%= @evento.fecha_fin_e.strftime("%d/%m/%Y") rescue '' %></p>
+            <p><strong>Vigencia de Registro:</strong> Hasta el <%= @evento.fecha_fin_e.strftime("%d/%m/%Y") rescue '' %>
+            </p>
           </div>
 
-          <!-- Mostrar errores de validación -->
           <% if @eventospersona.errors.any? %>
             <div class="alert alert-danger">
-              <h4><i class="fa fa-exclamation-triangle"></i> Se encontraron <%= @eventospersona.errors.count %> errores:</h4>
+              <h4><i class="fa fa-exclamation-triangle"></i> Se encontraron <%= @eventospersona.errors.count %> errores:
+              </h4>
               <ul style="margin-bottom: 0;">
                 <% @eventospersona.errors.full_messages.each do |message| %>
                   <li><%= message %></li>
@@ -28,7 +29,9 @@
             </div>
           <% end %>
 
-          <%= simple_form_for @eventospersona, url: registro_evento_path(@evento.guid), method: :post, html: { id: 'form-registro-evento' } do |f| %>
+          <%# ↓ CAMBIO: multipart: true para permitir subir archivos %>
+          <%= simple_form_for @eventospersona, url: registro_evento_path(@evento.guid), method: :post,
+                              html: { id: 'form-registro-evento', multipart: true } do |f| %>
 
             <h4 class="text-primary">
               <i class="fa fa-user"></i> Información Personal
@@ -79,7 +82,103 @@
                 <%= f.input :sexo, label: "Sexo", collection: [['MASCULINO', 'M'], ['FEMENINO', 'F']], required: true, input_html: { class: 'select2' }, include_blank: 'Seleccione...' %>
               </div>
               <div class="col-md-3">
-                <%= f.input :estado_civil, label: "Estado Civil", collection: ['SOLTERO', 'CASADO', 'UNION LIBRE', 'DIVORCIADO', 'VIUDO'], required: true, input_html: { class: 'select2' }, include_blank: 'Seleccione...' %>
+                <%= f.association :estado_civil,
+                                  label: "Estado Civil",
+                                  collection: EstadoCivil.where(estado: 'ACTIVO').order(:nombre),
+                                  value_method: :id,
+                                  label_method: :nombre,
+                                  required: true,
+                                  input_html: { class: 'select2' },
+                                  include_blank: 'Seleccione...' %>
+              </div>
+            </div>
+
+            <%# ↓ NUEVO: Sección de documentos %>
+            <%# ↓ REEMPLAZA la sección "Documento de Identidad" con esto %>
+            <h4 class="text-primary" style="margin-top: 30px;">
+              <i class="fa fa-id-card"></i> Documento de Identidad
+            </h4>
+            <p class="text-muted">
+              <small><i class="fa fa-info-circle"></i> Sube una foto o escaneo de tu documento (JPG, PNG o PDF - máx.
+                5MB)</small></p>
+            <hr>
+
+            <div class="row">
+              <div class="col-md-4">
+                <%= f.association :documento_tipo,
+                                  label: "Tipo de Documento *",
+                                  collection: DocumentoTipo.where(estado: 'activo').order(:nombre),
+                                  value_method: :id,
+                                  label_method: :nombre,
+                                  required: true,
+                                  input_html: { class: 'select2' },
+                                  include_blank: 'Seleccione...' %>
+              </div>
+            </div>
+
+            <div class="row" style="margin-top: 10px;">
+              <!-- Cédula Frente -->
+              <div class="col-md-6">
+                <div class="form-group">
+                  <label><i class="fa fa-image"></i> Documento Frente <span class="text-danger">*</span></label>
+                  <%= f.input :cedula_frente,
+                              as: :file,
+                              label: false,
+                              input_html: {
+                                class: 'form-control',
+                                accept: 'image/jpeg,image/png,image/jpg,application/pdf',
+                                id: 'cedula_frente_input'
+                              } %>
+                  <small class="text-muted">Parte frontal de tu documento</small>
+
+                  <%# Preview frente %>
+                  <div id="preview-frente" style="display:none; margin-top: 10px;">
+                    <p class="text-success" style="margin-bottom: 5px;">
+                      <i class="fa fa-check-circle"></i> <strong>Vista previa:</strong>
+                    </p>
+                    <img id="preview-frente-img"
+                         src="#"
+                         alt="Vista previa frente"
+                         style="max-width: 100%; max-height: 200px; border: 1px solid #ddd; border-radius: 4px; display:none;"/>
+                    <div id="preview-frente-pdf"
+                         style="display:none; padding: 15px; background: #f5f5f5; border: 1px solid #ddd; border-radius: 4px; text-align: center;">
+                      <i class="fa fa-file-pdf-o fa-3x text-danger"></i>
+                      <p id="preview-frente-nombre" style="margin-top: 5px; margin-bottom: 0; font-size: 12px;"></p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Cédula Reverso -->
+              <div class="col-md-6">
+                <div class="form-group">
+                  <label><i class="fa fa-image"></i> Documento Reverso <span class="text-danger">*</span></label>
+                  <%= f.input :cedula_reverso,
+                              as: :file,
+                              label: false,
+                              input_html: {
+                                class: 'form-control',
+                                accept: 'image/jpeg,image/png,image/jpg,application/pdf',
+                                id: 'cedula_reverso_input'
+                              } %>
+                  <small class="text-muted">Parte trasera de tu documento</small>
+
+                  <%# Preview reverso %>
+                  <div id="preview-reverso" style="display:none; margin-top: 10px;">
+                    <p class="text-success" style="margin-bottom: 5px;">
+                      <i class="fa fa-check-circle"></i> <strong>Vista previa:</strong>
+                    </p>
+                    <img id="preview-reverso-img"
+                         src="#"
+                         alt="Vista previa reverso"
+                         style="max-width: 100%; max-height: 200px; border: 1px solid #ddd; border-radius: 4px; display:none;"/>
+                    <div id="preview-reverso-pdf"
+                         style="display:none; padding: 15px; background: #f5f5f5; border: 1px solid #ddd; border-radius: 4px; text-align: center;">
+                      <i class="fa fa-file-pdf-o fa-3x text-danger"></i>
+                      <p id="preview-reverso-nombre" style="margin-top: 5px; margin-bottom: 0; font-size: 12px;"></p>
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
 
@@ -89,7 +188,9 @@
                 <i class="fa fa-users"></i> Información del Acudiente
                 <span class="label label-danger">OBLIGATORIO - MENOR DE EDAD</span>
               </h4>
-              <p class="text-danger"><small><i class="fa fa-exclamation-triangle"></i> Debes completar esta sección porque eres menor de 18 años</small></p>
+              <p class="text-danger">
+                <small><i class="fa fa-exclamation-triangle"></i> Debes completar esta sección porque eres menor de 18
+                  años</small></p>
               <hr>
 
               <div class="row">
@@ -119,7 +220,6 @@
             </h4>
             <hr>
 
-            <!-- Políticas de Tratamiento de Datos - OBLIGATORIO -->
             <div class="checkbox-required">
               <div class="checkbox">
                 <label>
@@ -131,11 +231,11 @@
                 </label>
               </div>
               <small class="text-muted" style="display: block; margin-top: 10px; padding-left: 26px;">
-                Al marcar esta casilla, acepto que mis datos personales sean utilizados de acuerdo con la política de privacidad.
+                Al marcar esta casilla, acepto que mis datos personales sean utilizados de acuerdo con la política de
+                privacidad.
               </small>
             </div>
 
-            <!-- Cultura Organizacional - OBLIGATORIO -->
             <div class="checkbox-required">
               <div class="checkbox">
                 <label>
@@ -152,14 +252,15 @@
             </div>
 
             <div class="form-group" style="margin-top: 30px;">
-              <%= f.button :submit,"#{t :inscribir}",  class: "btn btn-primary btn-lg btn-block" do %>
+              <%= f.button :submit, "#{t :inscribir}", class: "btn btn-primary btn-lg btn-block" do %>
                 <i class="fa fa-check-circle"></i> Registrarse en el Evento
               <% end %>
             </div>
 
             <p class="text-muted text-center">
               <small>
-                <i class="fa fa-info-circle"></i> Los campos marcados con (<span class="text-danger">*</span>) son obligatorios
+                <i class="fa fa-info-circle"></i> Los campos marcados con (<span class="text-danger">*</span>) son
+                obligatorios
               </small>
             </p>
 
@@ -169,9 +270,44 @@
     </div>
   </div>
 </div>
-
 <script>
-    (function() {
+
+
+    // ── Preview de documentos ──────────────────────────────────────
+    function configurarPreview(inputId, previewId, imgId, pdfId, nombreId) {
+        $('#' + inputId).on('change', function() {
+            var file = this.files[0];
+            var $preview = $('#' + previewId);
+            var $img     = $('#' + imgId);
+            var $pdf     = $('#' + pdfId);
+            var $nombre  = $('#' + nombreId);
+
+            if (!file) {
+                $preview.hide();
+                return;
+            }
+
+            $preview.show();
+
+            if (file.type === 'application/pdf') {
+                $img.hide();
+                $nombre.text(file.name + ' (' + (file.size / 1024 / 1024).toFixed(2) + ' MB)');
+                $pdf.show();
+            } else {
+                $pdf.hide();
+                var reader = new FileReader();
+                reader.onload = function(e) {
+                    $img.attr('src', e.target.result).show();
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+    }
+
+    configurarPreview('cedula_frente_input',  'preview-frente',  'preview-frente-img',  'preview-frente-pdf',  'preview-frente-nombre');
+    configurarPreview('cedula_reverso_input', 'preview-reverso', 'preview-reverso-img', 'preview-reverso-pdf', 'preview-reverso-nombre');
+
+    (function () {
         'use strict';
 
         // Verificar que jQuery está cargado
@@ -183,7 +319,7 @@
 
         console.log('✅ jQuery versión:', jQuery.fn.jquery);
 
-        jQuery(document).ready(function($) {
+        jQuery(document).ready(function ($) {
             console.log('🔍 Script de validación de edad cargado');
 
             // Verificar que el elemento existe
@@ -305,15 +441,15 @@
             // Escuchar eventos del datepicker
             try {
                 $fechaNacimiento
-                    .on('changeDate', function(e) {
+                    .on('changeDate', function (e) {
                         console.log('🗓️ Evento changeDate disparado');
                         setTimeout(validarEdad, 100);
                     })
-                    .on('change', function() {
+                    .on('change', function () {
                         console.log('📝 Evento change disparado');
                         setTimeout(validarEdad, 100);
                     })
-                    .on('blur', function() {
+                    .on('blur', function () {
                         console.log('👁️ Evento blur disparado');
                         setTimeout(validarEdad, 100);
                     });
@@ -324,7 +460,7 @@
             }
 
             // Validar al cargar si ya hay fecha
-            setTimeout(function() {
+            setTimeout(function () {
                 try {
                     var fechaInicial = $fechaNacimiento.val();
                     if (fechaInicial) {
@@ -337,7 +473,7 @@
             }, 500);
 
             // Validación del formulario antes de enviar
-            $('#form-registro-evento').on('submit', function(e) {
+            $('#form-registro-evento').on('submit', function (e) {
                 try {
                     console.log('📤 Enviando formulario...');
 
@@ -391,7 +527,7 @@
                                     // Scroll suave
                                     var seccion = document.getElementById('seccion-acudiente');
                                     if (seccion) {
-                                        seccion.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                                        seccion.scrollIntoView({behavior: 'smooth', block: 'center'});
                                     }
                                     return false;
                                 }

@@ -42,7 +42,6 @@ class RegistroEventosController < ApplicationController
     if @eventospersona.save
       if @eventospersona.menor_de_edad?
         flash[:notice] = "Registro recibido. Pendiente autorización de acudiente."
-        byebug
         WssmsController.envio_sms_colombiaredenvio(@eventospersona)
         redirect_to pendiente_registro_evento_path(@evento.guid)
       else
