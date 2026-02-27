@@ -183,6 +183,7 @@
             </div>
 
             <!-- Sección de Acudiente - Oculta por defecto -->
+            <!-- Sección de Acudiente - Oculta por defecto -->
             <div id="seccion-acudiente" style="display: none;">
               <h4 class="text-primary" style="margin-top: 30px;">
                 <i class="fa fa-users"></i> Información del Acudiente
@@ -190,27 +191,118 @@
               </h4>
               <p class="text-danger">
                 <small><i class="fa fa-exclamation-triangle"></i> Debes completar esta sección porque eres menor de 18
-                  años</small></p>
+                  años</small>
+              </p>
               <hr>
 
               <div class="row">
                 <div class="col-md-4">
-                  <%= f.input :acudiente_nombre, label: "Nombre del Acudiente", input_html: { class: 'form-control acudiente-field', onchange: 'this.value=this.value.toUpperCase();', id: 'acudiente_nombre' } %>
+                  <%= f.input :acudiente_nombre, label: "Nombre del Acudiente",
+                              input_html: { class: 'form-control acudiente-field', onchange: 'this.value=this.value.toUpperCase();', id: 'acudiente_nombre' } %>
                 </div>
                 <div class="col-md-4">
-                  <%= f.input :acudiente_apellido, label: "Apellido del Acudiente", input_html: { class: 'form-control acudiente-field', onchange: 'this.value=this.value.toUpperCase();', id: 'acudiente_apellido' } %>
+                  <%= f.input :acudiente_apellido, label: "Apellido del Acudiente",
+                              input_html: { class: 'form-control acudiente-field', onchange: 'this.value=this.value.toUpperCase();', id: 'acudiente_apellido' } %>
                 </div>
                 <div class="col-md-4">
-                  <%= f.input :acudiente_identificacion, label: "Identificación del Acudiente", input_html: { class: 'form-control acudiente-field', maxlength: 30, id: 'acudiente_identificacion' } %>
+                  <%= f.input :acudiente_identificacion, label: "Identificación del Acudiente",
+                              input_html: { class: 'form-control acudiente-field', maxlength: 30, id: 'acudiente_identificacion' } %>
                 </div>
               </div>
 
               <div class="row">
                 <div class="col-md-6">
-                  <%= f.input :acudiente_email, label: "Email del Acudiente", input_html: { class: 'form-control acudiente-field', type: 'email', id: 'acudiente_email' } %>
+                  <%= f.input :acudiente_email, label: "Email del Acudiente",
+                              input_html: { class: 'form-control acudiente-field', type: 'email', id: 'acudiente_email' } %>
                 </div>
                 <div class="col-md-6">
-                  <%= f.input :acudiente_celular, label: "Celular del Acudiente", input_html: { class: 'form-control acudiente-field', maxlength: 20, id: 'acudiente_celular' } %>
+                  <%= f.input :acudiente_celular, label: "Celular del Acudiente",
+                              input_html: { class: 'form-control acudiente-field', maxlength: 20, id: 'acudiente_celular' } %>
+                </div>
+              </div>
+
+              <%# Documento del acudiente %>
+              <h5 class="text-primary" style="margin-top: 20px;">
+                <i class="fa fa-id-card"></i> Documento de Identidad del Acudiente
+              </h5>
+              <p class="text-muted">
+                <small><i class="fa fa-info-circle"></i> Sube una foto o escaneo del documento del acudiente (JPG, PNG o
+                  PDF - máx. 5MB)</small></p>
+              <hr>
+
+              <div class="row">
+                <div class="col-md-4">
+                  <div class="form-group">
+                    <label>Tipo de Documento Acudiente <span class="text-danger">*</span></label>
+                    <%= f.input :acudiente_documento_tipo_id,
+                                as: :select,
+                                label: false,
+                                collection: DocumentoTipo.where(estado: 'activo').order(:nombre).map { |d| [d.nombre, d.id] },
+                                input_html: { class: 'select2 acudiente-field', id: 'acudiente_documento_tipo_id' },
+                                include_blank: 'Seleccione...' %>
+                  </div>
+                </div>
+              </div>
+
+              <div class="row" style="margin-top: 10px;">
+                <%# Frente acudiente %>
+                <div class="col-md-6">
+                  <div class="form-group">
+                    <label><i class="fa fa-image"></i> Cédula Acudiente Frente
+                      <span class="text-danger">*</span></label>
+                    <%= f.input :acudiente_cedula_frente,
+                                as: :file,
+                                label: false,
+                                input_html: {
+                                  class: 'form-control acudiente-field',
+                                  accept: 'image/jpeg,image/png,image/jpg,application/pdf',
+                                  id: 'acudiente_cedula_frente_input'
+                                } %>
+                    <small class="text-muted">Parte frontal del documento del acudiente</small>
+
+                    <div id="preview-acudiente-frente" style="display:none; margin-top: 10px;">
+                      <p class="text-success" style="margin-bottom: 5px;">
+                        <i class="fa fa-check-circle"></i> <strong>Vista previa:</strong>
+                      </p>
+                      <img id="preview-acudiente-frente-img" src="#" alt="Vista previa frente acudiente"
+                           style="max-width: 100%; max-height: 200px; border: 1px solid #ddd; border-radius: 4px; display:none;"/>
+                      <div id="preview-acudiente-frente-pdf"
+                           style="display:none; padding: 15px; background: #f5f5f5; border: 1px solid #ddd; border-radius: 4px; text-align: center;">
+                        <i class="fa fa-file-pdf-o fa-3x text-danger"></i>
+                        <p id="preview-acudiente-frente-nombre" style="margin-top: 5px; margin-bottom: 0; font-size: 12px;"></p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <%# Reverso acudiente %>
+                <div class="col-md-6">
+                  <div class="form-group">
+                    <label><i class="fa fa-image"></i> Cédula Acudiente Reverso
+                      <span class="text-danger">*</span></label>
+                    <%= f.input :acudiente_cedula_reverso,
+                                as: :file,
+                                label: false,
+                                input_html: {
+                                  class: 'form-control acudiente-field',
+                                  accept: 'image/jpeg,image/png,image/jpg,application/pdf',
+                                  id: 'acudiente_cedula_reverso_input'
+                                } %>
+                    <small class="text-muted">Parte trasera del documento del acudiente</small>
+
+                    <div id="preview-acudiente-reverso" style="display:none; margin-top: 10px;">
+                      <p class="text-success" style="margin-bottom: 5px;">
+                        <i class="fa fa-check-circle"></i> <strong>Vista previa:</strong>
+                      </p>
+                      <img id="preview-acudiente-reverso-img" src="#" alt="Vista previa reverso acudiente"
+                           style="max-width: 100%; max-height: 200px; border: 1px solid #ddd; border-radius: 4px; display:none;"/>
+                      <div id="preview-acudiente-reverso-pdf"
+                           style="display:none; padding: 15px; background: #f5f5f5; border: 1px solid #ddd; border-radius: 4px; text-align: center;">
+                        <i class="fa fa-file-pdf-o fa-3x text-danger"></i>
+                        <p id="preview-acudiente-reverso-nombre" style="margin-top: 5px; margin-bottom: 0; font-size: 12px;"></p>
+                      </div>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
@@ -275,12 +367,12 @@
 
     // ── Preview de documentos ──────────────────────────────────────
     function configurarPreview(inputId, previewId, imgId, pdfId, nombreId) {
-        $('#' + inputId).on('change', function() {
+        $('#' + inputId).on('change', function () {
             var file = this.files[0];
             var $preview = $('#' + previewId);
-            var $img     = $('#' + imgId);
-            var $pdf     = $('#' + pdfId);
-            var $nombre  = $('#' + nombreId);
+            var $img = $('#' + imgId);
+            var $pdf = $('#' + pdfId);
+            var $nombre = $('#' + nombreId);
 
             if (!file) {
                 $preview.hide();
@@ -296,7 +388,7 @@
             } else {
                 $pdf.hide();
                 var reader = new FileReader();
-                reader.onload = function(e) {
+                reader.onload = function (e) {
                     $img.attr('src', e.target.result).show();
                 };
                 reader.readAsDataURL(file);
@@ -304,9 +396,10 @@
         });
     }
 
-    configurarPreview('cedula_frente_input',  'preview-frente',  'preview-frente-img',  'preview-frente-pdf',  'preview-frente-nombre');
+    configurarPreview('cedula_frente_input', 'preview-frente', 'preview-frente-img', 'preview-frente-pdf', 'preview-frente-nombre');
     configurarPreview('cedula_reverso_input', 'preview-reverso', 'preview-reverso-img', 'preview-reverso-pdf', 'preview-reverso-nombre');
-
+    configurarPreview('acudiente_cedula_frente_input',  'preview-acudiente-frente',  'preview-acudiente-frente-img',  'preview-acudiente-frente-pdf',  'preview-acudiente-frente-nombre');
+    configurarPreview('acudiente_cedula_reverso_input', 'preview-acudiente-reverso', 'preview-acudiente-reverso-img', 'preview-acudiente-reverso-pdf', 'preview-acudiente-reverso-nombre');
     (function () {
         'use strict';
 
@@ -542,6 +635,60 @@
                 }
             });
 
+            // ── Autocompletar datos desde identificación ──────────────────
+            var $identificacion = $('#eventospersona_identificacion');
+            var buscarTimer = null;
+
+            $identificacion.on('blur', function() {
+                var identificacion = $(this).val().trim();
+                if (identificacion.length < 5) return;
+
+                clearTimeout(buscarTimer);
+                buscarTimer = setTimeout(function() {
+                    $.ajax({
+                        url: '<%= buscar_persona_registro_evento_path(@evento.guid) %>',
+                        method: 'GET',
+                        data: { identificacion: identificacion },
+                        success: function(data) {
+                            console.log('📦 Respuesta del servidor:', data);
+                            if (data.encontrada) {
+                                console.log('✅ Persona encontrada, mostrando confirm...');
+                                if (confirm('✅ Persona encontrada: ' + data.nombre + ' ' + data.apellido + '\n\n¿Deseas cargar sus datos automáticamente?')) {
+                                    console.log('📝 Llenando campos...');
+                                    console.log('nombre:', data.nombre);
+                                    console.log('apellido:', data.apellido);
+
+                                    $('#eventospersona_nombre').val(data.nombre).trigger('change');
+                                    $('#eventospersona_apellido').val(data.apellido).trigger('change');
+                                    $('#eventospersona_celular').val(data.celular).trigger('change');
+                                    $('#eventospersona_email').val(data.email).trigger('change');
+                                    $('#eventospersona_direccion').val(data.direccion).trigger('change');
+
+                                    if (data.fecha_nacimiento) {
+                                        $('#fecha_nacimiento').val(data.fecha_nacimiento);
+                                        setTimeout(validarEdad, 200);
+                                    }
+                                    if (data.sexo) {
+                                        $('#eventospersona_sexo').val(data.sexo).trigger('change');
+                                    }
+                                    if (data.estado_civil_id) {
+                                        $('#eventospersona_estado_civil_id').val(data.estado_civil_id).trigger('change');
+                                    }
+                                    if (data.documento_tipo_id) {
+                                        $('#eventospersona_documento_tipo_id').val(data.documento_tipo_id).trigger('change');
+                                    }
+                                    console.log('✅ Campos llenados');
+                                }
+                            } else {
+                                console.log('❌ Persona no encontrada');
+                            }
+                        },
+                        error: function() {
+                            console.log('⚠️ Error al buscar persona');
+                        }
+                    });
+                }, 300);
+            });
             console.log('✅ Script completo y listo');
         });
     })();

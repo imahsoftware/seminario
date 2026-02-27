@@ -1,6 +1,6 @@
 # app/controllers/registro_eventos_controller.rb
 class RegistroEventosController < ApplicationController
-  skip_before_action :authenticate_user!, only: [:show, :create , :exito, :pendiente, :autorizacion , :vencido , :no_encontrado , :no_iniciado , :vigente , :sin_cupos , :autorizar_participacion ]
+  skip_before_action :authenticate_user!, only: [:show, :create , :exito, :pendiente, :autorizacion , :vencido , :no_encontrado , :no_iniciado , :vigente , :sin_cupos , :autorizar_participacion, :buscar_persona ]
   skip_before_action :verify_authenticity_token, only: [:create]
   layout 'registro_publico'
 
@@ -91,6 +91,36 @@ class RegistroEventosController < ApplicationController
 
     flash[:notice] = "La participación del menor ha sido autorizada correctamente."
     redirect_to exito_registro_evento_path(@evento.guid)
+  end
+
+  def buscar_persona
+    @evento = Evento.find_by_guid!(params[:guid])
+
+    Rails.logger.info "🔍 Buscando persona con identificacion: '#{params[:identificacion]}'"
+
+    persona = Persona.find_by(identificacion: params[:identificacion])
+
+    Rails.logger.info "🔍 Resultado: #{persona.inspect}"
+
+    if persona
+      render json: {
+        encontrada:        true,
+        nombre:            persona.nombre,
+        apellido:          persona.apellido,
+        fecha_nacimiento:  persona.fecha_nacimiento&.strftime("%d/%m/%Y"),
+        celular:           persona.celular,
+        email:             persona.email,
+        direccion:         persona.direccion,
+        sexo:              persona.sexo,
+        estado_civil_id:   persona.estado_civil_id,
+        documento_tipo_id: persona.documento_tipo_id
+      }
+    else
+      render json: { encontrada: false }
+    end
+
+  rescue ActiveRecord::RecordNotFound
+    render json: { encontrada: false }
   end
 
   private

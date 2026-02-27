@@ -11,7 +11,7 @@ Rails.application.routes.draw do
   get 'registro/:guid/autorizacion/:id', to: 'registro_eventos#autorizacion',  as: 'autorizacion', constraints: guid_constraint
   get 'registro/:guid/pendiente', to: 'registro_eventos#pendiente', as: 'pendiente_registro_evento', constraints: guid_constraint
   post 'registro/:guid/autorizacion/:id', to: 'registro_eventos#autorizar_participacion', as: 'autorizar_participacion_registro_evento', constraints: guid_constraint
-
+  get 'registro_eventos/:guid/buscar_persona', to: 'registro_eventos#buscar_persona', as: 'buscar_persona_registro_evento'
   resources :eventos do
     member do
       get :copiar_url
