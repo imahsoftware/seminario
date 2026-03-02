@@ -13,14 +13,12 @@
             <h4><strong><%= @evento.detalle %></strong></h4>
             <p><strong>Tipo de Evento:</strong> <%= @evento.tiposevento.descripcion rescue 'N/A' %></p>
             <p><strong>Fecha del Evento:</strong> <%= @evento.fecha_inicio_e.strftime("%d/%m/%Y") rescue '' %></p>
-            <p><strong>Vigencia de Registro:</strong> Hasta el <%= @evento.fecha_fin_e.strftime("%d/%m/%Y") rescue '' %>
-            </p>
+            <p><strong>Vigencia de Registro:</strong> Hasta el <%= @evento.fecha_fin_e.strftime("%d/%m/%Y") rescue '' %></p>
           </div>
 
           <% if @eventospersona.errors.any? %>
             <div class="alert alert-danger">
-              <h4><i class="fa fa-exclamation-triangle"></i> Se encontraron <%= @eventospersona.errors.count %> errores:
-              </h4>
+              <h4><i class="fa fa-exclamation-triangle"></i> Se encontraron <%= @eventospersona.errors.count %> errores:</h4>
               <ul style="margin-bottom: 0;">
                 <% @eventospersona.errors.full_messages.each do |message| %>
                   <li><%= message %></li>
@@ -29,13 +27,16 @@
             </div>
           <% end %>
 
-          <%# ↓ CAMBIO: multipart: true para permitir subir archivos %>
           <%= simple_form_for @eventospersona, url: registro_evento_path(@evento.guid), method: :post,
                               html: { id: 'form-registro-evento', multipart: true } do |f| %>
 
-            <h4 class="text-primary">
-              <i class="fa fa-user"></i> Información Personal
-            </h4>
+            <input type="hidden" id="cedula_frente_base64"            name="eventospersona[cedula_frente_base64]">
+            <input type="hidden" id="cedula_reverso_base64"           name="eventospersona[cedula_reverso_base64]">
+            <input type="hidden" id="acudiente_cedula_frente_base64"  name="eventospersona[acudiente_cedula_frente_base64]">
+            <input type="hidden" id="acudiente_cedula_reverso_base64" name="eventospersona[acudiente_cedula_reverso_base64]">
+            <input type="hidden" id="persona_ya_tiene_documentos"     name="eventospersona[persona_ya_tiene_documentos]" value="0">
+
+            <h4 class="text-primary"><i class="fa fa-user"></i> Información Personal</h4>
             <hr>
 
             <div class="row">
@@ -57,10 +58,10 @@
               <div class="col-md-4">
                 <label>Fecha de Nacimiento <span class="text-danger">*</span></label>
                 <div class="input-group">
-                  <div class="input-group-addon" style="background: #EDEDED;">
-                    <i class="fa fa-calendar"></i>
-                  </div>
-                  <%= f.input :fecha_nacimiento, as: :string, label: false, required: true, input_html: { class: 'form-control datepicker', autocomplete: 'off', placeholder: 'dd/mm/yyyy', id: 'fecha_nacimiento', readonly: true } %>
+                  <div class="input-group-addon" style="background: #EDEDED;"><i class="fa fa-calendar"></i></div>
+                  <%= f.input :fecha_nacimiento, as: :string, label: false, required: true,
+                              input_html: { class: 'form-control datepicker', autocomplete: 'off',
+                                            placeholder: 'dd/mm/yyyy', id: 'fecha_nacimiento', readonly: true } %>
                 </div>
                 <small class="text-muted" id="edad-info" style="margin-top: 5px; display: none;">
                   <i class="fa fa-info-circle"></i> <span id="edad-texto"></span>
@@ -82,117 +83,73 @@
                 <%= f.input :sexo, label: "Sexo", collection: [['MASCULINO', 'M'], ['FEMENINO', 'F']], required: true, input_html: { class: 'select2' }, include_blank: 'Seleccione...' %>
               </div>
               <div class="col-md-3">
-                <%= f.association :estado_civil,
-                                  label: "Estado Civil",
+                <%= f.association :estado_civil, label: "Estado Civil",
                                   collection: EstadoCivil.where(estado: 'ACTIVO').order(:nombre),
-                                  value_method: :id,
-                                  label_method: :nombre,
-                                  required: true,
-                                  input_html: { class: 'select2' },
-                                  include_blank: 'Seleccione...' %>
+                                  value_method: :id, label_method: :nombre, required: true,
+                                  input_html: { class: 'select2' }, include_blank: 'Seleccione...' %>
               </div>
             </div>
 
-            <%# ↓ NUEVO: Sección de documentos %>
-            <%# ↓ REEMPLAZA la sección "Documento de Identidad" con esto %>
             <h4 class="text-primary" style="margin-top: 30px;">
               <i class="fa fa-id-card"></i> Documento de Identidad
             </h4>
-            <p class="text-muted">
-              <small><i class="fa fa-info-circle"></i> Sube una foto o escaneo de tu documento (JPG, PNG o PDF - máx.
-                5MB)</small></p>
+            <p class="text-muted"><small><i class="fa fa-info-circle"></i> Usa la cámara para fotografiar el frente y reverso de tu documento</small></p>
             <hr>
 
             <div class="row">
               <div class="col-md-4">
-                <%= f.association :documento_tipo,
-                                  label: "Tipo de Documento *",
+                <%= f.association :documento_tipo, label: "Tipo de Documento *",
                                   collection: DocumentoTipo.where(estado: 'activo').order(:nombre),
-                                  value_method: :id,
-                                  label_method: :nombre,
-                                  required: true,
-                                  input_html: { class: 'select2' },
-                                  include_blank: 'Seleccione...' %>
+                                  value_method: :id, label_method: :nombre, required: true,
+                                  input_html: { class: 'select2' }, include_blank: 'Seleccione...' %>
               </div>
+            </div>
+
+            <div id="badge-docs-existentes" class="alert alert-info" style="display:none; margin-top:15px;">
+              <i class="fa fa-info-circle"></i> <strong>Esta persona ya tiene documentos registrados.</strong>
+              Puedes usar los existentes o capturar nuevos con la cámara.
             </div>
 
             <div class="row" style="margin-top: 10px;">
-              <!-- Cédula Frente -->
               <div class="col-md-6">
                 <div class="form-group">
                   <label><i class="fa fa-image"></i> Documento Frente <span class="text-danger">*</span></label>
-                  <%= f.input :cedula_frente,
-                              as: :file,
-                              label: false,
-                              input_html: {
-                                class: 'form-control',
-                                accept: 'image/jpeg,image/png,image/jpg,application/pdf',
-                                id: 'cedula_frente_input'
-                              } %>
+                  <div>
+                    <button type="button" class="btn btn-warning" onclick="reEvento.abrirCamara('frente', 'cedula_frente_base64')">
+                      <i class="fa fa-camera"></i> Capturar Frente
+                    </button>
+                  </div>
                   <small class="text-muted">Parte frontal de tu documento</small>
-
-                  <%# Preview frente %>
                   <div id="preview-frente" style="display:none; margin-top: 10px;">
-                    <p class="text-success" style="margin-bottom: 5px;">
-                      <i class="fa fa-check-circle"></i> <strong>Vista previa:</strong>
-                    </p>
-                    <img id="preview-frente-img"
-                         src="#"
-                         alt="Vista previa frente"
-                         style="max-width: 100%; max-height: 200px; border: 1px solid #ddd; border-radius: 4px; display:none;"/>
-                    <div id="preview-frente-pdf"
-                         style="display:none; padding: 15px; background: #f5f5f5; border: 1px solid #ddd; border-radius: 4px; text-align: center;">
-                      <i class="fa fa-file-pdf-o fa-3x text-danger"></i>
-                      <p id="preview-frente-nombre" style="margin-top: 5px; margin-bottom: 0; font-size: 12px;"></p>
-                    </div>
+                    <p class="text-success" style="margin-bottom: 5px;"><i class="fa fa-check-circle"></i> <strong>Vista previa:</strong></p>
+                    <img id="preview-frente-img" src="#" alt="Frente" style="max-width:100%; max-height:200px; border:2px solid #5cb85c; border-radius:4px;"/>
                   </div>
                 </div>
               </div>
-
-              <!-- Cédula Reverso -->
               <div class="col-md-6">
                 <div class="form-group">
                   <label><i class="fa fa-image"></i> Documento Reverso <span class="text-danger">*</span></label>
-                  <%= f.input :cedula_reverso,
-                              as: :file,
-                              label: false,
-                              input_html: {
-                                class: 'form-control',
-                                accept: 'image/jpeg,image/png,image/jpg,application/pdf',
-                                id: 'cedula_reverso_input'
-                              } %>
+                  <div>
+                    <button type="button" class="btn btn-warning" onclick="reEvento.abrirCamara('reverso', 'cedula_reverso_base64')">
+                      <i class="fa fa-camera"></i> Capturar Reverso
+                    </button>
+                  </div>
                   <small class="text-muted">Parte trasera de tu documento</small>
-
-                  <%# Preview reverso %>
                   <div id="preview-reverso" style="display:none; margin-top: 10px;">
-                    <p class="text-success" style="margin-bottom: 5px;">
-                      <i class="fa fa-check-circle"></i> <strong>Vista previa:</strong>
-                    </p>
-                    <img id="preview-reverso-img"
-                         src="#"
-                         alt="Vista previa reverso"
-                         style="max-width: 100%; max-height: 200px; border: 1px solid #ddd; border-radius: 4px; display:none;"/>
-                    <div id="preview-reverso-pdf"
-                         style="display:none; padding: 15px; background: #f5f5f5; border: 1px solid #ddd; border-radius: 4px; text-align: center;">
-                      <i class="fa fa-file-pdf-o fa-3x text-danger"></i>
-                      <p id="preview-reverso-nombre" style="margin-top: 5px; margin-bottom: 0; font-size: 12px;"></p>
-                    </div>
+                    <p class="text-success" style="margin-bottom: 5px;"><i class="fa fa-check-circle"></i> <strong>Vista previa:</strong></p>
+                    <img id="preview-reverso-img" src="#" alt="Reverso" style="max-width:100%; max-height:200px; border:2px solid #5cb85c; border-radius:4px;"/>
                   </div>
                 </div>
               </div>
             </div>
 
-            <!-- Sección de Acudiente - Oculta por defecto -->
-            <!-- Sección de Acudiente - Oculta por defecto -->
+            <!-- Sección Acudiente -->
             <div id="seccion-acudiente" style="display: none;">
               <h4 class="text-primary" style="margin-top: 30px;">
                 <i class="fa fa-users"></i> Información del Acudiente
                 <span class="label label-danger">OBLIGATORIO - MENOR DE EDAD</span>
               </h4>
-              <p class="text-danger">
-                <small><i class="fa fa-exclamation-triangle"></i> Debes completar esta sección porque eres menor de 18
-                  años</small>
-              </p>
+              <p class="text-danger"><small><i class="fa fa-exclamation-triangle"></i> Debes completar esta sección porque eres menor de 18 años</small></p>
               <hr>
 
               <div class="row">
@@ -209,7 +166,6 @@
                               input_html: { class: 'form-control acudiente-field', maxlength: 30, id: 'acudiente_identificacion' } %>
                 </div>
               </div>
-
               <div class="row">
                 <div class="col-md-6">
                   <%= f.input :acudiente_email, label: "Email del Acudiente",
@@ -221,22 +177,15 @@
                 </div>
               </div>
 
-              <%# Documento del acudiente %>
-              <h5 class="text-primary" style="margin-top: 20px;">
-                <i class="fa fa-id-card"></i> Documento de Identidad del Acudiente
-              </h5>
-              <p class="text-muted">
-                <small><i class="fa fa-info-circle"></i> Sube una foto o escaneo del documento del acudiente (JPG, PNG o
-                  PDF - máx. 5MB)</small></p>
+              <h5 class="text-primary" style="margin-top: 20px;"><i class="fa fa-id-card"></i> Documento de Identidad del Acudiente</h5>
+              <p class="text-muted"><small><i class="fa fa-info-circle"></i> Usa la cámara para fotografiar el documento del acudiente</small></p>
               <hr>
 
               <div class="row">
                 <div class="col-md-4">
                   <div class="form-group">
                     <label>Tipo de Documento Acudiente <span class="text-danger">*</span></label>
-                    <%= f.input :acudiente_documento_tipo_id,
-                                as: :select,
-                                label: false,
+                    <%= f.input :acudiente_documento_tipo_id, as: :select, label: false,
                                 collection: DocumentoTipo.where(estado: 'activo').order(:nombre).map { |d| [d.nombre, d.id] },
                                 input_html: { class: 'select2 acudiente-field', id: 'acudiente_documento_tipo_id' },
                                 include_blank: 'Seleccione...' %>
@@ -245,102 +194,60 @@
               </div>
 
               <div class="row" style="margin-top: 10px;">
-                <%# Frente acudiente %>
                 <div class="col-md-6">
                   <div class="form-group">
-                    <label><i class="fa fa-image"></i> Cédula Acudiente Frente
-                      <span class="text-danger">*</span></label>
-                    <%= f.input :acudiente_cedula_frente,
-                                as: :file,
-                                label: false,
-                                input_html: {
-                                  class: 'form-control acudiente-field',
-                                  accept: 'image/jpeg,image/png,image/jpg,application/pdf',
-                                  id: 'acudiente_cedula_frente_input'
-                                } %>
+                    <label><i class="fa fa-image"></i> Cédula Acudiente Frente <span class="text-danger">*</span></label>
+                    <div>
+                      <button type="button" class="btn btn-warning" onclick="reEvento.abrirCamara('acudiente-frente', 'acudiente_cedula_frente_base64')">
+                        <i class="fa fa-camera"></i> Capturar Frente Acudiente
+                      </button>
+                    </div>
                     <small class="text-muted">Parte frontal del documento del acudiente</small>
-
                     <div id="preview-acudiente-frente" style="display:none; margin-top: 10px;">
-                      <p class="text-success" style="margin-bottom: 5px;">
-                        <i class="fa fa-check-circle"></i> <strong>Vista previa:</strong>
-                      </p>
-                      <img id="preview-acudiente-frente-img" src="#" alt="Vista previa frente acudiente"
-                           style="max-width: 100%; max-height: 200px; border: 1px solid #ddd; border-radius: 4px; display:none;"/>
-                      <div id="preview-acudiente-frente-pdf"
-                           style="display:none; padding: 15px; background: #f5f5f5; border: 1px solid #ddd; border-radius: 4px; text-align: center;">
-                        <i class="fa fa-file-pdf-o fa-3x text-danger"></i>
-                        <p id="preview-acudiente-frente-nombre" style="margin-top: 5px; margin-bottom: 0; font-size: 12px;"></p>
-                      </div>
+                      <p class="text-success" style="margin-bottom: 5px;"><i class="fa fa-check-circle"></i> <strong>Vista previa:</strong></p>
+                      <img id="preview-acudiente-frente-img" src="#" alt="Frente acudiente" style="max-width:100%; max-height:200px; border:2px solid #5cb85c; border-radius:4px;"/>
                     </div>
                   </div>
                 </div>
-
-                <%# Reverso acudiente %>
                 <div class="col-md-6">
                   <div class="form-group">
-                    <label><i class="fa fa-image"></i> Cédula Acudiente Reverso
-                      <span class="text-danger">*</span></label>
-                    <%= f.input :acudiente_cedula_reverso,
-                                as: :file,
-                                label: false,
-                                input_html: {
-                                  class: 'form-control acudiente-field',
-                                  accept: 'image/jpeg,image/png,image/jpg,application/pdf',
-                                  id: 'acudiente_cedula_reverso_input'
-                                } %>
+                    <label><i class="fa fa-image"></i> Cédula Acudiente Reverso <span class="text-danger">*</span></label>
+                    <div>
+                      <button type="button" class="btn btn-warning" onclick="reEvento.abrirCamara('acudiente-reverso', 'acudiente_cedula_reverso_base64')">
+                        <i class="fa fa-camera"></i> Capturar Reverso Acudiente
+                      </button>
+                    </div>
                     <small class="text-muted">Parte trasera del documento del acudiente</small>
-
                     <div id="preview-acudiente-reverso" style="display:none; margin-top: 10px;">
-                      <p class="text-success" style="margin-bottom: 5px;">
-                        <i class="fa fa-check-circle"></i> <strong>Vista previa:</strong>
-                      </p>
-                      <img id="preview-acudiente-reverso-img" src="#" alt="Vista previa reverso acudiente"
-                           style="max-width: 100%; max-height: 200px; border: 1px solid #ddd; border-radius: 4px; display:none;"/>
-                      <div id="preview-acudiente-reverso-pdf"
-                           style="display:none; padding: 15px; background: #f5f5f5; border: 1px solid #ddd; border-radius: 4px; text-align: center;">
-                        <i class="fa fa-file-pdf-o fa-3x text-danger"></i>
-                        <p id="preview-acudiente-reverso-nombre" style="margin-top: 5px; margin-bottom: 0; font-size: 12px;"></p>
-                      </div>
+                      <p class="text-success" style="margin-bottom: 5px;"><i class="fa fa-check-circle"></i> <strong>Vista previa:</strong></p>
+                      <img id="preview-acudiente-reverso-img" src="#" alt="Reverso acudiente" style="max-width:100%; max-height:200px; border:2px solid #5cb85c; border-radius:4px;"/>
                     </div>
                   </div>
                 </div>
               </div>
             </div>
 
-            <h4 class="text-primary" style="margin-top: 30px;">
-              <i class="fa fa-file-text-o"></i> Aceptación de Políticas
-            </h4>
+            <h4 class="text-primary" style="margin-top: 30px;"><i class="fa fa-file-text-o"></i> Aceptación de Políticas</h4>
             <hr>
 
             <div class="checkbox-required">
               <div class="checkbox">
                 <label>
                   <%= f.check_box :acepta_politica, { required: true }, "SI", "NO" %>
-                  <strong style="color: #071B7D;">
-                    <i class="fa fa-shield"></i> Acepto las políticas de tratamiento de datos personales
-                    <span class="text-danger">*</span>
-                  </strong>
+                  <strong style="color: #071B7D;"><i class="fa fa-shield"></i> Acepto las políticas de tratamiento de datos personales <span class="text-danger">*</span></strong>
                 </label>
               </div>
-              <small class="text-muted" style="display: block; margin-top: 10px; padding-left: 26px;">
-                Al marcar esta casilla, acepto que mis datos personales sean utilizados de acuerdo con la política de
-                privacidad.
-              </small>
+              <small class="text-muted" style="display: block; margin-top: 10px; padding-left: 26px;">Al marcar esta casilla, acepto que mis datos personales sean utilizados de acuerdo con la política de privacidad.</small>
             </div>
 
             <div class="checkbox-required">
               <div class="checkbox">
                 <label>
                   <%= f.check_box :acepta_cultura, { required: true }, "SI", "NO" %>
-                  <strong style="color: #071B7D;">
-                    <i class="fa fa-heart"></i> Acepto la cultura organizacional
-                    <span class="text-danger">*</span>
-                  </strong>
+                  <strong style="color: #071B7D;"><i class="fa fa-heart"></i> Acepto la cultura organizacional <span class="text-danger">*</span></strong>
                 </label>
               </div>
-              <small class="text-muted" style="display: block; margin-top: 10px; padding-left: 26px;">
-                Me comprometo a seguir los valores y principios de la organización.
-              </small>
+              <small class="text-muted" style="display: block; margin-top: 10px; padding-left: 26px;">Me comprometo a seguir los valores y principios de la organización.</small>
             </div>
 
             <div class="form-group" style="margin-top: 30px;">
@@ -350,10 +257,7 @@
             </div>
 
             <p class="text-muted text-center">
-              <small>
-                <i class="fa fa-info-circle"></i> Los campos marcados con (<span class="text-danger">*</span>) son
-                obligatorios
-              </small>
+              <small><i class="fa fa-info-circle"></i> Los campos marcados con (<span class="text-danger">*</span>) son obligatorios</small>
             </p>
 
           <% end %>
@@ -362,334 +266,333 @@
     </div>
   </div>
 </div>
+
+<!-- Modal de cámara -->
+<div class="modal fade" id="modalCamara" tabindex="-1" role="dialog">
+  <div class="modal-dialog modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal"><span>&times;</span></button>
+        <h4 class="modal-title"><i class="fa fa-camera"></i> <span id="modal-titulo">Capturar Documento</span></h4>
+      </div>
+      <div class="modal-body">
+        <div class="row">
+          <div class="col-md-6">
+            <div class="panel panel-default">
+              <div class="panel-heading"><strong>Cámara en vivo</strong></div>
+              <div class="panel-body" style="text-align:center; padding:10px;">
+                <video id="camara-video" width="100%" autoplay playsinline style="border-radius:4px; background:#000;"></video>
+                <button type="button" id="btn-snap" class="btn btn-primary btn-block" style="margin-top:10px;">
+                  <i class="fa fa-camera"></i> Tomar Foto
+                </button>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="panel panel-default">
+              <div class="panel-heading"><strong>Vista previa</strong></div>
+              <div class="panel-body" style="text-align:center; padding:10px;">
+                <canvas id="camara-canvas" style="width:100%; height:auto; display:block; border-radius:4px; border:1px solid #ddd;"></canvas>
+                <p id="camara-instruccion" class="text-muted" style="margin-top:8px;"><small>Aquí aparecerá la foto tomada</small></p>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div id="camara-error" class="alert alert-danger" style="display:none;">
+          <i class="fa fa-exclamation-triangle"></i> No se pudo acceder a la cámara. Verifica los permisos del navegador.
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" id="btn-usar-foto" class="btn btn-success" disabled><i class="fa fa-check"></i> Usar esta foto</button>
+        <button type="button" id="btn-repetir" class="btn btn-default" style="display:none;"><i class="fa fa-refresh"></i> Repetir</button>
+        <button type="button" class="btn btn-default" data-dismiss="modal"><i class="fa fa-times"></i> Cancelar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<%#
+  ═══════════════════════════════════════════════════════════════════════════════
+  SCRIPT — corre directamente (NO usa document.ready) porque está al final del
+  DOM, después de todos los elementos que necesita.
+  Usamos el namespace "reEvento" para evitar colisiones con otros scripts globales
+  (como SignaturePad) que puedan estar en application.js.
+  ═══════════════════════════════════════════════════════════════════════════════
+%>
 <script>
+    var reEvento = (function($) {
 
+        // ── Variables de cámara ──────────────────────────────────────────────────
+        var streamActual    = null;
+        var campoObjetivo   = null;
+        var previewObjetivo = null;
 
-    // ── Preview de documentos ──────────────────────────────────────
-    function configurarPreview(inputId, previewId, imgId, pdfId, nombreId) {
-        $('#' + inputId).on('change', function () {
-            var file = this.files[0];
-            var $preview = $('#' + previewId);
-            var $img = $('#' + imgId);
-            var $pdf = $('#' + pdfId);
-            var $nombre = $('#' + nombreId);
+        var titulosCamara = {
+            'frente':            'Capturar Documento – Frente',
+            'reverso':           'Capturar Documento – Reverso',
+            'acudiente-frente':  'Capturar Documento Acudiente – Frente',
+            'acudiente-reverso': 'Capturar Documento Acudiente – Reverso'
+        };
 
-            if (!file) {
-                $preview.hide();
-                return;
-            }
-
-            $preview.show();
-
-            if (file.type === 'application/pdf') {
-                $img.hide();
-                $nombre.text(file.name + ' (' + (file.size / 1024 / 1024).toFixed(2) + ' MB)');
-                $pdf.show();
-            } else {
-                $pdf.hide();
-                var reader = new FileReader();
-                reader.onload = function (e) {
-                    $img.attr('src', e.target.result).show();
-                };
-                reader.readAsDataURL(file);
-            }
-        });
-    }
-
-    configurarPreview('cedula_frente_input', 'preview-frente', 'preview-frente-img', 'preview-frente-pdf', 'preview-frente-nombre');
-    configurarPreview('cedula_reverso_input', 'preview-reverso', 'preview-reverso-img', 'preview-reverso-pdf', 'preview-reverso-nombre');
-    configurarPreview('acudiente_cedula_frente_input',  'preview-acudiente-frente',  'preview-acudiente-frente-img',  'preview-acudiente-frente-pdf',  'preview-acudiente-frente-nombre');
-    configurarPreview('acudiente_cedula_reverso_input', 'preview-acudiente-reverso', 'preview-acudiente-reverso-img', 'preview-acudiente-reverso-pdf', 'preview-acudiente-reverso-nombre');
-    (function () {
-        'use strict';
-
-        // Verificar que jQuery está cargado
-        if (typeof jQuery === 'undefined') {
-            console.error('❌ ERROR: jQuery no está cargado!');
-            alert('Error: jQuery no está cargado. Contacta al administrador.');
-            return;
+        function abrirCamara(prefixPreview, campoId) {
+            campoObjetivo   = campoId;
+            previewObjetivo = prefixPreview;
+            document.getElementById('modal-titulo').textContent = titulosCamara[prefixPreview] || 'Capturar Documento';
+            var canvas = document.getElementById('camara-canvas');
+            canvas.getContext('2d').clearRect(0, 0, canvas.width, canvas.height);
+            document.getElementById('btn-usar-foto').disabled           = true;
+            document.getElementById('btn-repetir').style.display        = 'none';
+            document.getElementById('camara-error').style.display       = 'none';
+            document.getElementById('camara-instruccion').style.display = 'block';
+            $('#modalCamara').modal('show');
         }
 
-        console.log('✅ jQuery versión:', jQuery.fn.jquery);
-
-        jQuery(document).ready(function ($) {
-            console.log('🔍 Script de validación de edad cargado');
-
-            // Verificar que el elemento existe
-            var $fechaNacimiento = $('#fecha_nacimiento');
-            if ($fechaNacimiento.length === 0) {
-                console.error('❌ ERROR: No se encontró el campo #fecha_nacimiento');
-                return;
-            }
-            console.log('✅ Campo fecha_nacimiento encontrado');
-
-            // Verificar que datepicker está disponible
-            if (typeof $.fn.datepicker === 'undefined') {
-                console.error('❌ ERROR: Bootstrap Datepicker no está cargado!');
-                alert('Error: El selector de fechas no está disponible. Contacta al administrador.');
-                return;
-            }
-            console.log('✅ Bootstrap Datepicker disponible');
-
-            // Función para calcular edad
-            function calcularEdad(fechaNacimiento) {
-                try {
-                    var hoy = new Date();
-                    var cumpleanos = new Date(fechaNacimiento);
-                    var edad = hoy.getFullYear() - cumpleanos.getFullYear();
-                    var mes = hoy.getMonth() - cumpleanos.getMonth();
-
-                    if (mes < 0 || (mes === 0 && hoy.getDate() < cumpleanos.getDate())) {
-                        edad--;
-                    }
-
-                    return edad;
-                } catch (error) {
-                    console.error('❌ Error calculando edad:', error);
-                    return null;
-                }
-            }
-
-            // Función para convertir fecha dd/mm/yyyy a objeto Date
-            function convertirFecha(fechaStr) {
-                try {
-                    if (!fechaStr) return null;
-
-                    console.log('📅 Convirtiendo fecha:', fechaStr);
-
-                    var partes = fechaStr.split('/');
-                    if (partes.length !== 3) {
-                        console.log('❌ Formato de fecha inválido');
-                        return null;
-                    }
-
-                    var dia = parseInt(partes[0], 10);
-                    var mes = parseInt(partes[1], 10) - 1;
-                    var anio = parseInt(partes[2], 10);
-
-                    if (isNaN(dia) || isNaN(mes) || isNaN(anio)) {
-                        console.log('❌ Partes de fecha inválidas');
-                        return null;
-                    }
-
-                    var fecha = new Date(anio, mes, dia);
-                    console.log('✅ Fecha convertida:', fecha);
-                    return fecha;
-                } catch (error) {
-                    console.error('❌ Error convirtiendo fecha:', error);
-                    return null;
-                }
-            }
-
-            // Función para validar y mostrar/ocultar sección de acudiente
-            function validarEdad() {
-                try {
-                    var fechaStr = $fechaNacimiento.val();
-
-                    console.log('🔍 Validando edad con fecha:', fechaStr);
-
-                    if (!fechaStr || fechaStr.trim() === '') {
-                        console.log('⚠️ Fecha vacía, ocultando sección');
-                        $('#seccion-acudiente').hide();
-                        $('#edad-info').hide();
-                        $('.acudiente-field').prop('required', false);
-                        return;
-                    }
-
-                    var fecha = convertirFecha(fechaStr);
-                    if (!fecha || isNaN(fecha.getTime())) {
-                        console.log('❌ Fecha inválida');
-                        return;
-                    }
-
-                    var edad = calcularEdad(fecha);
-                    if (edad === null) {
-                        console.log('❌ No se pudo calcular la edad');
-                        return;
-                    }
-
-                    console.log('🎂 Edad calculada:', edad);
-
-                    if (edad < 18) {
-                        // Es menor de edad
-                        console.log('👶 MENOR DE EDAD - Mostrando sección de acudiente');
-                        $('#edad-texto').text('Edad: ' + edad + ' años - Debes completar la información del acudiente');
-                        $('#edad-info').show().css('color', '#d9534f');
-                        $('#seccion-acudiente').slideDown(400);
-                        $('.acudiente-field').prop('required', true);
-                    } else {
-                        // Es mayor de edad
-                        console.log('👨 MAYOR DE EDAD - Ocultando sección de acudiente');
-                        $('#edad-texto').text('Edad: ' + edad + ' años');
-                        $('#edad-info').show().css('color', '#5cb85c');
-                        $('#seccion-acudiente').slideUp(400);
-                        $('.acudiente-field').prop('required', false);
-                        $('.acudiente-field').val('');
-                    }
-                } catch (error) {
-                    console.error('❌ Error en validarEdad:', error);
-                }
-            }
-
-            // Escuchar eventos del datepicker
-            try {
-                $fechaNacimiento
-                    .on('changeDate', function (e) {
-                        console.log('🗓️ Evento changeDate disparado');
-                        setTimeout(validarEdad, 100);
-                    })
-                    .on('change', function () {
-                        console.log('📝 Evento change disparado');
-                        setTimeout(validarEdad, 100);
-                    })
-                    .on('blur', function () {
-                        console.log('👁️ Evento blur disparado');
-                        setTimeout(validarEdad, 100);
-                    });
-
-                console.log('✅ Eventos del datepicker configurados');
-            } catch (error) {
-                console.error('❌ Error configurando eventos:', error);
-            }
-
-            // Validar al cargar si ya hay fecha
-            setTimeout(function () {
-                try {
-                    var fechaInicial = $fechaNacimiento.val();
-                    if (fechaInicial) {
-                        console.log('🔄 Validando fecha inicial:', fechaInicial);
-                        validarEdad();
-                    }
-                } catch (error) {
-                    console.error('❌ Error en validación inicial:', error);
-                }
-            }, 500);
-
-            // Validación del formulario antes de enviar
-            $('#form-registro-evento').on('submit', function (e) {
-                try {
-                    console.log('📤 Enviando formulario...');
-
-                    // Validar políticas
-                    var politica = $('input[name="eventospersona[acepta_politica]"]');
-                    var cultura = $('input[name="eventospersona[acepta_cultura]"]');
-
-                    if (!politica.is(':checked')) {
-                        e.preventDefault();
-                        alert('⚠️ Debe aceptar las políticas de tratamiento de datos personales.');
-                        return false;
-                    }
-
-                    if (!cultura.is(':checked')) {
-                        e.preventDefault();
-                        alert('⚠️ Debe aceptar la cultura organizacional.');
-                        return false;
-                    }
-
-                    // Validar acudiente si es menor de edad
-                    var fechaStr = $fechaNacimiento.val();
-                    if (fechaStr) {
-                        var fecha = convertirFecha(fechaStr);
-                        if (fecha) {
-                            var edad = calcularEdad(fecha);
-
-                            if (edad !== null && edad < 18) {
-                                console.log('⚠️ Validando campos de acudiente para menor de edad');
-                                var camposVacios = [];
-
-                                if (!$('#acudiente_nombre').val() || $('#acudiente_nombre').val().trim() === '') {
-                                    camposVacios.push('Nombre del Acudiente');
-                                }
-                                if (!$('#acudiente_apellido').val() || $('#acudiente_apellido').val().trim() === '') {
-                                    camposVacios.push('Apellido del Acudiente');
-                                }
-                                if (!$('#acudiente_identificacion').val() || $('#acudiente_identificacion').val().trim() === '') {
-                                    camposVacios.push('Identificación del Acudiente');
-                                }
-                                if (!$('#acudiente_email').val() || $('#acudiente_email').val().trim() === '') {
-                                    camposVacios.push('Email del Acudiente');
-                                }
-                                if (!$('#acudiente_celular').val() || $('#acudiente_celular').val().trim() === '') {
-                                    camposVacios.push('Celular del Acudiente');
-                                }
-
-                                if (camposVacios.length > 0) {
-                                    e.preventDefault();
-                                    alert('⚠️ Eres menor de edad (' + edad + ' años).\n\nDebes completar los siguientes campos del acudiente:\n\n• ' + camposVacios.join('\n• '));
-
-                                    // Scroll suave
-                                    var seccion = document.getElementById('seccion-acudiente');
-                                    if (seccion) {
-                                        seccion.scrollIntoView({behavior: 'smooth', block: 'center'});
-                                    }
-                                    return false;
-                                }
-                            }
-                        }
-                    }
-
-                    console.log('✅ Formulario válido, enviando...');
-                } catch (error) {
-                    console.error('❌ Error en validación de formulario:', error);
-                    // No prevenir el envío si hay un error en la validación JS
-                }
-            });
-
-            // ── Autocompletar datos desde identificación ──────────────────
-            var $identificacion = $('#eventospersona_identificacion');
-            var buscarTimer = null;
-
-            $identificacion.on('blur', function() {
-                var identificacion = $(this).val().trim();
-                if (identificacion.length < 5) return;
-
-                clearTimeout(buscarTimer);
-                buscarTimer = setTimeout(function() {
-                    $.ajax({
-                        url: '<%= buscar_persona_registro_evento_path(@evento.guid) %>',
-                        method: 'GET',
-                        data: { identificacion: identificacion },
-                        success: function(data) {
-                            console.log('📦 Respuesta del servidor:', data);
-                            if (data.encontrada) {
-                                console.log('✅ Persona encontrada, mostrando confirm...');
-                                if (confirm('✅ Persona encontrada: ' + data.nombre + ' ' + data.apellido + '\n\n¿Deseas cargar sus datos automáticamente?')) {
-                                    console.log('📝 Llenando campos...');
-                                    console.log('nombre:', data.nombre);
-                                    console.log('apellido:', data.apellido);
-
-                                    $('#eventospersona_nombre').val(data.nombre).trigger('change');
-                                    $('#eventospersona_apellido').val(data.apellido).trigger('change');
-                                    $('#eventospersona_celular').val(data.celular).trigger('change');
-                                    $('#eventospersona_email').val(data.email).trigger('change');
-                                    $('#eventospersona_direccion').val(data.direccion).trigger('change');
-
-                                    if (data.fecha_nacimiento) {
-                                        $('#fecha_nacimiento').val(data.fecha_nacimiento);
-                                        setTimeout(validarEdad, 200);
-                                    }
-                                    if (data.sexo) {
-                                        $('#eventospersona_sexo').val(data.sexo).trigger('change');
-                                    }
-                                    if (data.estado_civil_id) {
-                                        $('#eventospersona_estado_civil_id').val(data.estado_civil_id).trigger('change');
-                                    }
-                                    if (data.documento_tipo_id) {
-                                        $('#eventospersona_documento_tipo_id').val(data.documento_tipo_id).trigger('change');
-                                    }
-                                    console.log('✅ Campos llenados');
-                                }
-                            } else {
-                                console.log('❌ Persona no encontrada');
-                            }
-                        },
-                        error: function() {
-                            console.log('⚠️ Error al buscar persona');
-                        }
-                    });
-                }, 300);
-            });
-            console.log('✅ Script completo y listo');
+        // Eventos del modal de cámara
+        $('#modalCamara').on('shown.bs.modal', function () {
+            navigator.mediaDevices.getUserMedia({ video: { facingMode: { ideal: 'environment' } } })
+                .then(function (stream) {
+                    streamActual = stream;
+                    var video = document.getElementById('camara-video');
+                    video.srcObject = stream;
+                    video.play();
+                })
+                .catch(function (err) {
+                    console.error('Error cámara:', err);
+                    document.getElementById('camara-error').style.display = 'block';
+                });
         });
-    })();
+
+        $('#modalCamara').on('hidden.bs.modal', function () {
+            if (streamActual) {
+                streamActual.getTracks().forEach(function (t) { t.stop(); });
+                streamActual = null;
+            }
+            document.getElementById('camara-video').srcObject = null;
+        });
+
+        $('#btn-snap').on('click', function () {
+            var video  = document.getElementById('camara-video');
+            var canvas = document.getElementById('camara-canvas');
+            var ctx    = canvas.getContext('2d');
+            canvas.width  = video.videoWidth  || 640;
+            canvas.height = video.videoHeight || 480;
+            ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+            document.getElementById('btn-usar-foto').disabled           = false;
+            document.getElementById('btn-repetir').style.display        = 'inline-block';
+            document.getElementById('camara-instruccion').style.display = 'none';
+        });
+
+        $('#btn-repetir').on('click', function () {
+            var canvas = document.getElementById('camara-canvas');
+            canvas.getContext('2d').clearRect(0, 0, canvas.width, canvas.height);
+            document.getElementById('btn-usar-foto').disabled           = true;
+            document.getElementById('btn-repetir').style.display        = 'none';
+            document.getElementById('camara-instruccion').style.display = 'block';
+        });
+
+        $('#btn-usar-foto').on('click', function () {
+            var canvas  = document.getElementById('camara-canvas');
+            var dataUrl = canvas.toDataURL('image/png');
+            document.getElementById(campoObjetivo).value = dataUrl.split(',')[1];
+            var div = document.getElementById('preview-' + previewObjetivo);
+            var img = document.getElementById('preview-' + previewObjetivo + '-img');
+            if (div && img) { img.src = dataUrl; div.style.display = 'block'; }
+            $('#modalCamara').modal('hide');
+        });
+
+        // ── Helpers de fecha ─────────────────────────────────────────────────────
+        function calcularEdad(fechaNacimiento) {
+            try {
+                var hoy = new Date();
+                var cumpleanos = new Date(fechaNacimiento);
+                var edad = hoy.getFullYear() - cumpleanos.getFullYear();
+                var mes  = hoy.getMonth() - cumpleanos.getMonth();
+                if (mes < 0 || (mes === 0 && hoy.getDate() < cumpleanos.getDate())) { edad--; }
+                return edad;
+            } catch (error) { return null; }
+        }
+
+        function convertirFecha(fechaStr) {
+            try {
+                if (!fechaStr) return null;
+                var partes = fechaStr.split('/');
+                if (partes.length !== 3) return null;
+                var dia  = parseInt(partes[0], 10);
+                var mes  = parseInt(partes[1], 10) - 1;
+                var anio = parseInt(partes[2], 10);
+                if (isNaN(dia) || isNaN(mes) || isNaN(anio)) return null;
+                return new Date(anio, mes, dia);
+            } catch (error) { return null; }
+        }
+
+        // ── Validación de edad ───────────────────────────────────────────────────
+        var $fechaNacimiento = $('#fecha_nacimiento');
+
+        function validarEdad() {
+            try {
+                var fechaStr = $fechaNacimiento.val();
+                if (!fechaStr || fechaStr.trim() === '') {
+                    $('#seccion-acudiente').hide();
+                    $('#edad-info').hide();
+                    $('.acudiente-field').prop('required', false);
+                    return;
+                }
+                var fecha = convertirFecha(fechaStr);
+                if (!fecha || isNaN(fecha.getTime())) return;
+                var edad = calcularEdad(fecha);
+                if (edad === null) return;
+
+                console.log('🎂 Edad calculada:', edad);
+
+                if (edad < 18) {
+                    $('#edad-texto').text('Edad: ' + edad + ' años - Debes completar la información del acudiente');
+                    $('#edad-info').show().css('color', '#d9534f');
+                    $('#seccion-acudiente').slideDown(400);
+                    $('.acudiente-field').prop('required', true);
+                } else {
+                    $('#edad-texto').text('Edad: ' + edad + ' años');
+                    $('#edad-info').show().css('color', '#5cb85c');
+                    $('#seccion-acudiente').slideUp(400);
+                    $('.acudiente-field').prop('required', false).val('');
+                }
+            } catch (error) {
+                console.error('❌ validarEdad:', error);
+            }
+        }
+
+        $fechaNacimiento
+            .on('changeDate', function () { setTimeout(validarEdad, 100); })
+            .on('change',     function () { setTimeout(validarEdad, 100); })
+            .on('blur',       function () { setTimeout(validarEdad, 100); });
+
+        // Validar si ya hay fecha al cargar
+        setTimeout(function () { if ($fechaNacimiento.val()) validarEdad(); }, 500);
+
+        // ── Validación al enviar ─────────────────────────────────────────────────
+        $('#form-registro-evento').on('submit', function (e) {
+            try {
+                var politica = $('input[name="eventospersona[acepta_politica]"]');
+                var cultura  = $('input[name="eventospersona[acepta_cultura]"]');
+
+                if (!politica.is(':checked')) {
+                    e.preventDefault();
+                    alert('⚠️ Debe aceptar las políticas de tratamiento de datos personales.');
+                    return false;
+                }
+                if (!cultura.is(':checked')) {
+                    e.preventDefault();
+                    alert('⚠️ Debe aceptar la cultura organizacional.');
+                    return false;
+                }
+
+                var yaHayDocs = $('#persona_ya_tiene_documentos').val() === '1';
+                if (!yaHayDocs) {
+                    if (!$('#cedula_frente_base64').val()) {
+                        e.preventDefault();
+                        alert('⚠️ Debes capturar la foto del Documento Frente.');
+                        return false;
+                    }
+                    if (!$('#cedula_reverso_base64').val()) {
+                        e.preventDefault();
+                        alert('⚠️ Debes capturar la foto del Documento Reverso.');
+                        return false;
+                    }
+                }
+
+                var fechaStr = $fechaNacimiento.val();
+                if (fechaStr) {
+                    var fecha = convertirFecha(fechaStr);
+                    if (fecha) {
+                        var edad = calcularEdad(fecha);
+                        if (edad !== null && edad < 18) {
+                            var camposVacios = [];
+                            if (!$('#acudiente_nombre').val()         || !$('#acudiente_nombre').val().trim())         camposVacios.push('Nombre del Acudiente');
+                            if (!$('#acudiente_apellido').val()       || !$('#acudiente_apellido').val().trim())       camposVacios.push('Apellido del Acudiente');
+                            if (!$('#acudiente_identificacion').val() || !$('#acudiente_identificacion').val().trim()) camposVacios.push('Identificación del Acudiente');
+                            if (!$('#acudiente_email').val()          || !$('#acudiente_email').val().trim())          camposVacios.push('Email del Acudiente');
+                            if (!$('#acudiente_celular').val()        || !$('#acudiente_celular').val().trim())        camposVacios.push('Celular del Acudiente');
+                            if (!$('#acudiente_cedula_frente_base64').val())  camposVacios.push('Foto frente del acudiente');
+                            if (!$('#acudiente_cedula_reverso_base64').val()) camposVacios.push('Foto reverso del acudiente');
+
+                            if (camposVacios.length > 0) {
+                                e.preventDefault();
+                                alert('⚠️ Eres menor de edad (' + edad + ' años).\n\nDebes completar:\n\n• ' + camposVacios.join('\n• '));
+                                var seccion = document.getElementById('seccion-acudiente');
+                                if (seccion) seccion.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                                return false;
+                            }
+                        }
+                    }
+                }
+            } catch (error) {
+                console.error('❌ submit error:', error);
+            }
+        });
+
+        // ── Autocompletar desde identificación ──────────────────────────────────
+        var buscarTimer = null;
+
+        $('#eventospersona_identificacion').on('blur', function () {
+            var identificacion = $(this).val().trim();
+            if (identificacion.length < 5) return;
+
+            clearTimeout(buscarTimer);
+            buscarTimer = setTimeout(function () {
+                $.ajax({
+                    url: '<%= buscar_persona_registro_evento_path(@evento.guid) %>',
+                    method: 'GET',
+                    data: { identificacion: identificacion },
+                    success: function (data) {
+                        console.log('📦 Respuesta del servidor:', data);
+                        if (!data.encontrada) { console.log('❌ Persona no encontrada'); return; }
+
+
+                        console.log('📝 Llenando campos...');
+                        $('#eventospersona_nombre').val(data.nombre).trigger('change');
+                        $('#eventospersona_apellido').val(data.apellido).trigger('change');
+                        $('#eventospersona_celular').val(data.celular).trigger('change');
+                        $('#eventospersona_email').val(data.email).trigger('change');
+                        $('#eventospersona_direccion').val(data.direccion).trigger('change');
+
+                        if (data.fecha_nacimiento) {
+                            $('#fecha_nacimiento').val(data.fecha_nacimiento);
+                            setTimeout(validarEdad, 200);
+                        }
+                        if (data.sexo)             $('#eventospersona_sexo').val(data.sexo).trigger('change');
+                        if (data.estado_civil_id)  $('#eventospersona_estado_civil_id').val(data.estado_civil_id).trigger('change');
+                        if (data.documento_tipo_id)$('#eventospersona_documento_tipo_id').val(data.documento_tipo_id).trigger('change');
+
+                        if (data.tiene_documentos && data.cedula_frente_url && data.cedula_reverso_url) {
+                            console.log('📄 Cargando fotos previas...');
+                            var dF = document.getElementById('preview-frente');
+                            var iF = document.getElementById('preview-frente-img');
+                            if (dF && iF) { iF.src = data.cedula_frente_url; dF.style.display = 'block'; }
+
+                            var dR = document.getElementById('preview-reverso');
+                            var iR = document.getElementById('preview-reverso-img');
+                            if (dR && iR) { iR.src = data.cedula_reverso_url; dR.style.display = 'block'; }
+
+                            $('#persona_ya_tiene_documentos').val('1');
+                            $('#badge-docs-existentes').show();
+                        } else {
+                            $('#persona_ya_tiene_documentos').val('0');
+                            $('#badge-docs-existentes').hide();
+                            $('#preview-frente').hide();
+                            $('#preview-reverso').hide();
+                            $('#cedula_frente_base64').val('');
+                            $('#cedula_reverso_base64').val('');
+                        }
+                        console.log('✅ Campos llenados');
+                    },
+                    error: function () { console.warn('⚠️ Error al buscar persona'); }
+                });
+            }, 300);
+        });
+
+        console.log('✅ reEvento inicializado correctamente');
+
+        // Exponer solo lo necesario públicamente
+        return { abrirCamara: abrirCamara };
+
+    }(jQuery));
 </script>
