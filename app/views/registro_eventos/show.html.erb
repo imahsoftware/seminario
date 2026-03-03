@@ -30,11 +30,25 @@
           <%= simple_form_for @eventospersona, url: registro_evento_path(@evento.guid), method: :post,
                               html: { id: 'form-registro-evento', multipart: true } do |f| %>
 
-            <input type="hidden" id="cedula_frente_base64"            name="eventospersona[cedula_frente_base64]">
-            <input type="hidden" id="cedula_reverso_base64"           name="eventospersona[cedula_reverso_base64]">
-            <input type="hidden" id="acudiente_cedula_frente_base64"  name="eventospersona[acudiente_cedula_frente_base64]">
-            <input type="hidden" id="acudiente_cedula_reverso_base64" name="eventospersona[acudiente_cedula_reverso_base64]">
-            <input type="hidden" id="persona_ya_tiene_documentos"     name="eventospersona[persona_ya_tiene_documentos]" value="0">
+            <%# Fotos — preservan valor si el form vuelve con errores %>
+            <input type="hidden" id="cedula_frente_base64"
+                   name="eventospersona[cedula_frente_base64]"
+                   value="<%= @frente_b64 %>">
+            <input type="hidden" id="cedula_reverso_base64"
+                   name="eventospersona[cedula_reverso_base64]"
+                   value="<%= @reverso_b64 %>">
+            <input type="hidden" id="acudiente_cedula_frente_base64"
+                   name="eventospersona[acudiente_cedula_frente_base64]"
+                   value="<%= @acu_frente_b64 %>">
+            <input type="hidden" id="acudiente_cedula_reverso_base64"
+                   name="eventospersona[acudiente_cedula_reverso_base64]"
+                   value="<%= @acu_rev_b64 %>">
+
+            <%# Flags de documentos existentes %>
+            <input type="hidden" id="persona_ya_tiene_documentos"
+                   name="eventospersona[persona_ya_tiene_documentos]" value="0">
+            <input type="hidden" id="acudiente_ya_tiene_documentos"
+                   name="eventospersona[acudiente_ya_tiene_documentos]" value="0">
 
             <h4 class="text-primary"><i class="fa fa-user"></i> Información Personal</h4>
             <hr>
@@ -59,8 +73,9 @@
                 <label>Fecha de Nacimiento <span class="text-danger">*</span></label>
                 <div class="input-group">
                   <div class="input-group-addon" style="background: #EDEDED;"><i class="fa fa-calendar"></i></div>
+                  <%# Sin clase 'datepicker' — el layout no lo reinicializa %>
                   <%= f.input :fecha_nacimiento, as: :string, label: false, required: true,
-                              input_html: { class: 'form-control datepicker', autocomplete: 'off',
+                              input_html: { class: 'form-control', autocomplete: 'off',
                                             placeholder: 'dd/mm/yyyy', id: 'fecha_nacimiento', readonly: true } %>
                 </div>
                 <small class="text-muted" id="edad-info" style="margin-top: 5px; display: none;">
@@ -193,6 +208,12 @@
                 </div>
               </div>
 
+              <%# Badge: acudiente ya tiene documentos %>
+              <div id="badge-docs-acudiente" class="alert alert-info" style="display:none; margin-top:10px;">
+                <i class="fa fa-info-circle"></i> <strong>El acudiente ya tiene documentos registrados.</strong>
+                Puedes usar los existentes o capturar nuevos con la cámara.
+              </div>
+
               <div class="row" style="margin-top: 10px;">
                 <div class="col-md-6">
                   <div class="form-group">
@@ -311,18 +332,10 @@
   </div>
 </div>
 
-<%#
-  ═══════════════════════════════════════════════════════════════════════════════
-  SCRIPT — corre directamente (NO usa document.ready) porque está al final del
-  DOM, después de todos los elementos que necesita.
-  Usamos el namespace "reEvento" para evitar colisiones con otros scripts globales
-  (como SignaturePad) que puedan estar en application.js.
-  ═══════════════════════════════════════════════════════════════════════════════
-%>
 <script>
     var reEvento = (function($) {
 
-        // ── Variables de cámara ──────────────────────────────────────────────────
+        // ── Variables de cámara ────────────────────────────────────────────────
         var streamActual    = null;
         var campoObjetivo   = null;
         var previewObjetivo = null;
@@ -347,7 +360,7 @@
             $('#modalCamara').modal('show');
         }
 
-        // Eventos del modal de cámara
+        // ── Modal cámara ───────────────────────────────────────────────────────
         $('#modalCamara').on('shown.bs.modal', function () {
             navigator.mediaDevices.getUserMedia({ video: { facingMode: { ideal: 'environment' } } })
                 .then(function (stream) {
@@ -400,18 +413,16 @@
             $('#modalCamara').modal('hide');
         });
 
-        // ── Helpers de fecha ─────────────────────────────────────────────────────
-        function calcularEdad(fechaNacimiento) {
-            try {
-                var hoy = new Date();
-                var cumpleanos = new Date(fechaNacimiento);
-                var edad = hoy.getFullYear() - cumpleanos.getFullYear();
-                var mes  = hoy.getMonth() - cumpleanos.getMonth();
-                if (mes < 0 || (mes === 0 && hoy.getDate() < cumpleanos.getDate())) { edad--; }
-                return edad;
-            } catch (error) { return null; }
-        }
+        // ── Datepicker ─────────────────────────────────────────────────────────
+        $('#fecha_nacimiento').datepicker({
+            format:    'dd/mm/yyyy',
+            language:  'es',
+            autoclose: true,
+            endDate:   new Date(),
+            startDate: '-100y'
+        });
 
+        // ── Helpers de fecha ───────────────────────────────────────────────────
         function convertirFecha(fechaStr) {
             try {
                 if (!fechaStr) return null;
@@ -425,7 +436,18 @@
             } catch (error) { return null; }
         }
 
-        // ── Validación de edad ───────────────────────────────────────────────────
+        function calcularEdad(fechaNacimiento) {
+            try {
+                var hoy        = new Date();
+                var cumpleanos = new Date(fechaNacimiento);
+                var edad = hoy.getFullYear() - cumpleanos.getFullYear();
+                var mes  = hoy.getMonth() - cumpleanos.getMonth();
+                if (mes < 0 || (mes === 0 && hoy.getDate() < cumpleanos.getDate())) { edad--; }
+                return edad;
+            } catch (error) { return null; }
+        }
+
+        // ── Validación de edad ─────────────────────────────────────────────────
         var $fechaNacimiento = $('#fecha_nacimiento');
 
         function validarEdad() {
@@ -441,8 +463,6 @@
                 if (!fecha || isNaN(fecha.getTime())) return;
                 var edad = calcularEdad(fecha);
                 if (edad === null) return;
-
-                console.log('🎂 Edad calculada:', edad);
 
                 if (edad < 18) {
                     $('#edad-texto').text('Edad: ' + edad + ' años - Debes completar la información del acudiente');
@@ -465,10 +485,30 @@
             .on('change',     function () { setTimeout(validarEdad, 100); })
             .on('blur',       function () { setTimeout(validarEdad, 100); });
 
-        // Validar si ya hay fecha al cargar
         setTimeout(function () { if ($fechaNacimiento.val()) validarEdad(); }, 500);
 
-        // ── Validación al enviar ─────────────────────────────────────────────────
+        // ── Restaurar previews si el form volvió con errores ──────────────────
+        (function restaurarPreviews() {
+            var fotos = [
+                { inputId: 'cedula_frente_base64',            previewDiv: 'preview-frente',            previewImg: 'preview-frente-img' },
+                { inputId: 'cedula_reverso_base64',           previewDiv: 'preview-reverso',           previewImg: 'preview-reverso-img' },
+                { inputId: 'acudiente_cedula_frente_base64',  previewDiv: 'preview-acudiente-frente',  previewImg: 'preview-acudiente-frente-img' },
+                { inputId: 'acudiente_cedula_reverso_base64', previewDiv: 'preview-acudiente-reverso', previewImg: 'preview-acudiente-reverso-img' }
+            ];
+            fotos.forEach(function(f) {
+                var input = document.getElementById(f.inputId);
+                if (input && input.value) {
+                    var div = document.getElementById(f.previewDiv);
+                    var img = document.getElementById(f.previewImg);
+                    if (div && img) {
+                        img.src = 'data:image/png;base64,' + input.value;
+                        div.style.display = 'block';
+                    }
+                }
+            });
+        })();
+
+        // ── Validación al enviar ───────────────────────────────────────────────
         $('#form-registro-evento').on('submit', function (e) {
             try {
                 var politica = $('input[name="eventospersona[acepta_politica]"]');
@@ -485,6 +525,7 @@
                     return false;
                 }
 
+                // ── Validar fotos del titular ──────────────────────────────────────
                 var yaHayDocs = $('#persona_ya_tiene_documentos').val() === '1';
                 if (!yaHayDocs) {
                     if (!$('#cedula_frente_base64').val()) {
@@ -499,6 +540,7 @@
                     }
                 }
 
+                // ── Validar menor de edad y acudiente ─────────────────────────────
                 var fechaStr = $fechaNacimiento.val();
                 if (fechaStr) {
                     var fecha = convertirFecha(fechaStr);
@@ -506,13 +548,18 @@
                         var edad = calcularEdad(fecha);
                         if (edad !== null && edad < 18) {
                             var camposVacios = [];
-                            if (!$('#acudiente_nombre').val()         || !$('#acudiente_nombre').val().trim())         camposVacios.push('Nombre del Acudiente');
-                            if (!$('#acudiente_apellido').val()       || !$('#acudiente_apellido').val().trim())       camposVacios.push('Apellido del Acudiente');
-                            if (!$('#acudiente_identificacion').val() || !$('#acudiente_identificacion').val().trim()) camposVacios.push('Identificación del Acudiente');
-                            if (!$('#acudiente_email').val()          || !$('#acudiente_email').val().trim())          camposVacios.push('Email del Acudiente');
-                            if (!$('#acudiente_celular').val()        || !$('#acudiente_celular').val().trim())        camposVacios.push('Celular del Acudiente');
-                            if (!$('#acudiente_cedula_frente_base64').val())  camposVacios.push('Foto frente del acudiente');
-                            if (!$('#acudiente_cedula_reverso_base64').val()) camposVacios.push('Foto reverso del acudiente');
+                            if (!$('#acudiente_nombre').val().trim())         camposVacios.push('Nombre del Acudiente');
+                            if (!$('#acudiente_apellido').val().trim())       camposVacios.push('Apellido del Acudiente');
+                            if (!$('#acudiente_identificacion').val().trim()) camposVacios.push('Identificación del Acudiente');
+                            if (!$('#acudiente_email').val().trim())          camposVacios.push('Email del Acudiente');
+                            if (!$('#acudiente_celular').val().trim())        camposVacios.push('Celular del Acudiente');
+
+                            // ✅ Solo exigir fotos del acudiente si NO tiene documentos previos
+                            var acudienteYaTieneDocs = $('#acudiente_ya_tiene_documentos').val() === '1';
+                            if (!acudienteYaTieneDocs) {
+                                if (!$('#acudiente_cedula_frente_base64').val())  camposVacios.push('Foto frente del acudiente');
+                                if (!$('#acudiente_cedula_reverso_base64').val()) camposVacios.push('Foto reverso del acudiente');
+                            }
 
                             if (camposVacios.length > 0) {
                                 e.preventDefault();
@@ -529,11 +576,53 @@
             }
         });
 
-        // ── Autocompletar desde identificación ──────────────────────────────────
+        // ── Limpiar formulario al cambiar cédula ──────────────────────────────
+        var ultimaCedula = $('#eventospersona_identificacion').val();
+
+        function limpiarFormulario() {
+            $('#eventospersona_nombre').val('').trigger('change');
+            $('#eventospersona_apellido').val('').trigger('change');
+            $('#eventospersona_celular').val('').trigger('change');
+            $('#eventospersona_email').val('').trigger('change');
+            $('#eventospersona_direccion').val('').trigger('change');
+            $('#fecha_nacimiento').val('');
+            $('#eventospersona_sexo').val('').trigger('change');
+            $('#eventospersona_estado_civil_id').val('').trigger('change');
+            $('#eventospersona_documento_tipo_id').val('').trigger('change');
+
+            // Limpiar fotos y previews del titular
+            $('#cedula_frente_base64').val('');
+            $('#cedula_reverso_base64').val('');
+            $('#preview-frente').hide();
+            $('#preview-reverso').hide();
+
+            // Limpiar fotos y previews del acudiente
+            $('#acudiente_cedula_frente_base64').val('');
+            $('#acudiente_cedula_reverso_base64').val('');
+            $('#preview-acudiente-frente').hide();
+            $('#preview-acudiente-reverso').hide();
+
+            // Resetear flags y badges
+            $('#persona_ya_tiene_documentos').val('0');
+            $('#acudiente_ya_tiene_documentos').val('0');
+            $('#badge-docs-existentes').hide();
+            $('#badge-docs-acudiente').hide();
+            $('#seccion-acudiente').hide();
+            $('#edad-info').hide();
+        }
+
+        // ── Autocompletar desde identificación ────────────────────────────────
         var buscarTimer = null;
 
         $('#eventospersona_identificacion').on('blur', function () {
             var identificacion = $(this).val().trim();
+
+            // ✅ Si cambió la cédula, limpiar todo primero
+            if (identificacion !== ultimaCedula) {
+                ultimaCedula = identificacion;
+                limpiarFormulario();
+            }
+
             if (identificacion.length < 5) return;
 
             clearTimeout(buscarTimer);
@@ -546,8 +635,6 @@
                         console.log('📦 Respuesta del servidor:', data);
                         if (!data.encontrada) { console.log('❌ Persona no encontrada'); return; }
 
-
-                        console.log('📝 Llenando campos...');
                         $('#eventospersona_nombre').val(data.nombre).trigger('change');
                         $('#eventospersona_apellido').val(data.apellido).trigger('change');
                         $('#eventospersona_celular').val(data.celular).trigger('change');
@@ -558,12 +645,12 @@
                             $('#fecha_nacimiento').val(data.fecha_nacimiento);
                             setTimeout(validarEdad, 200);
                         }
-                        if (data.sexo)             $('#eventospersona_sexo').val(data.sexo).trigger('change');
-                        if (data.estado_civil_id)  $('#eventospersona_estado_civil_id').val(data.estado_civil_id).trigger('change');
-                        if (data.documento_tipo_id)$('#eventospersona_documento_tipo_id').val(data.documento_tipo_id).trigger('change');
+                        if (data.sexo)              $('#eventospersona_sexo').val(data.sexo).trigger('change');
+                        if (data.estado_civil_id)   $('#eventospersona_estado_civil_id').val(data.estado_civil_id).trigger('change');
+                        if (data.documento_tipo_id) $('#eventospersona_documento_tipo_id').val(data.documento_tipo_id).trigger('change');
 
+                        // ── Documentos del titular ───────────────────────────────────
                         if (data.tiene_documentos && data.cedula_frente_url && data.cedula_reverso_url) {
-                            console.log('📄 Cargando fotos previas...');
                             var dF = document.getElementById('preview-frente');
                             var iF = document.getElementById('preview-frente-img');
                             if (dF && iF) { iF.src = data.cedula_frente_url; dF.style.display = 'block'; }
@@ -582,6 +669,7 @@
                             $('#cedula_frente_base64').val('');
                             $('#cedula_reverso_base64').val('');
                         }
+
                         console.log('✅ Campos llenados');
                     },
                     error: function () { console.warn('⚠️ Error al buscar persona'); }
@@ -589,9 +677,48 @@
             }, 300);
         });
 
-        console.log('✅ reEvento inicializado correctamente');
+        // ── Autocompletar acudiente cuando ingresa su identificación ──────────
+        // ✅ Detecta si el acudiente ya tiene documentos al salir del campo
+        $('#acudiente_identificacion').on('blur', function () {
+            var identificacion = $(this).val().trim();
+            if (identificacion.length < 5) return;
 
-        // Exponer solo lo necesario públicamente
+            $.ajax({
+                url: '<%= buscar_persona_registro_evento_path(@evento.guid) %>',
+                method: 'GET',
+                data: { identificacion: identificacion },
+                success: function (data) {
+                    if (!data.encontrada) return;
+
+                    // Autocompletar campos del acudiente
+                    if (data.nombre)   $('#acudiente_nombre').val(data.nombre).trigger('change');
+                    if (data.apellido) $('#acudiente_apellido').val(data.apellido).trigger('change');
+                    if (data.celular)  $('#acudiente_celular').val(data.celular).trigger('change');
+                    if (data.email)    $('#acudiente_email').val(data.email).trigger('change');
+                    if (data.documento_tipo_id) $('#acudiente_documento_tipo_id').val(data.documento_tipo_id).trigger('change');
+
+                    // ✅ Si el acudiente ya tiene documentos, no exigir fotos nuevas
+                    if (data.tiene_documentos && data.cedula_frente_url && data.cedula_reverso_url) {
+                        var dF = document.getElementById('preview-acudiente-frente');
+                        var iF = document.getElementById('preview-acudiente-frente-img');
+                        if (dF && iF) { iF.src = data.cedula_frente_url; dF.style.display = 'block'; }
+
+                        var dR = document.getElementById('preview-acudiente-reverso');
+                        var iR = document.getElementById('preview-acudiente-reverso-img');
+                        if (dR && iR) { iR.src = data.cedula_reverso_url; dR.style.display = 'block'; }
+
+                        $('#acudiente_ya_tiene_documentos').val('1');
+                        $('#badge-docs-acudiente').show();
+                    } else {
+                        $('#acudiente_ya_tiene_documentos').val('0');
+                        $('#badge-docs-acudiente').hide();
+                    }
+                },
+                error: function () { console.warn('⚠️ Error al buscar acudiente'); }
+            });
+        });
+
+        console.log('✅ reEvento inicializado correctamente');
         return { abrirCamara: abrirCamara };
 
     }(jQuery));

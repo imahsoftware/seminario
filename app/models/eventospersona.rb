@@ -6,16 +6,11 @@ class Eventospersona < ApplicationRecord
   belongs_to :persona, optional: true
   belongs_to :acudiente, class_name: 'Persona', optional: true
 
-  # Atributos virtuales para las imágenes capturadas con la cámara.
-  # El controlador los asigna ANTES de llamar a save, para que pasen
-  # las validaciones. El guardado real en Documento lo hace el controlador
-  # después del save.
   attr_accessor :cedula_frente, :cedula_reverso,
                 :acudiente_cedula_frente, :acudiente_cedula_reverso
 
-  # Si la persona ya tiene documentos registrados, el controlador pone
-  # este flag en true para saltarse la validación de fotos obligatorias.
-  attr_accessor :ya_tiene_documentos, :persona_ya_tiene_documentos
+  attr_accessor :ya_tiene_documentos, :persona_ya_tiene_documentos,
+                :acudiente_ya_tiene_documentos  # ✅ separado del titular
 
   TIPOS_PERSONA = ['CASADO', 'SEMINARISTA', 'SOLTERO'].freeze
 
@@ -68,11 +63,9 @@ class Eventospersona < ApplicationRecord
 
   # ── Callbacks ─────────────────────────────────────────────────────────────
   before_validation :asegurar_aceptaciones
+  before_validation :parsear_fecha_nacimiento
   before_save       :normalizar_datos
   before_save       :buscar_o_crear_persona
-  # ↓ ELIMINADO: after_save :guardar_documentos_todos
-  #   El controlador se encarga de guardar los Documentos después del save,
-  #   porque en ese momento ya tiene los UploadedFile listos (base64_a_paperclip).
 
   # ── Helpers públicos ──────────────────────────────────────────────────────
 
@@ -92,26 +85,45 @@ class Eventospersona < ApplicationRecord
   private
 
   # ── Validación: documentos obligatorios ───────────────────────────────────
-  # Acepta tanto un ActionDispatch::Http::UploadedFile (cámara/base64)
-  # como cualquier objeto presente (por si en el futuro se vuelve a input file).
   def documentos_obligatorios
     return unless new_record?
-    # Si la persona ya tiene documentos guardados (detectado en el controlador
-    # al hacer autocomplete), no exigimos captura nueva.
-    return if ya_tiene_documentos || persona_ya_tiene_documentos == "1"
 
-    errors.add(:cedula_frente,  "es obligatorio capturar la foto del documento frente")  if cedula_frente.blank?
-    errors.add(:cedula_reverso, "es obligatorio capturar la foto del documento reverso") if cedula_reverso.blank?
+    # ── Documentos del titular ──────────────────────────────────────────────
+    titular_tiene_docs = ya_tiene_documentos || persona_ya_tiene_documentos == "1"
+    unless titular_tiene_docs
+      errors.add(:cedula_frente,  "es obligatorio capturar la foto del documento frente")  if cedula_frente.blank?
+      errors.add(:cedula_reverso, "es obligatorio capturar la foto del documento reverso") if cedula_reverso.blank?
+    end
 
+    # ── Documentos del acudiente (solo menores de edad) ─────────────────────
     if menor_de_edad?
-      errors.add(:acudiente_cedula_frente,  "es obligatorio capturar el documento del acudiente frente")  if acudiente_cedula_frente.blank?
-      errors.add(:acudiente_cedula_reverso, "es obligatorio capturar el documento del acudiente reverso") if acudiente_cedula_reverso.blank?
+      # ✅ Verificar flag del acudiente por separado — no mezclar con el titular
+      unless acudiente_ya_tiene_documentos
+        errors.add(:acudiente_cedula_frente,  "es obligatorio capturar el documento del acudiente frente")  if acudiente_cedula_frente.blank?
+        errors.add(:acudiente_cedula_reverso, "es obligatorio capturar el documento del acudiente reverso") if acudiente_cedula_reverso.blank?
+      end
     end
   end
 
   def validar_cupos_disponibles
     return unless evento
     errors.add(:base, "El evento ya alcanzó el número máximo de participantes") if evento.lleno?
+  end
+
+  # ── Parsear fecha_nacimiento desde string DD/MM/YYYY o MM/DD/YYYY ─────────
+  def parsear_fecha_nacimiento
+    return if fecha_nacimiento.blank? || fecha_nacimiento.is_a?(Date)
+
+    fecha_str = fecha_nacimiento.to_s.strip.gsub('-', '/')
+    return unless fecha_str =~ /\A(\d{1,2})\/(\d{1,2})\/(\d{4})\z/
+
+    d, m, y = $1.to_i, $2.to_i, $3.to_i
+
+    self.fecha_nacimiento = if m > 12
+                              Date.new(y, d, m) rescue nil  # viene MM/DD/YYYY → invertir
+                            else
+                              Date.new(y, m, d) rescue nil  # viene DD/MM/YYYY → normal
+                            end
   end
 
   # ── Normalizar texto a mayúsculas ─────────────────────────────────────────
@@ -150,7 +162,6 @@ class Eventospersona < ApplicationRecord
       Rails.logger.warn "⚠️ No se pudo guardar Persona: #{persona.errors.full_messages}"
     end
 
-    # Acudiente (solo menores de edad)
     if menor_de_edad? && acudiente_identificacion.present?
       acudiente = Persona.find_or_initialize_by(identificacion: acudiente_identificacion)
       acudiente.assign_attributes(
