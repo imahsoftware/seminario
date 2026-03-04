@@ -1,5 +1,4 @@
-<% if iglesiascomunidades.present? %>
-  <div class="table-responsive">
+<div class="table-responsive">
     <table class="table table-bordered">
       <thead>
       <tr class="thcolor">
@@ -18,9 +17,3 @@
       </tbody>
     </table>
   </div>
-<% else %>
-  <div class="alert alert-danger">
-    <h4><i class="icon fa fa-info"></i> <%= t :atencion %></h4>
-    <%= t :atencion_msj %>
-  </div>
-<% end %>

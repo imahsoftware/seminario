@@ -48,6 +48,7 @@ class IglesiascomunidadesController < ApplicationController
     @iglesiascomunidad.user_id = is_admin
     respond_to do |format|
       if @iglesiascomunidad.save
+        @iglesiascomunidades = @iglesia.iglesiascomunidades
         format.html { redirect_to @iglesia, notice: 'Registro creado correctamente.' }
         format.js   # si usas AJAX
       else
@@ -86,6 +87,14 @@ class IglesiascomunidadesController < ApplicationController
     else
       flash[:error] = @iglesiascomunidad.errors.full_messages.to_sentence
     end
+  end
+
+
+  def por_iglesia
+    @comunidades = Iglesiascomunidad
+                     .where(iglesia_id: params[:iglesia_id], estado: 'ACTIVO')
+                     .order(:nombre)
+    render json: @comunidades.select(:id, :nombre)
   end
 
 

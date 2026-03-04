@@ -13,7 +13,7 @@
       <div class="box-tools pull-right">
         <%= search_form_for @q do |f| %>
           <div class="input-group input-group-sm" style="width: 180px;">
-            <%= f.search_field :nombre_or_direccion_or_presbitero_cont,
+            <%= f.search_field :nombre_or_direccion_or_presbitero_or_email_or_telefono_cont,
                                onChange: 'javascript:this.value=this.value.toUpperCase();',
                                class: 'form-control pull-right input_uppercase',
                                placeholder: 'Buscar...' %>

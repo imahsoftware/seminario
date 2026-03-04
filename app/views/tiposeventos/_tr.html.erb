@@ -1,11 +1,13 @@
 <tr id="tiposevento_<%= tiposevento.id %>">
   <% if is_auth_a('tiposevento') %>
-  	<td class="text-center">
+    <td class="text-center">
       <%= link_to edit_tiposevento_path(tiposevento), class: 'edit_tiposevento_button', remote: true, data: { toggle: 'tooltip' }, title: "#{t :title_editar}" do %>
-         <button class="btn btn-xs btn-warning"><i class="fa fa-edit"></i></button>
+        <button class="btn btn-xs btn-warning"><i class="fa fa-edit"></i></button>
       <% end %>
-      <%= link_to tiposevento, remote: true, method: :delete, data: { confirm: "#{t :elimina_confirma}", toggle: 'tooltip' }, title: "#{t :title_elimina}" do %>
+      <% unless tiposevento.tipoevento_usado? %>
+        <%= link_to tiposevento, remote: true, method: :delete, data: { confirm: "#{t :elimina_confirma}", toggle: 'tooltip' }, title: "#{t :title_elimina}" do %>
           <button class="btn btn-xs btn-danger"><i class="fa fa-trash"></i></button>
+        <% end %>
       <% end %>
     </td>
   <% end %>

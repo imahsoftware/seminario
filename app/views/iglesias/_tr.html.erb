@@ -8,13 +8,14 @@
                   title: "#{t :title_editar}" do %>
         <button class="btn btn-xs btn-warning"><i class="fa fa-edit"></i></button>
       <% end %>
-
-      <%= link_to iglesia,
-                  remote: true,
-                  method: :delete,
-                  data: { confirm: "#{t :elimina_confirma}", toggle: 'tooltip' },
-                  title: "#{t :title_elimina}" do %>
-        <button class="btn btn-xs btn-danger"><i class="fa fa-trash"></i></button>
+      <% unless iglesia.iglesia_usado? %>
+        <%= link_to iglesia,
+                    remote: true,
+                    method: :delete,
+                    data: { confirm: "#{t :elimina_confirma}", toggle: 'tooltip' },
+                    title: "#{t :title_elimina}" do %>
+          <button class="btn btn-xs btn-danger"><i class="fa fa-trash"></i></button>
+        <% end %>
       <% end %>
     </td>
   <% end %>

@@ -8,14 +8,15 @@
                   title: t(:title_editar) do %>
         <i class="fa fa-edit"></i>
       <% end %>
-
-      <%= link_to iglesia_iglesiascomunidad_path(iglesia, comunidad),
-                  method: :delete,
-                  remote: true,
-                  class: 'btn btn-xs btn-danger',
-                  data: { confirm: t(:elimina_confirma), toggle: 'tooltip' },
-                  title: t(:title_elimina) do %>
-        <i class="fa fa-trash"></i>
+      <% unless comunidad.iglesiacomunidad_usado? %>
+        <%= link_to iglesia_iglesiascomunidad_path(iglesia, comunidad),
+                    method: :delete,
+                    remote: true,
+                    class: 'btn btn-xs btn-danger',
+                    data: { confirm: t(:elimina_confirma), toggle: 'tooltip' },
+                    title: t(:title_elimina) do %>
+          <i class="fa fa-trash"></i>
+        <% end %>
       <% end %>
     </td>
   <% end %>
