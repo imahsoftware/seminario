@@ -9,7 +9,17 @@
       <div class="box-body">
         <div class="row">
           <div class="col-md-3">
-            <%= f.input :iglesiascomunidad_id, collection: Iglesiascomunidad.where(estado: "ACTIVO").order(:nombre).collect { |p| [p.nombre, p.id] }, input_html: { class: 'select2' }, as: :select, include_blank: true, label: "Comunidad " %>
+            <%= f.input :iglesia_id,
+                        collection: Iglesia.all.order(:nombre).collect { |p| [p.nombre, p.id] },
+                        input_html: { class: 'select2', id: 'evento_iglesia_id' },
+                        as: :select, include_blank: true, label: "Iglesia" %>
+          </div>
+
+          <div class="col-md-3">
+            <%= f.input :iglesiascomunidad_id,
+                        collection: [],
+                        input_html: { class: 'select2', id: 'evento_iglesiascomunidad_id' },
+                        as: :select, include_blank: true, label: "Comunidad" %>
           </div>
           <div class="col-md-3">
             <%= f.input :tiposevento_id, collection: Tiposevento.where(estado: "ACTIVO").order(:descripcion).collect { |p| [p.descripcion, p.id] }, input_html: { class: 'select2' }, as: :select, include_blank: true, label: "Tipo de Evento " %>
@@ -23,6 +33,8 @@
               <%= f.input :fecha_inicio, as: :string, label: false, input_html: { class: 'form-control datepicker', autocomplete: 'off' } %>
             </div>
           </div>
+        </div>
+        <div class="row">
           <div class="col-md-3">
             <label>Fecha Fin Inscripción</label>
             <div class="input-group">
@@ -32,8 +44,6 @@
               <%= f.input :fecha_fin, as: :string, label: false, input_html: { class: 'form-control datepicker', autocomplete: 'off' } %>
             </div>
           </div>
-        </div>
-        <div class="row">
           <div class="col-md-3">
             <label>Fecha Inicio Evento</label>
             <div class="input-group">
@@ -55,6 +65,8 @@
           <div class="col-md-3">
             <%= f.input :estado, collection: select_estado, as: :select, input_html: { data: { width: '100%' }, class: 'select2' } %>
           </div>
+        </div>
+        <div class="row">
           <div class="col-md-3">
             <%= f.input :cantidad_persona,
                         as: :integer,
@@ -75,40 +87,40 @@
             <%= f.input :habeas_data, as: :file, input_html: { :onchange => "javascript:this.value=this.value.toUpperCase();" } %>
           </div>
         </div>
-          <div class="row">
-            <% if @evento.habeas_data.present? %>
-              <div class="row">
-                <div class="col-md-12">
-                  <div style="background:#f9f9f9; padding:20px; border-radius:5px; margin-top:20px;">
-                    <h4><i class="fa fa-shield"></i> Documento actual (Habeas Data)</h4>
-
-                    <iframe src="<%= @evento.habeas_data.url %>"
-                            width="100%"
-                            height="500px"
-                            style="border:1px solid #ccc; margin-top:15px;">
-                    </iframe>
-
-                    <br>
-                    <%= link_to "Descargar documento",
-                                @evento.habeas_data.url,
-                                class: "btn btn-default",
-                                target: "_blank" %>
-                  </div>
-                </div>
-              </div>
-            <% end %>
-          </div>
-
-          <!-- Sección de URL pública (solo si el evento ya fue creado) -->
-          <% if @evento.persisted? && @evento.url_publica.present? %>
+        <div class="row">
+          <% if @evento.habeas_data.present? %>
             <div class="row">
               <div class="col-md-12">
+                <div style="background:#f9f9f9; padding:20px; border-radius:5px; margin-top:20px;">
+                  <h4><i class="fa fa-shield"></i> Documento actual (Habeas Data)</h4>
 
-                <h4><i class="icon fa fa-link"></i> URL de Registro Público</h4>
-                <p>Comparte esta URL para que las personas se registren en el evento:</p>
-                <div class="input-group">
-                  <input type="text" class="form-control" id="url_publica" value="<%= @evento.url_publica %>" readonly>
-                  <span class="input-group-btn">
+                  <iframe src="<%= @evento.habeas_data.url %>"
+                          width="100%"
+                          height="500px"
+                          style="border:1px solid #ccc; margin-top:15px;">
+                  </iframe>
+
+                  <br>
+                  <%= link_to "Descargar documento",
+                              @evento.habeas_data.url,
+                              class: "btn btn-default",
+                              target: "_blank" %>
+                </div>
+              </div>
+            </div>
+          <% end %>
+        </div>
+
+        <!-- Sección de URL pública (solo si el evento ya fue creado) -->
+        <% if @evento.persisted? && @evento.url_publica.present? %>
+          <div class="row">
+            <div class="col-md-12">
+
+              <h4><i class="icon fa fa-link"></i> URL de Registro Público</h4>
+              <p>Comparte esta URL para que las personas se registren en el evento:</p>
+              <div class="input-group">
+                <input type="text" class="form-control" id="url_publica" value="<%= @evento.url_publica %>" readonly>
+                <span class="input-group-btn">
                     <button class="btn btn-primary" type="button" id="btn_copiar_url" data-clipboard-target="#url_publica">
                       <i class="fa fa-copy"></i> Copiar URL
                     </button>
@@ -116,30 +128,30 @@
                       <i class="fa fa-external-link"></i> Ver formulario
                     </a>
                   </span>
-                </div>
-                <small class="help-block">
-                  <strong>Vigencia:</strong>
-                  Del <%= @evento.fecha_inicio.strftime("%d/%m/%Y") %> al <%= @evento.fecha_fin.strftime("%d/%m/%Y") %>
-                  <% if @evento.vigente? %>
-                    <span class="label label-success">VIGENTE</span>
-                  <% elsif @evento.vencido? %>
-                    <span class="label label-danger">VENCIDO</span>
-                  <% else %>
-                    <span class="label label-warning">NO INICIADO</span>
-                  <% end %>
-                </small>
-
               </div>
-            </div>
-          <% end %>
+              <small class="help-block">
+                <strong>Vigencia:</strong>
+                Del <%= @evento.fecha_inicio.strftime("%d/%m/%Y") %> al <%= @evento.fecha_fin.strftime("%d/%m/%Y") %>
+                <% if @evento.vigente? %>
+                  <span class="label label-success">VIGENTE</span>
+                <% elsif @evento.vencido? %>
+                  <span class="label label-danger">VENCIDO</span>
+                <% else %>
+                  <span class="label label-warning">NO INICIADO</span>
+                <% end %>
+              </small>
 
-          <div class="box-footer">
+            </div>
           </div>
-          <div class="box-tools pull-right">
-            <%= f.button :submit, "#{t :guardar}", class: "btn btn-danger pull-right" %>
-          </div><!-- /.box-tools -->
+        <% end %>
+
+        <div class="box-footer">
         </div>
+        <div class="box-tools pull-right">
+          <%= f.button :submit, "#{t :guardar}", class: "btn btn-danger pull-right" %>
+        </div><!-- /.box-tools -->
       </div>
+    </div>
   <% end %>
 <% elsif @evento.etapa.to_s == "B" %>
   <%= render "eventospersonas/tabla", eventospersonas: @eventospersonas %>
@@ -160,6 +172,42 @@
           clipboard.on('error', function (e) {
               toastr.error('Error al copiar la URL');
           });
+      });
+  </script>
+  <script>
+      $(document).ready(function () {
+
+          // Si hay una iglesia seleccionada al cargar (modo edición), cargar sus comunidades
+          var iglesiaActual = $('#evento_iglesia_id').val();
+          var comunidadActual = '<%= @evento.iglesiascomunidad_id %>';
+
+          if (iglesiaActual) {
+              cargarComunidades(iglesiaActual, comunidadActual);
+          }
+
+          // Cuando cambia la iglesia
+          $('#evento_iglesia_id').on('change', function () {
+              cargarComunidades($(this).val(), null);
+          });
+
+          function cargarComunidades(iglesiaId, comunidadSeleccionada) {
+              var $select = $('#evento_iglesiascomunidad_id');
+              $select.empty().append('<option value="">Seleccione...</option>');
+
+              if (!iglesiaId) return;
+
+              $.ajax({
+                  url: '/iglesiascomunidades/por_iglesia',
+                  data: {iglesia_id: iglesiaId},
+                  success: function (data) {
+                      $.each(data, function (i, comunidad) {
+                          var selected = comunidad.id == comunidadSeleccionada ? 'selected' : '';
+                          $select.append('<option value="' + comunidad.id + '" ' + selected + '>' + comunidad.nombre + '</option>');
+                      });
+                      $select.trigger('change'); // refresca select2
+                  }
+              });
+          }
       });
   </script>
 <% end %>

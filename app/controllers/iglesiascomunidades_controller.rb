@@ -90,6 +90,14 @@ class IglesiascomunidadesController < ApplicationController
   end
 
 
+  def por_iglesia
+    @comunidades = Iglesiascomunidad
+                     .where(iglesia_id: params[:iglesia_id], estado: 'ACTIVO')
+                     .order(:nombre)
+    render json: @comunidades.select(:id, :nombre)
+  end
+
+
   private
     # Use callbacks to share common setup or constraints between actions.
     def set_iglesiascomunidad
