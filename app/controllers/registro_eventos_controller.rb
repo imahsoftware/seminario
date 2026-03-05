@@ -97,14 +97,13 @@ class RegistroEventosController < ApplicationController
       # ── 9. Redirección según edad ────────────────────────────────────────
       if @eventospersona.menor_de_edad?
         begin
-          Wssms.envio_sms_colombiaredenvio(eventopersona)
+          WssmsController.envio_sms_colombiaredenvio(eventopersona)
         rescue => e
           Rails.logger.error "Error enviando SMS: #{e.message}"
         end
         flash[:notice] = "Registro recibido. Pendiente autorización de acudiente."
         redirect_to pendiente_registro_evento_path(@evento.guid)
       else
-        WssmsController.envio_sms_colombiaredenvio(@eventospersona)
         flash[:notice] = "¡Registro exitoso! Gracias por inscribirte al evento."
         redirect_to exito_registro_evento_path(@evento.guid)
       end
