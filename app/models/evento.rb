@@ -9,7 +9,7 @@ class Evento < ApplicationRecord
   before_save :actualizar_url_si_necesario # usamos before_save seguro
 
   validates :guid, presence: true, uniqueness: true
-  validates :habeas_data, :fecha_fin, :fecha_inicio_e, :fecha_fin_e, presence: true
+  validates :iglesia_id,:tiposevento_id,:habeas_data, :fecha_fin, :fecha_inicio_e, :fecha_fin_e, presence: true
 
   has_attached_file :habeas_data
   validates_attachment_content_type :habeas_data, content_type: [

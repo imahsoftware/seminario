@@ -61,11 +61,6 @@ class RegistroEventosController < ApplicationController
       end
     end
 
-    Rails.logger.info "📝 Intentando guardar eventospersona"
-    Rails.logger.info "Fecha de nacimiento recibida: #{eventospersona_params[:fecha_nacimiento]}"
-    Rails.logger.info "Es menor de edad: #{@eventospersona.menor_de_edad?}"
-    Rails.logger.info "Edad: #{@eventospersona.calcular_edad}" if @eventospersona.fecha_nacimiento.present?
-
     # ── 6. Guardar ───────────────────────────────────────────────────────────
     if @eventospersona.save
 
@@ -101,7 +96,11 @@ class RegistroEventosController < ApplicationController
 
       # ── 9. Redirección según edad ────────────────────────────────────────
       if @eventospersona.menor_de_edad?
-        WssmsController.envio_sms_colombiaredenvio(@eventospersona)
+        begin
+          Wssms.envio_sms_colombiaredenvio(eventopersona)
+        rescue => e
+          Rails.logger.error "Error enviando SMS: #{e.message}"
+        end
         flash[:notice] = "Registro recibido. Pendiente autorización de acudiente."
         redirect_to pendiente_registro_evento_path(@evento.guid)
       else
