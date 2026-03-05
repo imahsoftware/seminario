@@ -97,7 +97,7 @@ class RegistroEventosController < ApplicationController
       # ── 9. Redirección según edad ────────────────────────────────────────
       if @eventospersona.menor_de_edad?
         begin
-          WssmsController.envio_sms_colombiaredenvio(@eventopersona)
+          WssmsController.envio_sms_colombiaredenvio(@eventospersona)
         rescue => e
           Rails.logger.error "Error enviando SMS: #{e.message}"
         end
