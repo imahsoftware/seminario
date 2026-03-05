@@ -16,7 +16,9 @@ require 'open-uri'
   def self.envio_sms_colombiaredenvio(eventopersona)
 
     mensaje = "Hola #{eventopersona.acudiente_nombre} Acudiente de  #{eventopersona.nombre} para completar la inscripción al evento debes abrir el siguiente enlace:"
-    url_sms = "https://88a8-186-80-28-209.ngrok-free.app/registro/#{eventopersona&.evento&.guid}/autorizacion/#{eventopersona&.id}"
+    dominio = Parametro.find(37).valor
+
+    url_sms = "#{dominio}/registro/#{eventopersona&.evento&.guid}/autorizacion/#{eventopersona&.id}"
     username = Parametro.find(31).valor
     password = Parametro.find(32).valor
 
