@@ -9,11 +9,11 @@ Rails.application.routes.draw do
   post 'registro/:guid', to: 'registro_eventos#create'
   get 'registro/:guid/exito', to: 'registro_eventos#exito', as: 'exito_registro_evento'
   get 'registro/:guid/autorizacion/:id', to: 'registro_eventos#autorizacion',  as: 'autorizacion'
-  get 'registro/:guid/pendiente/:id', to: 'registro_eventos#pendiente', as: 'pendiente_registro_evento'
+  get 'registro/:guid/pendiente', to: 'registro_eventos#pendiente', as: 'pendiente_registro_evento'
   post 'registro/:guid/autorizacion/:id', to: 'registro_eventos#autorizar_participacion', as: 'autorizar_participacion_registro_evento'
   get 'registro_eventos/:guid/buscar_persona', to: 'registro_eventos#buscar_persona', as: 'buscar_persona_registro_evento'
   resources :eventos do
-    get :datos_evento
+    get :exportar_excel, defaults: { format: :xlsx }
     member do
       get :copiar_url
     end
