@@ -61,7 +61,11 @@ wd.styles do |style|
                     :style => [datosiz, datosiz,   datosiz,   datoscent, datoscent, datosiz,
                                datosiz,   datoscent, datosiz,   datoscent, datoscent,
                                datosiz,   datosiz,   datosiz,   datoscent, datoscent,
-                               datoscent, fecha]
+                               datoscent, fecha],
+                    :types => [:string, nil, nil, :string, :string,   # identificacion y celular como string
+                               nil, nil, nil, nil,      nil,
+                               :string, nil, nil,       nil,
+                               :string, nil,            nil,      nil]
     end
 
     sheet.column_widths 30, 30, 30, 16, 25,
