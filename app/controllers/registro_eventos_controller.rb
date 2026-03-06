@@ -135,6 +135,9 @@ class RegistroEventosController < ApplicationController
 
   def pendiente
     @evento = Evento.find_by_guid!(params[:guid])
+    @eventospersona = @evento.eventospersonas.find(params[:id])
+
+
   end
 
   def autorizacion
