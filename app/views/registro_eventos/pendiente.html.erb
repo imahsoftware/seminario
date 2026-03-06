@@ -342,7 +342,7 @@
           <strong>pendiente de autorización por parte del acudiente</strong>.
         </p>
         <p>
-          Se enviará un mensaje al <strong>teléfono del acudiente: <%= @eventospersona.acudiente_celular %></strong>.
+          Se enviará un mensaje al <strong>teléfono del acudiente: <%= @eventospersona.acudiente_celular rescue nil %></strong>.
           Una vez recibida la autorización correspondiente, la inscripción será confirmada.
         </p>
         <p>
