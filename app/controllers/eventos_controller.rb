@@ -44,6 +44,9 @@ class EventosController < ApplicationController
     render :evento_form
   end
 
+  def datos_evento
+
+  end
 
   def create
     @evento = Evento.new(evento_params)

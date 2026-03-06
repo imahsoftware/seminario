@@ -74,6 +74,12 @@
                           data: { toggle: 'tooltip' } do %>
                 <i class="fa fa-users"></i>
               <% end %>
+              <%= link_to edit_evento_path(evento.guid),
+                          class: 'btn btn-xs btn-success',
+                          title: 'Ver inscritos',
+                          data: { toggle: 'tooltip' } do %>
+                <i class="fa fa-users"></i>
+              <% end %>
             </td>
             <td><%= evento.detalle rescue nil %></td>
             <td><%= evento.tiposevento.descripcion rescue '—' %></td>
