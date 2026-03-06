@@ -100,6 +100,8 @@
         <%
           edad     = ep.fecha_nacimiento.present? ? ((Date.today - ep.fecha_nacimiento.to_date).to_i / 365.25).floor : nil
           es_menor = edad.present? && edad < 18
+          persona_doc = Persona.find_by(identificacion: ep.identificacion)
+          documento = persona_doc.present? ? Documento.find_by(persona_id: persona_doc.id) : nil
         %>
 
         <tr class="<%= es_menor ? 'warning' : '' %>">
@@ -119,9 +121,9 @@
 
           <td class="text-center">
             <% if edad.present? %>
-                <span class="badge <%= es_menor ? 'bg-yellow' : 'bg-green' %>">
-                  <%= edad %> años
-                </span>
+              <span class="badge <%= es_menor ? 'bg-yellow' : 'bg-green' %>">
+                <%= edad %> años
+              </span>
             <% else %>
               <span class="label label-default">N/D</span>
             <% end %>
@@ -173,9 +175,9 @@
                   <%= "#{ep.nombre} #{ep.apellido}".strip %>
                   <% if es_menor %>
                     <small style="font-size:12px; margin-left:8px;">
-                        <span class="label label-warning">
-                          <i class="fa fa-child"></i> MENOR DE EDAD
-                        </span>
+                      <span class="label label-warning">
+                        <i class="fa fa-child"></i> MENOR DE EDAD
+                      </span>
                     </small>
                   <% end %>
                 </h4>
@@ -183,7 +185,7 @@
 
               <div class="modal-body" style="padding: 20px 25px;">
 
-                <%# Datos Personales %>
+                <%# ── Datos Personales ── %>
                 <div class="box box-solid box-primary" style="margin-bottom:15px;">
                   <div class="box-header with-border" style="padding: 8px 12px;">
                     <h4 class="box-title"><i class="fa fa-id-card"></i> Datos Personales</h4>
@@ -206,9 +208,9 @@
                         <p>
                           <strong><%= ep.fecha_nacimiento.present? ? ep.fecha_nacimiento.strftime('%d/%m/%Y') : 'N/D' %></strong>
                           <% if edad.present? %>
-                              <span class="badge <%= es_menor ? 'bg-yellow' : 'bg-green' %>">
-                                <%= edad %> años
-                              </span>
+                            <span class="badge <%= es_menor ? 'bg-yellow' : 'bg-green' %>">
+                              <%= edad %> años
+                            </span>
                           <% end %>
                         </p>
                       </div>
@@ -228,7 +230,7 @@
 
                       <div class="col-md-4 col-sm-6">
                         <p class="text-muted" style="margin-bottom:2px;"><small>Estado Civil</small></p>
-                        <p><strong><%= ep.estado_civil.nombre || 'N/D' %></strong></p>
+                        <p><strong><%= ep.estado_civil.nombre rescue 'N/D' %></strong></p>
                       </div>
 
                       <div class="col-md-4 col-sm-6">
@@ -240,7 +242,7 @@
                   </div>
                 </div>
 
-                <%# Contacto %>
+                <%# ── Contacto ── %>
                 <div class="box box-solid box-info" style="margin-bottom:15px;">
                   <div class="box-header with-border" style="padding: 8px 12px;">
                     <h4 class="box-title"><i class="fa fa-phone"></i> Contacto</h4>
@@ -276,7 +278,93 @@
                   </div>
                 </div>
 
-                <%# Acudiente (solo menores) %>
+                <%# ── Documentos de Identidad ── %>
+                <% if documento.present? %>
+                  <div class="box box-solid box-success" style="margin-bottom:15px;">
+                    <div class="box-header with-border" style="padding: 8px 12px;">
+                      <h4 class="box-title">
+                        <i class="fa fa-id-card-o"></i> Documentos de Identidad
+                      </h4>
+                    </div>
+                    <div class="box-body" style="padding: 16px 20px;">
+                      <div class="row">
+
+                        <%# ── Cédula Frente ── %>
+                        <div class="col-md-6 col-sm-12" style="margin-bottom: 10px;">
+                          <p class="text-muted text-center" style="margin-bottom: 8px;">
+                            <i class="fa fa-id-card text-success"></i>
+                            <small><strong>Cédula — Frente</strong></small>
+                          </p>
+                          <% if documento.cedula_frente.present? %>
+                            <% if documento.cedula_frente_content_type == 'application/pdf' %>
+                              <div class="text-center" style="padding: 20px; background: #f9f9f9; border: 1px dashed #ccc; border-radius: 6px;">
+                                <i class="fa fa-file-pdf-o fa-3x text-danger"></i><br>
+                                <a href="<%= documento.cedula_frente.url %>"
+                                   target="_blank"
+                                   class="btn btn-sm btn-danger" style="margin-top: 10px;">
+                                  <i class="fa fa-download"></i> Ver PDF
+                                </a>
+                              </div>
+                            <% else %>
+                              <div class="doc-img-wrap" style="border: 2px solid #00a65a; border-radius: 8px; overflow: hidden; background: #f4f4f4; text-align: center; cursor: pointer;"
+                                   onclick="abrirImagen('<%= documento.cedula_frente.url %>', 'Cédula Frente — <%= "#{ep.nombre} #{ep.apellido}".strip %>')">
+                                <%= image_tag documento.cedula_frente.url,
+                                              style: 'width:100%; max-height:180px; object-fit:cover; display:block;',
+                                              alt: 'Cédula Frente' %>
+                                <div style="padding: 6px; font-size: 11px; color: #555;">
+                                  <i class="fa fa-search-plus"></i> Click para ampliar
+                                </div>
+                              </div>
+                            <% end %>
+                          <% else %>
+                            <div class="text-center text-muted" style="padding: 30px; background: #f9f9f9; border: 1px dashed #ddd; border-radius: 6px;">
+                              <i class="fa fa-picture-o fa-2x"></i><br>
+                              <small>Sin imagen</small>
+                            </div>
+                          <% end %>
+                        </div>
+
+                        <%# ── Cédula Reverso ── %>
+                        <div class="col-md-6 col-sm-12" style="margin-bottom: 10px;">
+                          <p class="text-muted text-center" style="margin-bottom: 8px;">
+                            <i class="fa fa-id-card-o text-success"></i>
+                            <small><strong>Cédula — Reverso</strong></small>
+                          </p>
+                          <% if documento.cedula_reverso.present? %>
+                            <% if documento.cedula_reverso_content_type == 'application/pdf' %>
+                              <div class="text-center" style="padding: 20px; background: #f9f9f9; border: 1px dashed #ccc; border-radius: 6px;">
+                                <i class="fa fa-file-pdf-o fa-3x text-danger"></i><br>
+                                <a href="<%= documento.cedula_reverso.url %>"
+                                   target="_blank"
+                                   class="btn btn-sm btn-danger" style="margin-top: 10px;">
+                                  <i class="fa fa-download"></i> Ver PDF
+                                </a>
+                              </div>
+                            <% else %>
+                              <div class="doc-img-wrap" style="border: 2px solid #00a65a; border-radius: 8px; overflow: hidden; background: #f4f4f4; text-align: center; cursor: pointer;"
+                                   onclick="abrirImagen('<%= documento.cedula_reverso.url %>', 'Cédula Reverso — <%= "#{ep.nombre} #{ep.apellido}".strip %>')">
+                                <%= image_tag documento.cedula_reverso.url,
+                                              style: 'width:100%; max-height:180px; object-fit:cover; display:block;',
+                                              alt: 'Cédula Reverso' %>
+                                <div style="padding: 6px; font-size: 11px; color: #555;">
+                                  <i class="fa fa-search-plus"></i> Click para ampliar
+                                </div>
+                              </div>
+                            <% end %>
+                          <% else %>
+                            <div class="text-center text-muted" style="padding: 30px; background: #f9f9f9; border: 1px dashed #ddd; border-radius: 6px;">
+                              <i class="fa fa-picture-o fa-2x"></i><br>
+                              <small>Sin imagen</small>
+                            </div>
+                          <% end %>
+                        </div>
+
+                      </div>
+                    </div>
+                  </div>
+                <% end %>
+
+                <%# ── Acudiente (solo menores) ── %>
                 <% if es_menor %>
                   <div class="box box-solid box-warning" style="margin-bottom:15px;">
                     <div class="box-header with-border" style="padding: 8px 12px;">
@@ -335,7 +423,7 @@
                   </div>
                 <% end %>
 
-                <%# Autorizaciones y Registro %>
+                <%# ── Autorizaciones y Registro ── %>
                 <div class="box box-solid box-default" style="margin-bottom:0;">
                   <div class="box-header with-border" style="padding: 8px 12px;">
                     <h4 class="box-title"><i class="fa fa-check-square-o"></i> Autorizaciones y Registro</h4>
@@ -431,6 +519,27 @@
 
 </div>
 
+<%# ── LIGHTBOX PARA AMPLIAR IMÁGENES ─────────────────────────────────── %>
+<div id="lightbox-doc"
+     style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.85);
+       z-index:99999; align-items:center; justify-content:center; flex-direction:column;">
+  <div style="position:relative; max-width:90vw; max-height:88vh;">
+    <button onclick="cerrarLightbox()"
+            style="position:absolute; top:-14px; right:-14px; background:#fff;
+              border:none; border-radius:50%; width:32px; height:32px;
+              font-size:18px; cursor:pointer; line-height:30px; text-align:center;
+              box-shadow:0 2px 8px rgba(0,0,0,0.4); color:#333;">
+      &times;
+    </button>
+    <p id="lightbox-titulo"
+       style="color:#fff; text-align:center; font-size:13px; margin-bottom:8px; font-weight:600;"></p>
+    <img id="lightbox-img"
+         src=""
+         style="max-width:90vw; max-height:80vh; border-radius:8px;
+           box-shadow:0 8px 40px rgba(0,0,0,0.6); display:block;">
+  </div>
+</div>
+
 <script>
     $(document).ready(function () {
         $('[data-toggle="tooltip"]').tooltip();
@@ -439,5 +548,26 @@
             var id = $(this).data('id');
             $('#modal-persona-' + id).modal('show');
         });
+    });
+
+    function abrirImagen(url, titulo) {
+        $('#lightbox-img').attr('src', url);
+        $('#lightbox-titulo').text(titulo);
+        $('#lightbox-doc').css('display', 'flex');
+    }
+
+    function cerrarLightbox() {
+        $('#lightbox-doc').css('display', 'none');
+        $('#lightbox-img').attr('src', '');
+    }
+
+    // Cerrar con click fuera de la imagen
+    document.getElementById('lightbox-doc').addEventListener('click', function (e) {
+        if (e.target === this) cerrarLightbox();
+    });
+
+    // Cerrar con ESC
+    document.addEventListener('keydown', function (e) {
+        if (e.key === 'Escape') cerrarLightbox();
     });
 </script>
