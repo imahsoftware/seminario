@@ -30,25 +30,12 @@
           <%= simple_form_for @eventospersona, url: registro_evento_path(@evento.guid), method: :post,
                               html: { id: 'form-registro-evento', multipart: true } do |f| %>
 
-            <%# Fotos — preservan valor si el form vuelve con errores %>
-            <input type="hidden" id="cedula_frente_base64"
-                   name="eventospersona[cedula_frente_base64]"
-                   value="<%= @frente_b64 %>">
-            <input type="hidden" id="cedula_reverso_base64"
-                   name="eventospersona[cedula_reverso_base64]"
-                   value="<%= @reverso_b64 %>">
-            <input type="hidden" id="acudiente_cedula_frente_base64"
-                   name="eventospersona[acudiente_cedula_frente_base64]"
-                   value="<%= @acu_frente_b64 %>">
-            <input type="hidden" id="acudiente_cedula_reverso_base64"
-                   name="eventospersona[acudiente_cedula_reverso_base64]"
-                   value="<%= @acu_rev_b64 %>">
-
-            <%# Flags de documentos existentes %>
-            <input type="hidden" id="persona_ya_tiene_documentos"
-                   name="eventospersona[persona_ya_tiene_documentos]" value="0">
-            <input type="hidden" id="acudiente_ya_tiene_documentos"
-                   name="eventospersona[acudiente_ya_tiene_documentos]" value="0">
+            <input type="hidden" id="cedula_frente_base64"            name="eventospersona[cedula_frente_base64]"            value="<%= @frente_b64 %>">
+            <input type="hidden" id="cedula_reverso_base64"           name="eventospersona[cedula_reverso_base64]"           value="<%= @reverso_b64 %>">
+            <input type="hidden" id="acudiente_cedula_frente_base64"  name="eventospersona[acudiente_cedula_frente_base64]"  value="<%= @acu_frente_b64 %>">
+            <input type="hidden" id="acudiente_cedula_reverso_base64" name="eventospersona[acudiente_cedula_reverso_base64]" value="<%= @acu_rev_b64 %>">
+            <input type="hidden" id="persona_ya_tiene_documentos"     name="eventospersona[persona_ya_tiene_documentos]"     value="0">
+            <input type="hidden" id="acudiente_ya_tiene_documentos"   name="eventospersona[acudiente_ya_tiene_documentos]"   value="0">
 
             <h4 class="text-primary"><i class="fa fa-user"></i> Información Personal</h4>
             <hr>
@@ -73,7 +60,6 @@
                 <label>Fecha de Nacimiento <span class="text-danger">*</span></label>
                 <div class="input-group">
                   <div class="input-group-addon" style="background: #EDEDED;"><i class="fa fa-calendar"></i></div>
-                  <%# Sin clase 'datepicker' — el layout no lo reinicializa %>
                   <%= f.input :fecha_nacimiento, as: :string, label: false, required: true,
                               input_html: { class: 'form-control', autocomplete: 'off',
                                             placeholder: 'dd/mm/yyyy', id: 'fecha_nacimiento', readonly: true } %>
@@ -130,7 +116,7 @@
                 <div class="form-group">
                   <label><i class="fa fa-image"></i> Documento Frente <span class="text-danger">*</span></label>
                   <div>
-                    <button type="button" class="btn btn-warning" onclick="reEvento.abrirCamara('frente', 'cedula_frente_base64')">
+                    <button type="button" class="btn btn-warning btn-camara-doc" onclick="reEvento.abrirCamara('frente', 'cedula_frente_base64')">
                       <i class="fa fa-camera"></i> Capturar Frente
                     </button>
                   </div>
@@ -145,7 +131,7 @@
                 <div class="form-group">
                   <label><i class="fa fa-image"></i> Documento Reverso <span class="text-danger">*</span></label>
                   <div>
-                    <button type="button" class="btn btn-warning" onclick="reEvento.abrirCamara('reverso', 'cedula_reverso_base64')">
+                    <button type="button" class="btn btn-warning btn-camara-doc" onclick="reEvento.abrirCamara('reverso', 'cedula_reverso_base64')">
                       <i class="fa fa-camera"></i> Capturar Reverso
                     </button>
                   </div>
@@ -208,7 +194,6 @@
                 </div>
               </div>
 
-              <%# Badge: acudiente ya tiene documentos %>
               <div id="badge-docs-acudiente" class="alert alert-info" style="display:none; margin-top:10px;">
                 <i class="fa fa-info-circle"></i> <strong>El acudiente ya tiene documentos registrados.</strong>
                 Puedes usar los existentes o capturar nuevos con la cámara.
@@ -219,7 +204,7 @@
                   <div class="form-group">
                     <label><i class="fa fa-image"></i> Cédula Acudiente Frente <span class="text-danger">*</span></label>
                     <div>
-                      <button type="button" class="btn btn-warning" onclick="reEvento.abrirCamara('acudiente-frente', 'acudiente_cedula_frente_base64')">
+                      <button type="button" class="btn btn-warning btn-camara-doc" onclick="reEvento.abrirCamara('acudiente-frente', 'acudiente_cedula_frente_base64')">
                         <i class="fa fa-camera"></i> Capturar Frente Acudiente
                       </button>
                     </div>
@@ -234,7 +219,7 @@
                   <div class="form-group">
                     <label><i class="fa fa-image"></i> Cédula Acudiente Reverso <span class="text-danger">*</span></label>
                     <div>
-                      <button type="button" class="btn btn-warning" onclick="reEvento.abrirCamara('acudiente-reverso', 'acudiente_cedula_reverso_base64')">
+                      <button type="button" class="btn btn-warning btn-camara-doc" onclick="reEvento.abrirCamara('acudiente-reverso', 'acudiente_cedula_reverso_base64')">
                         <i class="fa fa-camera"></i> Capturar Reverso Acudiente
                       </button>
                     </div>
@@ -288,54 +273,368 @@
   </div>
 </div>
 
-<!-- Modal de cámara -->
+<%# ════════════════════════════════════════════════════════════════
+    MODAL DE CÁMARA — rediseñado para móvil
+    ════════════════════════════════════════════════════════════════ %>
 <div class="modal fade" id="modalCamara" tabindex="-1" role="dialog">
-  <div class="modal-dialog modal-lg" role="document">
-    <div class="modal-content">
-      <div class="modal-header">
-        <button type="button" class="close" data-dismiss="modal"><span>&times;</span></button>
-        <h4 class="modal-title"><i class="fa fa-camera"></i> <span id="modal-titulo">Capturar Documento</span></h4>
+  <div class="modal-dialog modal-camara-custom" role="document">
+    <div class="modal-content modal-camara-content">
+
+      <%# ── Header compacto ── %>
+      <div class="modal-camara-header">
+        <span id="modal-titulo" class="modal-camara-titulo">
+          <i class="fa fa-camera"></i> Capturar Documento
+        </span>
+        <button type="button" class="modal-camara-close" data-dismiss="modal">
+          <i class="fa fa-times"></i>
+        </button>
       </div>
-      <div class="modal-body">
-        <div class="row">
-          <div class="col-md-6">
-            <div class="panel panel-default">
-              <div class="panel-heading"><strong>Cámara en vivo</strong></div>
-              <div class="panel-body" style="text-align:center; padding:10px;">
-                <video id="camara-video" width="100%" autoplay playsinline style="border-radius:4px; background:#000;"></video>
-                <button type="button" id="btn-snap" class="btn btn-primary btn-block" style="margin-top:10px;">
-                  <i class="fa fa-camera"></i> Tomar Foto
-                </button>
-              </div>
-            </div>
-          </div>
-          <div class="col-md-6">
-            <div class="panel panel-default">
-              <div class="panel-heading"><strong>Vista previa</strong></div>
-              <div class="panel-body" style="text-align:center; padding:10px;">
-                <canvas id="camara-canvas" style="width:100%; height:auto; display:block; border-radius:4px; border:1px solid #ddd;"></canvas>
-                <p id="camara-instruccion" class="text-muted" style="margin-top:8px;"><small>Aquí aparecerá la foto tomada</small></p>
-              </div>
-            </div>
-          </div>
+
+      <%# ── Cuerpo: video + canvas superpuesto ── %>
+      <div class="modal-camara-body">
+
+        <%# Overlay de flash al tomar foto %>
+        <div id="camara-flash" class="camara-flash"></div>
+
+        <%# Video en vivo — ocupa toda la zona ── %>
+        <video id="camara-video" autoplay playsinline
+               class="camara-video" style="display:block;"></video>
+
+        <%# Canvas — se muestra encima tras tomar foto ── %>
+        <canvas id="camara-canvas" class="camara-canvas" style="display:none;"></canvas>
+
+        <%# Líneas guía para encuadre del documento ── %>
+        <div id="camara-guia" class="camara-guia">
+          <div class="guia-esquina guia-tl"></div>
+          <div class="guia-esquina guia-tr"></div>
+          <div class="guia-esquina guia-bl"></div>
+          <div class="guia-esquina guia-br"></div>
+          <span class="guia-texto">Encuadra el documento</span>
         </div>
-        <div id="camara-error" class="alert alert-danger" style="display:none;">
-          <i class="fa fa-exclamation-triangle"></i> No se pudo acceder a la cámara. Verifica los permisos del navegador.
+
+        <%# Error de cámara ── %>
+        <div id="camara-error" class="camara-error-overlay" style="display:none;">
+          <i class="fa fa-exclamation-triangle fa-2x"></i>
+          <p>No se pudo acceder a la cámara.<br>Verifica los permisos del navegador.</p>
         </div>
+
+      </div><%# fin modal-camara-body %>
+
+      <%# ── Footer siempre visible con botones ── %>
+      <div class="modal-camara-footer">
+
+        <%# Estado: esperando foto %>
+        <div id="footer-capturar" class="footer-estado">
+          <button type="button" id="btn-snap" class="btn-camara-snap">
+            <span class="btn-snap-circulo">
+              <i class="fa fa-camera"></i>
+            </span>
+            <span class="btn-snap-label">Tomar Foto</span>
+          </button>
+          <button type="button" class="btn-camara-cancelar" data-dismiss="modal">
+            <i class="fa fa-times"></i> Cancelar
+          </button>
+        </div>
+
+        <%# Estado: foto tomada, confirmar ── %>
+        <div id="footer-confirmar" class="footer-estado" style="display:none;">
+          <button type="button" id="btn-usar-foto" class="btn-camara-usar">
+            <i class="fa fa-check"></i> Usar esta foto
+          </button>
+          <button type="button" id="btn-repetir" class="btn-camara-repetir">
+            <i class="fa fa-refresh"></i> Repetir
+          </button>
+        </div>
+
       </div>
-      <div class="modal-footer">
-        <button type="button" id="btn-usar-foto" class="btn btn-success" disabled><i class="fa fa-check"></i> Usar esta foto</button>
-        <button type="button" id="btn-repetir" class="btn btn-default" style="display:none;"><i class="fa fa-refresh"></i> Repetir</button>
-        <button type="button" class="btn btn-default" data-dismiss="modal"><i class="fa fa-times"></i> Cancelar</button>
-      </div>
-    </div>
+
+    </div><%# fin modal-content %>
   </div>
 </div>
+
+<%# ════════════════════════════════════════════════════
+    CSS DEL MODAL DE CÁMARA
+    ════════════════════════════════════════════════════ %>
+<style>
+    /* ── Modal ocupa casi toda la pantalla en móvil ── */
+    .modal-camara-custom {
+        margin: 0;
+        padding: 0;
+        width: 100%;
+        max-width: 100%;
+        height: 100%;
+    }
+
+    .modal-camara-content {
+        display: flex;
+        flex-direction: column;
+        height: 100vh;
+        border-radius: 0;
+        border: none;
+        overflow: hidden;
+        background: #000;
+    }
+
+    /* ── Header ── */
+    .modal-camara-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        background: rgba(0,0,0,0.85);
+        padding: 12px 16px;
+        flex-shrink: 0;
+        z-index: 10;
+    }
+
+    .modal-camara-titulo {
+        color: #fff;
+        font-size: 16px;
+        font-weight: 600;
+    }
+
+    .modal-camara-close {
+        background: rgba(255,255,255,0.15);
+        border: none;
+        color: #fff;
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        font-size: 16px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+    }
+
+    .modal-camara-close:hover { background: rgba(255,255,255,0.3); }
+
+    /* ── Zona de cámara — ocupa todo el espacio disponible ── */
+    .modal-camara-body {
+        flex: 1;
+        position: relative;
+        overflow: hidden;
+        background: #111;
+        min-height: 0;
+    }
+
+    .camara-video,
+    .camara-canvas {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    /* ── Flash al tomar foto ── */
+    .camara-flash {
+        position: absolute;
+        inset: 0;
+        background: #fff;
+        opacity: 0;
+        pointer-events: none;
+        z-index: 20;
+        transition: opacity 0s;
+    }
+
+    .camara-flash.disparar {
+        animation: flashAnim 0.4s ease-out forwards;
+    }
+
+    @keyframes flashAnim {
+        0%   { opacity: 0.9; }
+        100% { opacity: 0; }
+    }
+
+    /* ── Guías de encuadre ── */
+    .camara-guia {
+        position: absolute;
+        inset: 0;
+        pointer-events: none;
+        z-index: 5;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .guia-texto {
+        position: absolute;
+        bottom: 12px;
+        left: 50%;
+        transform: translateX(-50%);
+        color: rgba(255,255,255,0.7);
+        font-size: 13px;
+        background: rgba(0,0,0,0.4);
+        padding: 3px 12px;
+        border-radius: 20px;
+        white-space: nowrap;
+    }
+
+    /* Esquinas del encuadre */
+    .guia-esquina {
+        position: absolute;
+        width: 28px;
+        height: 28px;
+        border-color: rgba(255,255,255,0.8);
+        border-style: solid;
+    }
+
+    .guia-tl { top: 16px;    left: 16px;    border-width: 3px 0 0 3px; border-radius: 4px 0 0 0; }
+    .guia-tr { top: 16px;    right: 16px;   border-width: 3px 3px 0 0; border-radius: 0 4px 0 0; }
+    .guia-bl { bottom: 60px; left: 16px;    border-width: 0 0 3px 3px; border-radius: 0 0 0 4px; }
+    .guia-br { bottom: 60px; right: 16px;   border-width: 0 3px 3px 0; border-radius: 0 0 4px 0; }
+
+    /* ── Overlay error ── */
+    .camara-error-overlay {
+        position: absolute;
+        inset: 0;
+        background: rgba(0,0,0,0.85);
+        color: #fff;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 12px;
+        text-align: center;
+        padding: 20px;
+        z-index: 15;
+    }
+
+    /* ── Footer con botones — siempre visible ── */
+    .modal-camara-footer {
+        background: rgba(0,0,0,0.9);
+        padding: 16px 20px;
+        flex-shrink: 0;
+        z-index: 10;
+    }
+
+    .footer-estado {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 16px;
+    }
+
+    /* Botón principal de disparo — círculo grande ── */
+    .btn-camara-snap {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 6px;
+        background: none;
+        border: none;
+        cursor: pointer;
+    }
+
+    .btn-snap-circulo {
+        width: 68px;
+        height: 68px;
+        background: #fff;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 28px;
+        color: #071B7D;
+        box-shadow: 0 0 0 4px rgba(255,255,255,0.3);
+        transition: transform 0.15s, box-shadow 0.15s;
+    }
+
+    .btn-camara-snap:active .btn-snap-circulo {
+        transform: scale(0.92);
+        box-shadow: 0 0 0 2px rgba(255,255,255,0.2);
+    }
+
+    .btn-snap-label {
+        color: #fff;
+        font-size: 12px;
+        font-weight: 600;
+    }
+
+    /* Botón cancelar ── */
+    .btn-camara-cancelar {
+        background: rgba(255,255,255,0.12);
+        border: 1px solid rgba(255,255,255,0.25);
+        color: #fff;
+        padding: 10px 18px;
+        border-radius: 8px;
+        font-size: 14px;
+        cursor: pointer;
+        transition: background 0.2s;
+    }
+
+    .btn-camara-cancelar:hover { background: rgba(255,255,255,0.22); }
+
+    /* Botón usar foto ── */
+    .btn-camara-usar {
+        flex: 1;
+        background: #27ae60;
+        border: none;
+        color: #fff;
+        padding: 14px 20px;
+        border-radius: 10px;
+        font-size: 16px;
+        font-weight: 700;
+        cursor: pointer;
+        transition: background 0.2s, transform 0.15s;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+    }
+
+    .btn-camara-usar:active { transform: scale(0.97); background: #219a52; }
+
+    /* Botón repetir ── */
+    .btn-camara-repetir {
+        background: rgba(255,255,255,0.12);
+        border: 1px solid rgba(255,255,255,0.25);
+        color: #fff;
+        padding: 14px 16px;
+        border-radius: 10px;
+        font-size: 14px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        transition: background 0.2s;
+    }
+
+    .btn-camara-repetir:hover { background: rgba(255,255,255,0.22); }
+
+    /* ── En escritorio: modal más pequeño y bonito ── */
+    @media (min-width: 768px) {
+        .modal-camara-custom {
+            width: 560px;
+            max-width: 560px;
+            margin: 40px auto;
+            height: auto;
+        }
+
+        .modal-camara-content {
+            height: auto;
+            border-radius: 12px;
+        }
+
+        .modal-camara-body {
+            height: 380px;
+        }
+
+        .guia-bl { bottom: 16px; }
+        .guia-br { bottom: 16px; }
+    }
+
+    /* ── Botón de captura en el formulario ── */
+    .btn-camara-doc {
+        font-size: 15px;
+        padding: 10px 18px;
+    }
+</style>
 
 <script>
     var reEvento = (function($) {
 
-        // ── Variables de cámara ────────────────────────────────────────────────
         var streamActual    = null;
         var campoObjetivo   = null;
         var previewObjetivo = null;
@@ -350,19 +649,30 @@
         function abrirCamara(prefixPreview, campoId) {
             campoObjetivo   = campoId;
             previewObjetivo = prefixPreview;
-            document.getElementById('modal-titulo').textContent = titulosCamara[prefixPreview] || 'Capturar Documento';
+            document.getElementById('modal-titulo').innerHTML =
+                '<i class="fa fa-camera"></i> ' + (titulosCamara[prefixPreview] || 'Capturar Documento');
+
+            // Reset estado
             var canvas = document.getElementById('camara-canvas');
-            canvas.getContext('2d').clearRect(0, 0, canvas.width, canvas.height);
-            document.getElementById('btn-usar-foto').disabled           = true;
-            document.getElementById('btn-repetir').style.display        = 'none';
-            document.getElementById('camara-error').style.display       = 'none';
-            document.getElementById('camara-instruccion').style.display = 'block';
+            canvas.style.display = 'none';
+            document.getElementById('camara-video').style.display = 'block';
+            document.getElementById('footer-capturar').style.display = 'flex';
+            document.getElementById('footer-confirmar').style.display = 'none';
+            document.getElementById('camara-guia').style.display = 'flex';
+            document.getElementById('camara-error').style.display = 'none';
+
             $('#modalCamara').modal('show');
         }
 
-        // ── Modal cámara ───────────────────────────────────────────────────────
+        // ── Abrir cámara al mostrar modal ───────────────────────────────
         $('#modalCamara').on('shown.bs.modal', function () {
-            navigator.mediaDevices.getUserMedia({ video: { facingMode: { ideal: 'environment' } } })
+            navigator.mediaDevices.getUserMedia({
+                video: {
+                    facingMode: { ideal: 'environment' },
+                    width:  { ideal: 1280 },
+                    height: { ideal: 720 }
+                }
+            })
                 .then(function (stream) {
                     streamActual = stream;
                     var video = document.getElementById('camara-video');
@@ -371,10 +681,11 @@
                 })
                 .catch(function (err) {
                     console.error('Error cámara:', err);
-                    document.getElementById('camara-error').style.display = 'block';
+                    document.getElementById('camara-error').style.display = 'flex';
                 });
         });
 
+        // ── Cerrar y limpiar stream ─────────────────────────────────────
         $('#modalCamara').on('hidden.bs.modal', function () {
             if (streamActual) {
                 streamActual.getTracks().forEach(function (t) { t.stop(); });
@@ -383,60 +694,80 @@
             document.getElementById('camara-video').srcObject = null;
         });
 
-        $('#btn-snap').on('click', function () {
+        // ── Tomar foto ─────────────────────────────────────────────────
+        document.getElementById('btn-snap').addEventListener('click', function () {
             var video  = document.getElementById('camara-video');
             var canvas = document.getElementById('camara-canvas');
             var ctx    = canvas.getContext('2d');
-            canvas.width  = video.videoWidth  || 640;
-            canvas.height = video.videoHeight || 480;
+
+            canvas.width  = video.videoWidth  || 1280;
+            canvas.height = video.videoHeight || 720;
             ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-            document.getElementById('btn-usar-foto').disabled           = false;
-            document.getElementById('btn-repetir').style.display        = 'inline-block';
-            document.getElementById('camara-instruccion').style.display = 'none';
+
+            // Efecto flash
+            var flash = document.getElementById('camara-flash');
+            flash.classList.remove('disparar');
+            void flash.offsetWidth; // reflow para reiniciar animación
+            flash.classList.add('disparar');
+
+            // Cambiar a modo "confirmar"
+            setTimeout(function () {
+                video.style.display  = 'none';
+                canvas.style.display = 'block';
+                document.getElementById('camara-guia').style.display    = 'none';
+                document.getElementById('footer-capturar').style.display = 'none';
+                document.getElementById('footer-confirmar').style.display = 'flex';
+            }, 150);
         });
 
-        $('#btn-repetir').on('click', function () {
+        // ── Repetir ────────────────────────────────────────────────────
+        document.getElementById('btn-repetir').addEventListener('click', function () {
+            var video  = document.getElementById('camara-video');
             var canvas = document.getElementById('camara-canvas');
-            canvas.getContext('2d').clearRect(0, 0, canvas.width, canvas.height);
-            document.getElementById('btn-usar-foto').disabled           = true;
-            document.getElementById('btn-repetir').style.display        = 'none';
-            document.getElementById('camara-instruccion').style.display = 'block';
+            canvas.style.display = 'none';
+            video.style.display  = 'block';
+            document.getElementById('camara-guia').style.display     = 'flex';
+            document.getElementById('footer-capturar').style.display  = 'flex';
+            document.getElementById('footer-confirmar').style.display = 'none';
         });
 
-        $('#btn-usar-foto').on('click', function () {
+        // ── Usar foto ──────────────────────────────────────────────────
+        document.getElementById('btn-usar-foto').addEventListener('click', function () {
             var canvas  = document.getElementById('camara-canvas');
-            var dataUrl = canvas.toDataURL('image/png');
+            var dataUrl = canvas.toDataURL('image/jpeg', 0.85); // jpeg comprimido
             document.getElementById(campoObjetivo).value = dataUrl.split(',')[1];
+
+            // Actualizar preview en el formulario
             var div = document.getElementById('preview-' + previewObjetivo);
             var img = document.getElementById('preview-' + previewObjetivo + '-img');
             if (div && img) { img.src = dataUrl; div.style.display = 'block'; }
+
             $('#modalCamara').modal('hide');
         });
 
-        // ── Datepicker ─────────────────────────────────────────────────────────
-        // ── jQuery UI Datepicker — Fecha de Nacimiento ──────────────────────────
+        // ── Datepicker jQuery UI ───────────────────────────────────────
         $('#fecha_nacimiento').datepicker({
-            changeMonth:      true,          // ✅ dropdown mes
-            changeYear:       true,          // ✅ dropdown año
-            dateFormat:       'dd/mm/yy',    // formato DD/MM/YYYY
-            maxDate:          new Date(),    // no permite fechas futuras
-            minDate:          '-100y',
-            yearRange:        '-100:+0',     // rango dropdown año
-            dayNamesMin:      ['Do','Lu','Ma','Mi','Ju','Vi','Sa'],
-            monthNames:       ['Enero','Febrero','Marzo','Abril','Mayo','Junio',
+            changeMonth:       true,
+            changeYear:        true,
+            dateFormat:        'dd/mm/yy',
+            maxDate:           new Date(),
+            minDate:           '-100y',
+            yearRange:         '-100:+0',
+            dayNamesMin:       ['Do','Lu','Ma','Mi','Ju','Vi','Sa'],
+            monthNames:        ['Enero','Febrero','Marzo','Abril','Mayo','Junio',
                 'Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'],
-            monthNamesShort:  ['Ene','Feb','Mar','Abr','May','Jun',
+            monthNamesShort:   ['Ene','Feb','Mar','Abr','May','Jun',
                 'Jul','Ago','Sep','Oct','Nov','Dic'],
-            firstDay:         1,
-            showOtherMonths:  true,
+            firstDay:          1,
+            showOtherMonths:   true,
             selectOtherMonths: true,
             onSelect: function(dateText) {
                 $(this).val(dateText).trigger('change');
-                setTimeout(validarEdad, 100);   // ← dispara validación de edad
+                setTimeout(validarEdad, 100);
             }
         });
 
-        // ── Helpers de fecha ───────────────────────────────────────────────────
+        // ── Helpers de fecha ───────────────────────────────────────────
         function convertirFecha(fechaStr) {
             try {
                 if (!fechaStr) return null;
@@ -445,39 +776,32 @@
                 var dia  = parseInt(partes[0], 10);
                 var mes  = parseInt(partes[1], 10) - 1;
                 var anio = parseInt(partes[2], 10);
-                // ✅ Guardia: año de 2 dígitos → convertir a 4
                 if (anio < 100) anio += anio < 30 ? 2000 : 1900;
                 if (isNaN(dia) || isNaN(mes) || isNaN(anio)) return null;
                 return new Date(anio, mes, dia);
-            } catch (error) { return null; }
+            } catch (e) { return null; }
         }
 
-        function calcularEdad(fechaNacimiento) {
+        function calcularEdad(fn) {
             try {
-                var hoy        = new Date();
-                var cumpleanos = new Date(fechaNacimiento);
-                var edad = hoy.getFullYear() - cumpleanos.getFullYear();
-                var mes  = hoy.getMonth() - cumpleanos.getMonth();
-                if (mes < 0 || (mes === 0 && hoy.getDate() < cumpleanos.getDate())) { edad--; }
+                var hoy  = new Date();
+                var edad = hoy.getFullYear() - fn.getFullYear();
+                var m    = hoy.getMonth() - fn.getMonth();
+                if (m < 0 || (m === 0 && hoy.getDate() < fn.getDate())) edad--;
                 return edad;
-            } catch (error) { return null; }
+            } catch (e) { return null; }
         }
 
-        // ── Validación de edad ─────────────────────────────────────────────────
-        var $fechaNacimiento = $('#fecha_nacimiento');
+        // ── Validación de edad ─────────────────────────────────────────
+        var $fn = $('#fecha_nacimiento');
 
         function validarEdad() {
             try {
-                var fechaStr = $fechaNacimiento.val();
-                if (!fechaStr || fechaStr.trim() === '') {
-                    $('#seccion-acudiente').hide();
-                    $('#edad-info').hide();
-                    $('.acudiente-field').prop('required', false);
-                    return;
-                }
-                var fecha = convertirFecha(fechaStr);
-                if (!fecha || isNaN(fecha.getTime())) return;
-                var edad = calcularEdad(fecha);
+                var val = $fn.val();
+                if (!val) { $('#seccion-acudiente').hide(); $('#edad-info').hide(); return; }
+                var f = convertirFecha(val);
+                if (!f || isNaN(f.getTime())) return;
+                var edad = calcularEdad(f);
                 if (edad === null) return;
 
                 if (edad < 18) {
@@ -491,40 +815,30 @@
                     $('#seccion-acudiente').slideUp(400);
                     $('.acudiente-field').prop('required', false).val('');
                 }
-            } catch (error) {
-                console.error('❌ validarEdad:', error);
-            }
+            } catch (e) { console.error('validarEdad:', e); }
         }
 
-        $fechaNacimiento
-            .on('changeDate', function () { setTimeout(validarEdad, 100); })
-            .on('change',     function () { setTimeout(validarEdad, 100); })
-            .on('blur',       function () { setTimeout(validarEdad, 100); });
+        $fn.on('changeDate change blur', function () { setTimeout(validarEdad, 100); });
+        setTimeout(function () { if ($fn.val()) validarEdad(); }, 500);
 
-        setTimeout(function () { if ($fechaNacimiento.val()) validarEdad(); }, 500);
-
-        // ── Restaurar previews si el form volvió con errores ──────────────────
+        // ── Restaurar previews si el form volvió con errores ──────────
         (function restaurarPreviews() {
-            var fotos = [
-                { inputId: 'cedula_frente_base64',            previewDiv: 'preview-frente',            previewImg: 'preview-frente-img' },
-                { inputId: 'cedula_reverso_base64',           previewDiv: 'preview-reverso',           previewImg: 'preview-reverso-img' },
-                { inputId: 'acudiente_cedula_frente_base64',  previewDiv: 'preview-acudiente-frente',  previewImg: 'preview-acudiente-frente-img' },
-                { inputId: 'acudiente_cedula_reverso_base64', previewDiv: 'preview-acudiente-reverso', previewImg: 'preview-acudiente-reverso-img' }
-            ];
-            fotos.forEach(function(f) {
-                var input = document.getElementById(f.inputId);
+            [
+                { i: 'cedula_frente_base64',            d: 'preview-frente',            m: 'preview-frente-img' },
+                { i: 'cedula_reverso_base64',           d: 'preview-reverso',           m: 'preview-reverso-img' },
+                { i: 'acudiente_cedula_frente_base64',  d: 'preview-acudiente-frente',  m: 'preview-acudiente-frente-img' },
+                { i: 'acudiente_cedula_reverso_base64', d: 'preview-acudiente-reverso', m: 'preview-acudiente-reverso-img' }
+            ].forEach(function(f) {
+                var input = document.getElementById(f.i);
                 if (input && input.value) {
-                    var div = document.getElementById(f.previewDiv);
-                    var img = document.getElementById(f.previewImg);
-                    if (div && img) {
-                        img.src = 'data:image/png;base64,' + input.value;
-                        div.style.display = 'block';
-                    }
+                    var div = document.getElementById(f.d);
+                    var img = document.getElementById(f.m);
+                    if (div && img) { img.src = 'data:image/jpeg;base64,' + input.value; div.style.display = 'block'; }
                 }
             });
         })();
 
-        // ── Validación al enviar ───────────────────────────────────────────────
+        // ── Validación al enviar ───────────────────────────────────────
         $('#form-registro-evento').on('submit', function (e) {
             try {
                 var politica = $('input[name="eventospersona[acepta_politica]"]');
@@ -541,188 +855,127 @@
                     return false;
                 }
 
-                // ── Validar fotos del titular ──────────────────────────────────────
                 var yaHayDocs = $('#persona_ya_tiene_documentos').val() === '1';
                 if (!yaHayDocs) {
                     if (!$('#cedula_frente_base64').val()) {
-                        e.preventDefault();
-                        alert('⚠️ Debes capturar la foto del Documento Frente.');
-                        return false;
+                        e.preventDefault(); alert('⚠️ Debes capturar la foto del Documento Frente.'); return false;
                     }
                     if (!$('#cedula_reverso_base64').val()) {
-                        e.preventDefault();
-                        alert('⚠️ Debes capturar la foto del Documento Reverso.');
-                        return false;
+                        e.preventDefault(); alert('⚠️ Debes capturar la foto del Documento Reverso.'); return false;
                     }
                 }
 
-                // ── Validar menor de edad y acudiente ─────────────────────────────
-                var fechaStr = $fechaNacimiento.val();
+                var fechaStr = $fn.val();
                 if (fechaStr) {
                     var fecha = convertirFecha(fechaStr);
                     if (fecha) {
                         var edad = calcularEdad(fecha);
                         if (edad !== null && edad < 18) {
-                            var camposVacios = [];
-                            if (!$('#acudiente_nombre').val().trim())         camposVacios.push('Nombre del Acudiente');
-                            if (!$('#acudiente_apellido').val().trim())       camposVacios.push('Apellido del Acudiente');
-                            if (!$('#acudiente_identificacion').val().trim()) camposVacios.push('Identificación del Acudiente');
-                            if (!$('#acudiente_email').val().trim())          camposVacios.push('Email del Acudiente');
-                            if (!$('#acudiente_celular').val().trim())        camposVacios.push('Celular del Acudiente');
+                            var vacios = [];
+                            if (!$('#acudiente_nombre').val().trim())         vacios.push('Nombre del Acudiente');
+                            if (!$('#acudiente_apellido').val().trim())       vacios.push('Apellido del Acudiente');
+                            if (!$('#acudiente_identificacion').val().trim()) vacios.push('Identificación del Acudiente');
+                            if (!$('#acudiente_email').val().trim())          vacios.push('Email del Acudiente');
+                            if (!$('#acudiente_celular').val().trim())        vacios.push('Celular del Acudiente');
 
-                            // ✅ Solo exigir fotos del acudiente si NO tiene documentos previos
-                            var acudienteYaTieneDocs = $('#acudiente_ya_tiene_documentos').val() === '1';
-                            if (!acudienteYaTieneDocs) {
-                                if (!$('#acudiente_cedula_frente_base64').val())  camposVacios.push('Foto frente del acudiente');
-                                if (!$('#acudiente_cedula_reverso_base64').val()) camposVacios.push('Foto reverso del acudiente');
+                            var acuDocs = $('#acudiente_ya_tiene_documentos').val() === '1';
+                            if (!acuDocs) {
+                                if (!$('#acudiente_cedula_frente_base64').val())  vacios.push('Foto frente del acudiente');
+                                if (!$('#acudiente_cedula_reverso_base64').val()) vacios.push('Foto reverso del acudiente');
                             }
 
-                            if (camposVacios.length > 0) {
+                            if (vacios.length > 0) {
                                 e.preventDefault();
-                                alert('⚠️ Eres menor de edad (' + edad + ' años).\n\nDebes completar:\n\n• ' + camposVacios.join('\n• '));
-                                var seccion = document.getElementById('seccion-acudiente');
-                                if (seccion) seccion.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                                alert('⚠️ Eres menor de edad (' + edad + ' años).\n\nDebes completar:\n\n• ' + vacios.join('\n• '));
+                                document.getElementById('seccion-acudiente').scrollIntoView({ behavior: 'smooth', block: 'center' });
                                 return false;
                             }
                         }
                     }
                 }
-            } catch (error) {
-                console.error('❌ submit error:', error);
-            }
+            } catch (err) { console.error('submit error:', err); }
         });
 
-        // ── Limpiar formulario al cambiar cédula ──────────────────────────────
+        // ── Limpiar formulario al cambiar cédula ──────────────────────
         var ultimaCedula = $('#eventospersona_identificacion').val();
 
         function limpiarFormulario() {
-            $('#eventospersona_nombre').val('').trigger('change');
-            $('#eventospersona_apellido').val('').trigger('change');
-            $('#eventospersona_celular').val('').trigger('change');
-            $('#eventospersona_email').val('').trigger('change');
-            $('#eventospersona_direccion').val('').trigger('change');
-            $('#fecha_nacimiento').val('');
-            $('#eventospersona_sexo').val('').trigger('change');
-            $('#eventospersona_estado_civil_id').val('').trigger('change');
-            $('#eventospersona_documento_tipo_id').val('').trigger('change');
-
-            // Limpiar fotos y previews del titular
-            $('#cedula_frente_base64').val('');
-            $('#cedula_reverso_base64').val('');
-            $('#preview-frente').hide();
-            $('#preview-reverso').hide();
-
-            // Limpiar fotos y previews del acudiente
-            $('#acudiente_cedula_frente_base64').val('');
-            $('#acudiente_cedula_reverso_base64').val('');
-            $('#preview-acudiente-frente').hide();
-            $('#preview-acudiente-reverso').hide();
-
-            // Resetear flags y badges
-            $('#persona_ya_tiene_documentos').val('0');
-            $('#acudiente_ya_tiene_documentos').val('0');
-            $('#badge-docs-existentes').hide();
-            $('#badge-docs-acudiente').hide();
-            $('#seccion-acudiente').hide();
-            $('#edad-info').hide();
+            ['nombre','apellido','celular','email','direccion'].forEach(function(f) {
+                $('#eventospersona_' + f).val('').trigger('change');
+            });
+            $fn.val('');
+            $('#eventospersona_sexo, #eventospersona_estado_civil_id, #eventospersona_documento_tipo_id').val('').trigger('change');
+            $('#cedula_frente_base64, #cedula_reverso_base64').val('');
+            $('#acudiente_cedula_frente_base64, #acudiente_cedula_reverso_base64').val('');
+            $('#preview-frente, #preview-reverso, #preview-acudiente-frente, #preview-acudiente-reverso').hide();
+            $('#persona_ya_tiene_documentos, #acudiente_ya_tiene_documentos').val('0');
+            $('#badge-docs-existentes, #badge-docs-acudiente').hide();
+            $('#seccion-acudiente, #edad-info').hide();
         }
 
-        // ── Autocompletar desde identificación ────────────────────────────────
+        // ── Autocompletar desde identificación ────────────────────────
         var buscarTimer = null;
 
         $('#eventospersona_identificacion').on('blur', function () {
-            var identificacion = $(this).val().trim();
-
-            // ✅ Si cambió la cédula, limpiar todo primero
-            if (identificacion !== ultimaCedula) {
-                ultimaCedula = identificacion;
-                limpiarFormulario();
-            }
-
-            if (identificacion.length < 5) return;
+            var id = $(this).val().trim();
+            if (id !== ultimaCedula) { ultimaCedula = id; limpiarFormulario(); }
+            if (id.length < 5) return;
 
             clearTimeout(buscarTimer);
             buscarTimer = setTimeout(function () {
                 $.ajax({
                     url: '<%= buscar_persona_registro_evento_path(@evento.guid) %>',
                     method: 'GET',
-                    data: { identificacion: identificacion },
+                    data: { identificacion: id },
                     success: function (data) {
-                        console.log('📦 Respuesta del servidor:', data);
-                        if (!data.encontrada) { console.log('❌ Persona no encontrada'); return; }
-
+                        if (!data.encontrada) return;
                         $('#eventospersona_nombre').val(data.nombre).trigger('change');
                         $('#eventospersona_apellido').val(data.apellido).trigger('change');
                         $('#eventospersona_celular').val(data.celular).trigger('change');
                         $('#eventospersona_email').val(data.email).trigger('change');
                         $('#eventospersona_direccion').val(data.direccion).trigger('change');
-
-                        if (data.fecha_nacimiento) {
-                            $('#fecha_nacimiento').val(data.fecha_nacimiento);
-                            setTimeout(validarEdad, 200);
-                        }
+                        if (data.fecha_nacimiento) { $fn.val(data.fecha_nacimiento); setTimeout(validarEdad, 200); }
                         if (data.sexo)              $('#eventospersona_sexo').val(data.sexo).trigger('change');
                         if (data.estado_civil_id)   $('#eventospersona_estado_civil_id').val(data.estado_civil_id).trigger('change');
                         if (data.documento_tipo_id) $('#eventospersona_documento_tipo_id').val(data.documento_tipo_id).trigger('change');
 
-                        // ── Documentos del titular ───────────────────────────────────
                         if (data.tiene_documentos && data.cedula_frente_url && data.cedula_reverso_url) {
-                            var dF = document.getElementById('preview-frente');
-                            var iF = document.getElementById('preview-frente-img');
-                            if (dF && iF) { iF.src = data.cedula_frente_url; dF.style.display = 'block'; }
-
-                            var dR = document.getElementById('preview-reverso');
-                            var iR = document.getElementById('preview-reverso-img');
-                            if (dR && iR) { iR.src = data.cedula_reverso_url; dR.style.display = 'block'; }
-
+                            document.getElementById('preview-frente-img').src    = data.cedula_frente_url;
+                            document.getElementById('preview-reverso-img').src   = data.cedula_reverso_url;
+                            $('#preview-frente, #preview-reverso').show();
                             $('#persona_ya_tiene_documentos').val('1');
                             $('#badge-docs-existentes').show();
                         } else {
                             $('#persona_ya_tiene_documentos').val('0');
-                            $('#badge-docs-existentes').hide();
-                            $('#preview-frente').hide();
-                            $('#preview-reverso').hide();
-                            $('#cedula_frente_base64').val('');
-                            $('#cedula_reverso_base64').val('');
+                            $('#badge-docs-existentes, #preview-frente, #preview-reverso').hide();
+                            $('#cedula_frente_base64, #cedula_reverso_base64').val('');
                         }
-
-                        console.log('✅ Campos llenados');
                     },
-                    error: function () { console.warn('⚠️ Error al buscar persona'); }
+                    error: function () { console.warn('Error al buscar persona'); }
                 });
             }, 300);
         });
 
-        // ── Autocompletar acudiente cuando ingresa su identificación ──────────
-        // ✅ Detecta si el acudiente ya tiene documentos al salir del campo
+        // ── Autocompletar acudiente ────────────────────────────────────
         $('#acudiente_identificacion').on('blur', function () {
-            var identificacion = $(this).val().trim();
-            if (identificacion.length < 5) return;
-
+            var id = $(this).val().trim();
+            if (id.length < 5) return;
             $.ajax({
                 url: '<%= buscar_persona_registro_evento_path(@evento.guid) %>',
                 method: 'GET',
-                data: { identificacion: identificacion },
+                data: { identificacion: id },
                 success: function (data) {
                     if (!data.encontrada) return;
-
-                    // Autocompletar campos del acudiente
-                    if (data.nombre)   $('#acudiente_nombre').val(data.nombre).trigger('change');
-                    if (data.apellido) $('#acudiente_apellido').val(data.apellido).trigger('change');
-                    if (data.celular)  $('#acudiente_celular').val(data.celular).trigger('change');
-                    if (data.email)    $('#acudiente_email').val(data.email).trigger('change');
+                    if (data.nombre)            $('#acudiente_nombre').val(data.nombre).trigger('change');
+                    if (data.apellido)          $('#acudiente_apellido').val(data.apellido).trigger('change');
+                    if (data.celular)           $('#acudiente_celular').val(data.celular).trigger('change');
+                    if (data.email)             $('#acudiente_email').val(data.email).trigger('change');
                     if (data.documento_tipo_id) $('#acudiente_documento_tipo_id').val(data.documento_tipo_id).trigger('change');
 
-                    // ✅ Si el acudiente ya tiene documentos, no exigir fotos nuevas
                     if (data.tiene_documentos && data.cedula_frente_url && data.cedula_reverso_url) {
-                        var dF = document.getElementById('preview-acudiente-frente');
-                        var iF = document.getElementById('preview-acudiente-frente-img');
-                        if (dF && iF) { iF.src = data.cedula_frente_url; dF.style.display = 'block'; }
-
-                        var dR = document.getElementById('preview-acudiente-reverso');
-                        var iR = document.getElementById('preview-acudiente-reverso-img');
-                        if (dR && iR) { iR.src = data.cedula_reverso_url; dR.style.display = 'block'; }
-
+                        document.getElementById('preview-acudiente-frente-img').src  = data.cedula_frente_url;
+                        document.getElementById('preview-acudiente-reverso-img').src = data.cedula_reverso_url;
+                        $('#preview-acudiente-frente, #preview-acudiente-reverso').show();
                         $('#acudiente_ya_tiene_documentos').val('1');
                         $('#badge-docs-acudiente').show();
                     } else {
@@ -730,11 +983,11 @@
                         $('#badge-docs-acudiente').hide();
                     }
                 },
-                error: function () { console.warn('⚠️ Error al buscar acudiente'); }
+                error: function () { console.warn('Error al buscar acudiente'); }
             });
         });
 
-        console.log('✅ reEvento inicializado correctamente');
+        console.log('✅ reEvento inicializado');
         return { abrirCamara: abrirCamara };
 
     }(jQuery));
