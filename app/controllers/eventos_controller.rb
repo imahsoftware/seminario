@@ -44,8 +44,15 @@ class EventosController < ApplicationController
     render :evento_form
   end
 
-  def datos_evento
-
+  def exportar_excel
+    @evento      = Evento.find_by(guid: params[:evento_id])
+    @inscritos   = Eventospersona.where(evento_id: @evento.id)
+    respond_to do |format|
+      format.xlsx {
+        response.headers['Content-Disposition'] =
+          'attachment; filename="Inscritos_' + "#{@evento.detalle.parameterize}_#{Time.now.strftime("%Y%m%d_%H%M%S")}" + '.xlsx"'
+      }
+    end
   end
 
   def create

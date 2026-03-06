@@ -200,11 +200,17 @@
                   url: '/iglesiascomunidades/por_iglesia',
                   data: {iglesia_id: iglesiaId},
                   success: function (data) {
-                      $.each(data, function (i, comunidad) {
-                          var selected = comunidad.id == comunidadSeleccionada ? 'selected' : '';
-                          $select.append('<option value="' + comunidad.id + '" ' + selected + '>' + comunidad.nombre + '</option>');
-                      });
-                      $select.trigger('change'); // refresca select2
+
+                      if (data.mensaje) {
+                          $select.append('<option value="">' + data.mensaje + '</option>');
+                      } else {
+                          $.each(data, function (i, comunidad) {
+                              var selected = comunidad.id == comunidadSeleccionada ? 'selected' : '';
+                              $select.append('<option value="' + comunidad.id + '" ' + selected + '>' + comunidad.nombre + '</option>');
+                          });
+                      }
+
+                      $select.trigger('change');
                   }
               });
           }

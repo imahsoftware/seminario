@@ -74,11 +74,12 @@
                           data: { toggle: 'tooltip' } do %>
                 <i class="fa fa-users"></i>
               <% end %>
-              <%= link_to edit_evento_path(evento.guid),
+              <%# Botón nuevo - Descargar Excel %>
+              <%= link_to evento_exportar_excel_path(evento.guid, format: :xlsx),
                           class: 'btn btn-xs btn-success',
-                          title: 'Ver inscritos',
+                          title: 'Descargar Excel',
                           data: { toggle: 'tooltip' } do %>
-                <i class="fa fa-users"></i>
+                <i class="fa fa-file-excel-o"></i>
               <% end %>
             </td>
             <td><%= evento.detalle rescue nil %></td>

@@ -91,12 +91,14 @@ class IglesiascomunidadesController < ApplicationController
 
 
   def por_iglesia
-    @comunidades = Iglesiascomunidad
-                     .where(iglesia_id: params[:iglesia_id], estado: 'ACTIVO')
-                     .order(:nombre)
-    render json: @comunidades.select(:id, :nombre)
-  end
+    @comunidades = Iglesiascomunidad.where(iglesia_id: params[:iglesia_id], estado: 'ACTIVO').order(:nombre)
 
+    if @comunidades.exists?
+      render json: @comunidades.select(:id, :nombre)
+    else
+      render json: { mensaje: 'No tiene comunidades' }
+    end
+  end
 
   private
     # Use callbacks to share common setup or constraints between actions.

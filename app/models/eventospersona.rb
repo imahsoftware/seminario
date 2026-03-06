@@ -5,7 +5,9 @@ class Eventospersona < ApplicationRecord
   belongs_to :documento_tipo, optional: true
   belongs_to :persona, optional: true
   belongs_to :acudiente, class_name: 'Persona', optional: true
-
+  belongs_to :acudiente_documento_tipo, class_name: 'DocumentoTipo',
+             foreign_key: 'acudiente_documento_tipo_id',
+             optional: true
   attr_accessor :cedula_frente, :cedula_reverso,
                 :acudiente_cedula_frente, :acudiente_cedula_reverso
 
