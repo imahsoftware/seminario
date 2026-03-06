@@ -2,12 +2,19 @@
   <div id="right">
     <div id="showcase">
       <div class="showcase-content">
-        <%= image_tag('logos/logo_inicio_seminario.png', size: '660x200') %>
+        <div class="showcase-logos">
+          <%= image_tag('logos/Recurso_4logo.png', class: 'logo-principal') %>
+          <div class="logos-divider"></div>
+          <%= image_tag('logos/ancla.png', class: 'logo-ancla') %>
+        </div>
       </div>
     </div>
   </div>
   <div id="left">
     <div id="signin">
+      <div class="logo-imah">
+        <%= image_tag('Imah-logo.png', class: 'imah-logo-img') %>
+      </div>
       <div class="logo">
         <%= render 'users/flash_message_session', titulo: 'Recuperar Contraseña' %>
       </div>
@@ -49,8 +56,6 @@
   </div>
 </div>
 
-
-
 <style>
     .alert_remove {
         font-size: 14px;
@@ -65,7 +70,7 @@
         bottom: 10px;
         left: 10px;
         width: calc(100% - 20px);
-        max-width: 300px; /* Ajusta el ancho máximo según tus preferencias */
+        max-width: 300px;
         box-shadow: 2px 2px 2px 1px rgba(0, 0, 0, 0.2);
     }
 
@@ -78,7 +83,7 @@
         bottom: 10px;
         left: 10px;
         width: calc(100% - 20px);
-        max-width: 300px; /* Ajusta el ancho máximo según tus preferencias */
+        max-width: 300px;
         box-shadow: 2px 2px 2px 1px rgba(0, 0, 0, 0.2);
     }
 
@@ -97,12 +102,7 @@
         margin: 0;
     }
 
-    h1,
-    h2,
-    h3,
-    h4,
-    h5,
-    h6 {
+    h1, h2, h3, h4, h5, h6 {
         font-weight: 300;
     }
 
@@ -125,7 +125,90 @@
         flex: 1;
     }
 
-    /* Sign In */
+    /* ── Showcase ── */
+    #showcase {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        background-color: #E6E6E6;
+        height: 100vh;
+        text-align: center;
+    }
+
+    #showcase .showcase-text {
+        font-size: 3rem;
+        width: 100%;
+        color: #fff;
+        margin-bottom: 1.5rem;
+    }
+
+    #showcase .secondary-btn {
+        width: 60%;
+        margin: auto;
+    }
+
+    /* ── Logos lado a lado ── */
+    .showcase-logos {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        justify-content: center;
+        gap: 32px;
+        padding: 28px 48px;
+        background: rgba(255, 255, 255, 0.88);
+        border-radius: 18px;
+        box-shadow: 0 8px 40px rgba(7, 27, 125, 0.13),
+        0 2px 8px rgba(0, 0, 0, 0.06);
+        backdrop-filter: blur(4px);
+    }
+
+    .logo-principal {
+        height: 72px;
+        width: auto;
+        object-fit: contain;
+        transition: transform 0.3s ease, opacity 0.3s ease;
+    }
+
+    .logo-ancla {
+        height: 72px;
+        width: auto;
+        object-fit: contain;
+        transition: transform 0.3s ease, opacity 0.3s ease;
+    }
+
+    .logo-principal:hover,
+    .logo-ancla:hover {
+        transform: scale(1.04);
+        opacity: 0.88;
+    }
+
+    .logos-divider {
+        width: 1px;
+        height: 56px;
+        background: linear-gradient(to bottom,
+        transparent 0%,
+        #071B7D44 30%,
+        #071B7D88 50%,
+        #071B7D44 70%,
+        transparent 100%);
+        flex-shrink: 0;
+    }
+
+    /* ── Logo Imah encima del formulario ── */
+    .logo-imah {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        margin-bottom: 2vh;
+    }
+
+    .imah-logo-img {
+        width: 180px;
+        height: auto;
+        object-fit: contain;
+    }
+
+    /* ── Sign In ── */
     #signin {
         display: flex;
         flex-direction: column;
@@ -204,29 +287,7 @@
         padding: 0 0.8rem;
     }
 
-    /* Showcase */
-    #showcase {
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        background-color: #E6E6E6;
-        height: 100vh;
-        text-align: center;
-    }
-
-    #showcase .showcase-text {
-        font-size: 3rem;
-        width: 100%;
-        color: #fff;
-        margin-bottom: 1.5rem;
-    }
-
-    #showcase .secondary-btn {
-        width: 60%;
-        margin: auto;
-    }
-
-    /* Footer */
+    /* ── Footer ── */
     #main-footer {
         color: #C8C8C8;
         text-align: center;
@@ -235,7 +296,7 @@
         padding-top: 5rem;
     }
 
-    /* Button */
+    /* ── Botones ── */
     .primary-btn {
         padding: 5px;
         height: 3.7rem;
@@ -276,45 +337,26 @@
         color: #071B7D;
     }
 
-    /* Media Queries */
+    /* ── Media Queries ── */
     @media (min-width: 1200px) {
-        #left {
-            flex: 4;
-        }
-
-        #right {
-            flex: 6;
-        }
+        #left  { flex: 4; }
+        #right { flex: 6; }
     }
 
     @media (max-width: 768px) {
-        body {
-            overflow: auto;
-        }
+        body { overflow: auto; }
 
-        #right {
-            display: none;
-        }
+        #right { display: none; }
 
         #left {
             justify-content: start;
             margin-top: 4vh;
         }
 
-        #signin .logo {
-            margin-bottom: 2vh;
-        }
-
-        #signin .text-input {
-            margin-bottom: 0.7rem;
-        }
-
-        #main-footer {
-            padding-top: 1rem;
-        }
+        #signin .logo       { margin-bottom: 2vh; }
+        #signin .text-input { margin-bottom: 0.7rem; }
+        #main-footer        { padding-top: 1rem; }
     }
 
-    .hidden {
-        display: none !important;
-    }
+    .hidden { display: none !important; }
 </style>
