@@ -276,7 +276,7 @@
 <%# ════════════════════════════════════════════════════════════════
     MODAL DE CÁMARA — rediseñado para móvil
     ════════════════════════════════════════════════════════════════ %>
-<div class="modal fade" id="modalCamara" tabindex="-1" role="dialog">
+<div class="modal fade" id="modalCamara" tabindex="-1" role="dialog" style="padding:0 !important; overflow:hidden !important;">
   <div class="modal-dialog modal-camara-custom" role="document">
     <div class="modal-content modal-camara-content">
 
@@ -318,20 +318,24 @@
           <p>No se pudo acceder a la cámara.<br>Verifica los permisos del navegador.</p>
         </div>
 
-      </div><%# fin modal-camara-body %>
-
-      <%# ── Footer siempre visible con botones ── %>
-      <div class="modal-camara-footer">
-
-        <%# Estado: esperando foto %>
-        <div id="footer-capturar" class="footer-estado">
+        <%# Botón snap flotante sobre el video ── %>
+        <div id="footer-capturar" class="snap-flotante">
           <button type="button" id="btn-snap" class="btn-camara-snap">
             <span class="btn-snap-circulo">
               <i class="fa fa-camera"></i>
             </span>
             <span class="btn-snap-label">Tomar Foto</span>
           </button>
-          <button type="button" class="btn-camara-cancelar" data-dismiss="modal">
+        </div>
+
+      </div><%# fin modal-camara-body %>
+
+      <%# ── Footer: solo visible al confirmar foto ── %>
+      <div class="modal-camara-footer">
+
+        <%# Cancelar — siempre visible ── %>
+        <div class="footer-cancelar-wrap">
+          <button type="button" class="btn-camara-cancelar" data-dismiss="modal" id="btn-cancelar-camara">
             <i class="fa fa-times"></i> Cancelar
           </button>
         </div>
@@ -356,19 +360,29 @@
     CSS DEL MODAL DE CÁMARA
     ════════════════════════════════════════════════════ %>
 <style>
+    /* ── Sin scroll en el modal ── */
+    #modalCamara { overflow: hidden !important; }
+    #modalCamara .modal-dialog { overflow: hidden !important; }
+    #modalCamara .modal-body   { overflow: hidden !important; padding: 0 !important; }
+
     /* ── Modal ocupa casi toda la pantalla en móvil ── */
     .modal-camara-custom {
-        margin: 0;
+        margin: 0 !important;
         padding: 0;
         width: 100%;
         max-width: 100%;
-        height: 100%;
+        height: calc(var(--vh, 1vh) * 100);
+        position: fixed !important;
+        top: 0 !important;
+        left: 0 !important;
+        right: 0 !important;
+        bottom: 0 !important;
     }
 
     .modal-camara-content {
         display: flex;
         flex-direction: column;
-        height: 100vh;
+        height: calc(var(--vh, 1vh) * 100);
         border-radius: 0;
         border: none;
         overflow: hidden;
@@ -503,10 +517,32 @@
 
     /* ── Footer con botones — siempre visible ── */
     .modal-camara-footer {
-        background: rgba(0,0,0,0.9);
-        padding: 16px 20px;
+        background: rgba(0,0,0,0.88);
+        padding: 12px 20px;
+        padding-bottom: max(12px, env(safe-area-inset-bottom));
         flex-shrink: 0;
         z-index: 10;
+        min-height: 56px;
+    }
+
+    /* Botón snap flota en la parte inferior del body de cámara */
+    .snap-flotante {
+        position: absolute;
+        bottom: 20px;
+        left: 0;
+        right: 0;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        z-index: 8;
+        pointer-events: none;
+    }
+
+    .snap-flotante > * { pointer-events: auto; }
+
+    .footer-cancelar-wrap {
+        display: flex;
+        justify-content: flex-end;
     }
 
     .footer-estado {
@@ -514,6 +550,7 @@
         align-items: center;
         justify-content: center;
         gap: 16px;
+        margin-top: 10px;
     }
 
     /* Botón principal de disparo — círculo grande ── */
@@ -528,28 +565,29 @@
     }
 
     .btn-snap-circulo {
-        width: 68px;
-        height: 68px;
+        width: 72px;
+        height: 72px;
         background: #fff;
         border-radius: 50%;
         display: flex;
         align-items: center;
         justify-content: center;
-        font-size: 28px;
+        font-size: 30px;
         color: #071B7D;
-        box-shadow: 0 0 0 4px rgba(255,255,255,0.3);
+        box-shadow: 0 0 0 5px rgba(255,255,255,0.25), 0 4px 20px rgba(0,0,0,0.4);
         transition: transform 0.15s, box-shadow 0.15s;
     }
 
     .btn-camara-snap:active .btn-snap-circulo {
-        transform: scale(0.92);
-        box-shadow: 0 0 0 2px rgba(255,255,255,0.2);
+        transform: scale(0.91);
+        box-shadow: 0 0 0 3px rgba(255,255,255,0.15), 0 2px 8px rgba(0,0,0,0.3);
     }
 
     .btn-snap-label {
-        color: #fff;
+        color: rgba(255,255,255,0.85);
         font-size: 12px;
         font-weight: 600;
+        letter-spacing: 0.3px;
     }
 
     /* Botón cancelar ── */
@@ -658,6 +696,7 @@
             document.getElementById('camara-video').style.display = 'block';
             document.getElementById('footer-capturar').style.display = 'flex';
             document.getElementById('footer-confirmar').style.display = 'none';
+            document.getElementById('btn-cancelar-camara').style.display = 'block';
             document.getElementById('camara-guia').style.display = 'flex';
             document.getElementById('camara-error').style.display = 'none';
 
@@ -714,9 +753,10 @@
             setTimeout(function () {
                 video.style.display  = 'none';
                 canvas.style.display = 'block';
-                document.getElementById('camara-guia').style.display    = 'none';
-                document.getElementById('footer-capturar').style.display = 'none';
+                document.getElementById('camara-guia').style.display     = 'none';
+                document.getElementById('footer-capturar').style.display  = 'none';
                 document.getElementById('footer-confirmar').style.display = 'flex';
+                document.getElementById('btn-cancelar-camara').style.display = 'none';
             }, 150);
         });
 
@@ -726,9 +766,10 @@
             var canvas = document.getElementById('camara-canvas');
             canvas.style.display = 'none';
             video.style.display  = 'block';
-            document.getElementById('camara-guia').style.display     = 'flex';
+            document.getElementById('camara-guia').style.display      = 'flex';
             document.getElementById('footer-capturar').style.display  = 'flex';
             document.getElementById('footer-confirmar').style.display = 'none';
+            document.getElementById('btn-cancelar-camara').style.display = 'block';
         });
 
         // ── Usar foto ──────────────────────────────────────────────────
@@ -991,4 +1032,22 @@
         return { abrirCamara: abrirCamara };
 
     }(jQuery));
+
+    /* ── Altura real del viewport (evita barra Safari/Chrome) ── */
+    (function() {
+        function setVh() {
+            var vh = window.innerHeight * 0.01;
+            document.documentElement.style.setProperty('--vh', vh + 'px');
+        }
+        setVh();
+        window.addEventListener('resize', setVh);
+        window.addEventListener('orientationchange', function() {
+            setTimeout(setVh, 200);
+        });
+
+        // Recalcular al abrir el modal (cuando aparece/desaparece la barra del browser)
+        document.getElementById('modalCamara').addEventListener('shown.bs.modal', function() {
+            setTimeout(setVh, 100);
+        });
+    })();
 </script>
