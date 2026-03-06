@@ -1,67 +1,398 @@
 <!-- app/views/registro_eventos/pendiente.html.erb -->
-<div class="container" style="margin-top: 50px;">
-  <div class="row">
-    <div class="col-md-6 col-md-offset-3">
-      <div class="panel panel-warning">
-        <div class="panel-heading">
-          <h3 class="panel-title">
-            <i class="fa fa-clock-o"></i> Registro Pendiente
-          </h3>
+<style>
+    @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap');
+
+    .nf-page {
+        min-height: 100vh;
+        background: #f0f2f5;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: flex-start;
+        padding: 32px 16px 48px;
+        font-family: 'Outfit', sans-serif;
+        box-sizing: border-box;
+    }
+
+    /* ── Header logos ── */
+    .nf-header {
+        width: 100%;
+        max-width: 560px;
+        background: #fff;
+        border-radius: 16px;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+        padding: 20px 32px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 24px;
+        margin-bottom: 28px;
+        box-sizing: border-box;
+    }
+
+    .nf-header-logo-main {
+        height: 56px;
+        width: auto;
+        object-fit: contain;
+        flex: 1;
+        max-width: 60%;
+    }
+
+    .nf-header-divider {
+        width: 1px;
+        height: 44px;
+        flex-shrink: 0;
+        background: linear-gradient(to bottom,
+        transparent 0%,
+        #071B7D55 30%,
+        #071B7D99 50%,
+        #071B7D55 70%,
+        transparent 100%);
+    }
+
+    .nf-header-logo-ancla {
+        height: 52px;
+        width: auto;
+        object-fit: contain;
+        flex-shrink: 0;
+    }
+
+    /* ── Card ── */
+    .nf-card {
+        width: 100%;
+        max-width: 560px;
+        background: #fff;
+        border-radius: 20px;
+        box-shadow: 0 8px 40px rgba(0,0,0,0.10);
+        overflow: hidden;
+        box-sizing: border-box;
+    }
+
+    /* ── Banda amarilla ── */
+    .nf-card-band {
+        background: linear-gradient(135deg, #d68910 0%, #f39c12 100%);
+        padding: 18px 24px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .nf-card-band h3 {
+        color: #fff;
+        font-size: 18px;
+        font-weight: 700;
+        margin: 0;
+        letter-spacing: 0.3px;
+    }
+
+    .nf-card-band i { color: #fff; font-size: 20px; }
+
+    /* ── Logo Imah ── */
+    .nf-imah-wrap {
+        display: flex;
+        justify-content: center;
+        padding: 24px 24px 0;
+    }
+
+    .nf-imah-logo {
+        height: 52px;
+        width: auto;
+        object-fit: contain;
+    }
+
+    /* ── Body ── */
+    .nf-card-body {
+        padding: 20px 28px 30px;
+        text-align: center;
+    }
+
+    .nf-icon-wrap {
+        margin: 10px auto 18px;
+        width: 88px;
+        height: 88px;
+        background: linear-gradient(135deg, #f39c1222, #f39c1211);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border: 3px solid #f39c1233;
+    }
+
+    .nf-icon-wrap i { font-size: 44px; color: #f39c12; }
+
+    /* Badge estado */
+    .nf-estado-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        background: #fef9ec;
+        border: 1.5px solid #f39c1266;
+        color: #d68910;
+        font-size: 13px;
+        font-weight: 700;
+        padding: 5px 14px;
+        border-radius: 20px;
+        margin-bottom: 14px;
+        letter-spacing: 0.5px;
+    }
+
+    .nf-title {
+        font-size: 26px;
+        font-weight: 700;
+        color: #d68910;
+        margin: 0 0 10px;
+    }
+
+    .nf-subtitle {
+        font-size: 16px;
+        color: #555;
+        font-weight: 400;
+        margin: 0 0 20px;
+        line-height: 1.5;
+    }
+
+    /* ── Caja "¿Qué sigue?" amarilla ── */
+    .nf-aviso-box {
+        background: #fffbf2;
+        border: 1px solid #f39c1244;
+        border-left: 4px solid #f39c12;
+        border-radius: 12px;
+        padding: 18px 20px;
+        text-align: left;
+        margin-bottom: 16px;
+    }
+
+    .nf-aviso-box h4 {
+        color: #d68910;
+        font-size: 15px;
+        font-weight: 700;
+        margin: 0 0 12px;
+        display: flex;
+        align-items: center;
+        gap: 7px;
+    }
+
+    .nf-aviso-box p {
+        font-size: 14px;
+        color: #555;
+        margin: 0 0 8px;
+        line-height: 1.55;
+    }
+
+    .nf-aviso-box p:last-child { margin-bottom: 0; }
+
+    .nf-aviso-box p strong { color: #333; }
+
+    /* ── Info box azul ── */
+    .nf-info-box {
+        background: #f0f7ff;
+        border: 1px solid #3498db33;
+        border-left: 4px solid #3498db;
+        border-radius: 12px;
+        padding: 18px 20px;
+        text-align: left;
+        margin-bottom: 20px;
+    }
+
+    .nf-info-box h4 {
+        color: #2980b9;
+        font-size: 15px;
+        font-weight: 700;
+        margin: 0 0 14px;
+        display: flex;
+        align-items: center;
+        gap: 7px;
+    }
+
+    .nf-info-row {
+        display: flex;
+        align-items: flex-start;
+        gap: 8px;
+        margin-bottom: 10px;
+        font-size: 14px;
+        color: #444;
+        line-height: 1.4;
+    }
+
+    .nf-info-row:last-child { margin-bottom: 0; }
+
+    .nf-info-row i {
+        color: #3498db;
+        font-size: 14px;
+        flex-shrink: 0;
+        margin-top: 2px;
+    }
+
+    .nf-info-row strong { color: #333; margin-right: 4px; }
+
+    /* ── Nota inferior ── */
+    .nf-nota {
+        background: #f8f9fa;
+        border: 1px solid #e9ecef;
+        border-radius: 10px;
+        padding: 14px 18px;
+        font-size: 14px;
+        color: #666;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        text-align: left;
+    }
+
+    .nf-nota i { color: #3498db; font-size: 16px; flex-shrink: 0; }
+
+    /* ── Botón ── */
+    .nf-btn-wrap { margin-top: 24px; }
+
+    .nf-btn-home {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        background: #071B7D;
+        color: #fff !important;
+        text-decoration: none;
+        padding: 12px 28px;
+        border-radius: 8px;
+        font-size: 15px;
+        font-weight: 600;
+        font-family: 'Outfit', sans-serif;
+        transition: background 0.25s, transform 0.2s;
+        border: none;
+        cursor: pointer;
+    }
+
+    .nf-btn-home:hover {
+        background: #06176B;
+        transform: translateY(-1px);
+        color: #fff !important;
+        text-decoration: none;
+    }
+
+    /* ── Responsive ── */
+    @media (max-width: 600px) {
+        .nf-page          { padding: 20px 12px 40px; }
+
+        .nf-header {
+            padding: 14px 20px;
+            gap: 16px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+        }
+
+        .nf-header-logo-main  { height: 44px; }
+        .nf-header-logo-ancla { height: 40px; }
+        .nf-header-divider    { height: 36px; }
+
+        .nf-card              { border-radius: 16px; }
+        .nf-card-band h3      { font-size: 16px; }
+        .nf-card-body         { padding: 16px 18px 24px; }
+
+        .nf-icon-wrap         { width: 72px; height: 72px; }
+        .nf-icon-wrap i       { font-size: 36px; }
+
+        .nf-title             { font-size: 22px; }
+        .nf-subtitle          { font-size: 15px; }
+        .nf-imah-logo         { height: 42px; }
+    }
+</style>
+
+<div class="nf-page">
+
+  <%# ── Header con logos ── %>
+  <div class="nf-header">
+    <%= image_tag 'logos/Recurso_4logo.png', class: 'nf-header-logo-main', alt: 'Logo' %>
+    <div class="nf-header-divider"></div>
+    <%= image_tag 'logos/ancla.png', class: 'nf-header-logo-ancla', alt: 'Ancla' %>
+  </div>
+
+  <%# ── Card ── %>
+  <div class="nf-card">
+
+    <div class="nf-card-band">
+      <i class="fa fa-clock-o"></i>
+      <h3>Registro Pendiente</h3>
+    </div>
+
+    <div class="nf-imah-wrap">
+      <%= image_tag 'Imah-logo.png', class: 'nf-imah-logo', alt: 'Imah Software' %>
+    </div>
+
+    <div class="nf-card-body">
+
+      <div class="nf-icon-wrap">
+        <i class="fa fa-hourglass-half"></i>
+      </div>
+
+      <div class="nf-estado-badge">
+        <i class="fa fa-clock-o"></i> En espera de autorización
+      </div>
+
+      <h2 class="nf-title">Tu registro está en proceso</h2>
+      <p class="nf-subtitle">
+        Hemos recibido tu inscripción correctamente.
+      </p>
+
+      <%# ── Qué sigue ── %>
+      <div class="nf-aviso-box">
+        <h4>
+          <i class="fa fa-info-circle"></i> ¿Qué sigue?
+        </h4>
+        <p>
+          Debido a que el participante es menor de edad, el registro quedará
+          <strong>pendiente de autorización por parte del acudiente</strong>.
+        </p>
+        <p>
+          Una vez se reciba la autorización correspondiente, la inscripción será confirmada.
+        </p>
+      </div>
+
+      <%# ── Detalles del evento ── %>
+      <div class="nf-info-box">
+        <h4>
+          <i class="fa fa-calendar"></i> Detalles del Evento
+        </h4>
+
+        <div class="nf-info-row">
+          <i class="fa fa-calendar-check-o"></i>
+          <span><strong>Evento:</strong> <%= @evento.detalle %></span>
         </div>
-        <div class="panel-body text-center">
-          <i class="fa fa-hourglass-half" style="font-size: 100px; color: #f0ad4e; margin: 30px 0;"></i>
-          <h2 style="color: #f0ad4e; font-weight: 600;">Tu registro está en proceso</h2>
-          <p class="lead" style="font-size: 18px; margin: 20px 0;">
-            Hemos recibido tu inscripción correctamente.
-          </p>
 
-          <div class="alert alert-info" style="margin-top: 30px; text-align: left;">
-            <h4 style="margin-top: 0;">
-              <i class="fa fa-info-circle"></i> ¿Qué sigue?
-            </h4>
-            <p style="margin: 10px 0;">
-              Debido a que el participante es menor de edad, el registro quedará
-              <strong>pendiente de autorización por parte del acudiente</strong>.
-            </p>
-            <p style="margin: 10px 0;">
-              Una vez se reciba la autorización correspondiente, la inscripción será confirmada.
-            </p>
-          </div>
+        <div class="nf-info-row">
+          <i class="fa fa-tag"></i>
+          <span><strong>Tipo:</strong> <%= @evento.tiposevento.descripcion rescue 'N/A' %></span>
+        </div>
 
-          <div class="alert alert-info" style="margin-top: 20px; text-align: left;">
-            <h4 style="margin-top: 0;">
-              <i class="fa fa-calendar"></i> Detalles del Evento
-            </h4>
-            <p style="margin: 10px 0;">
-              <strong>Evento:</strong> <%= @evento.detalle %>
-            </p>
-            <p style="margin: 10px 0;">
-              <strong>Tipo:</strong> <%= @evento.tiposevento.descripcion rescue 'N/A' %>
-            </p>
-            <p style="margin: 10px 0;">
-              <strong>Fecha Inicio:</strong>
-              <%= @evento.fecha_inicio_e.strftime("%d/%m/%Y") rescue '' %>
-            </p>
-            <p style="margin: 10px 0;">
-              <strong>Fecha Fin :</strong>
-              <%= @evento.fecha_fin_e.strftime("%d/%m/%Y") rescue '' %>
-            </p>
-          </div>
+        <div class="nf-info-row">
+          <i class="fa fa-calendar"></i>
+          <span>
+            <strong>Fecha Inicio:</strong>
+            <%= @evento.fecha_inicio_e.strftime("%d/%m/%Y") rescue '' %>
+          </span>
+        </div>
 
-          <div style="background: #f9f9f9; padding: 20px; border-radius: 5px; margin-top: 30px;">
-            <p class="text-muted" style="margin: 0;">
-              <i class="fa fa-envelope"></i> Se enviará una notificación cuando el proceso sea completado.
-            </p>
-          </div>
-          <% if is_auth_c('eventos') %>
-            <div style="margin-top: 40px;">
-              <a href="/" class="btn btn-primary btn-lg">
-                <i class="fa fa-home"></i> Volver al Inicio
-              </a>
-            </div>
-          <% end %>
+        <div class="nf-info-row">
+          <i class="fa fa-calendar-times-o"></i>
+          <span>
+            <strong>Fecha Fin:</strong>
+            <%= @evento.fecha_fin_e.strftime("%d/%m/%Y") rescue '' %>
+          </span>
         </div>
       </div>
+
+      <div class="nf-nota">
+        <i class="fa fa-envelope"></i>
+        <span>Se enviará una notificación cuando el proceso sea completado.</span>
+      </div>
+
+      <% if is_auth_c('eventos') %>
+        <div class="nf-btn-wrap">
+          <a href="/" class="nf-btn-home">
+            <i class="fa fa-home"></i> Volver al Inicio
+          </a>
+        </div>
+      <% end %>
+
     </div>
   </div>
+
 </div>
