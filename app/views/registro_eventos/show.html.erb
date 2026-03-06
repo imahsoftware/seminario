@@ -414,12 +414,26 @@
         });
 
         // ── Datepicker ─────────────────────────────────────────────────────────
+        // ── jQuery UI Datepicker — Fecha de Nacimiento ──────────────────────────
         $('#fecha_nacimiento').datepicker({
-            format:    'dd/mm/yyyy',
-            language:  'es',
-            autoclose: true,
-            endDate:   new Date(),
-            startDate: '-100y'
+            changeMonth:      true,          // ✅ dropdown mes
+            changeYear:       true,          // ✅ dropdown año
+            dateFormat:       'dd/mm/yy',    // formato DD/MM/YYYY
+            maxDate:          new Date(),    // no permite fechas futuras
+            minDate:          '-100y',
+            yearRange:        '-100:+0',     // rango dropdown año
+            dayNamesMin:      ['Do','Lu','Ma','Mi','Ju','Vi','Sa'],
+            monthNames:       ['Enero','Febrero','Marzo','Abril','Mayo','Junio',
+                'Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'],
+            monthNamesShort:  ['Ene','Feb','Mar','Abr','May','Jun',
+                'Jul','Ago','Sep','Oct','Nov','Dic'],
+            firstDay:         1,
+            showOtherMonths:  true,
+            selectOtherMonths: true,
+            onSelect: function(dateText) {
+                $(this).val(dateText).trigger('change');
+                setTimeout(validarEdad, 100);   // ← dispara validación de edad
+            }
         });
 
         // ── Helpers de fecha ───────────────────────────────────────────────────
@@ -431,6 +445,8 @@
                 var dia  = parseInt(partes[0], 10);
                 var mes  = parseInt(partes[1], 10) - 1;
                 var anio = parseInt(partes[2], 10);
+                // ✅ Guardia: año de 2 dígitos → convertir a 4
+                if (anio < 100) anio += anio < 30 ? 2000 : 1900;
                 if (isNaN(dia) || isNaN(mes) || isNaN(anio)) return null;
                 return new Date(anio, mes, dia);
             } catch (error) { return null; }
