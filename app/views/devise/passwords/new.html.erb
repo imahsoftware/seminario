@@ -12,6 +12,14 @@
   </div>
   <div id="left">
     <div id="signin">
+
+      <%# ── Logos visibles solo en móvil ── %>
+      <div class="mobile-logos">
+        <%= image_tag('logos/Recurso_4logo.png', class: 'mobile-logo-principal') %>
+        <div class="mobile-logos-divider"></div>
+        <%= image_tag('logos/ancla.png', class: 'mobile-logo-ancla') %>
+      </div>
+
       <div class="logo-imah">
         <%= image_tag('Imah-logo.png', class: 'imah-logo-img') %>
       </div>
@@ -194,6 +202,11 @@
         flex-shrink: 0;
     }
 
+    /* ── Logos mobile (ocultos en desktop) ── */
+    .mobile-logos {
+        display: none;
+    }
+
     /* ── Logo Imah encima del formulario ── */
     .logo-imah {
         display: flex;
@@ -348,14 +361,72 @@
 
         #right { display: none; }
 
+        /* Arriba, sin altura fija para que el scroll funcione */
         #left {
-            justify-content: start;
-            margin-top: 4vh;
+            justify-content: flex-start;
+            align-items: center;
+            height: auto;
+            min-height: 100vh;
+            padding: 0 0 2rem 0;
         }
 
-        #signin .logo       { margin-bottom: 2vh; }
+        #signin {
+            width: 90%;
+            padding-top: 0;
+        }
+
+        #signin form { width: 100%; }
+
+        #signin .logo      { margin-bottom: 1.5vh; }
         #signin .text-input { margin-bottom: 0.7rem; }
-        #main-footer        { padding-top: 1rem; }
+        #main-footer       { padding-top: 1.5rem; }
+
+        /* Ocultar logo Imah en móvil */
+        .logo-imah { display: none; }
+
+        /* Logos mobile: ancho completo, sin que el fondo se quede corto */
+        .mobile-logos {
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            justify-content: center;
+            gap: 16px;
+            padding: 14px 20px;
+            background: #f4f6fb;
+            border-radius: 14px;
+            box-shadow: 0 2px 12px rgba(7, 27, 125, 0.10);
+            margin-bottom: 2.5vh;
+            margin-top: 3vh;
+            width: 90%;
+            box-sizing: border-box;
+        }
+
+        .mobile-logo-principal {
+            flex: 1;
+            max-width: 65%;
+            height: auto;
+            max-height: 56px;
+            object-fit: contain;
+        }
+
+        .mobile-logo-ancla {
+            flex: 0 0 auto;
+            height: 52px;
+            width: auto;
+            object-fit: contain;
+        }
+
+        .mobile-logos-divider {
+            width: 1px;
+            height: 40px;
+            flex-shrink: 0;
+            background: linear-gradient(to bottom,
+            transparent 0%,
+            #071B7D44 30%,
+            #071B7D88 50%,
+            #071B7D44 70%,
+            transparent 100%);
+        }
     }
 
     .hidden { display: none !important; }
