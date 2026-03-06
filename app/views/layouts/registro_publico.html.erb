@@ -10,15 +10,19 @@
 
   <%= csrf_meta_tags %>
 
+  <!-- Tus assets de aplicación -->
   <%= stylesheet_link_tag 'application', media: 'all' %>
   <%= javascript_include_tag 'application' %>
 
+  <!-- CDN de Bootstrap Datepicker con locale español -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/css/bootstrap-datepicker3.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/js/bootstrap-datepicker.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/locales/bootstrap-datepicker.es.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/locales/bootstrap-datepicker.es.min.js"></script>
 
   <link rel="stylesheet" href="https://code.jquery.com/ui/1.14.2/themes/base/jquery-ui.css">
   <link rel="stylesheet" href="/resources/demos/style.css">
-  <script src="https://code.jquery.com/jquery-3.7.1.js"></script>
   <script src="https://code.jquery.com/ui/1.14.2/jquery-ui.js"></script>
-
 
   <style>
       body {
@@ -28,7 +32,7 @@
           padding: 20px 0;
       }
 
-      /* ── Header logos — todos en una sola fila compacta ── */
+      /* ── Header logos ── */
       .rp-logos-header {
           display: flex;
           align-items: center;
@@ -56,11 +60,8 @@
           height: 34px;
           flex-shrink: 0;
           background: linear-gradient(to bottom,
-          transparent 0%,
-          #071B7D55 30%,
-          #071B7D99 50%,
-          #071B7D55 70%,
-          transparent 100%);
+          transparent 0%, #071B7D55 30%,
+          #071B7D99 50%, #071B7D55 70%, transparent 100%);
       }
 
       .rp-logo-ancla {
@@ -77,17 +78,12 @@
           flex-shrink: 0;
       }
 
-      /* separador vertical entre ancla e imah */
       .rp-logo-divider-imah {
           width: 1px;
           height: 28px;
           flex-shrink: 0;
           background: linear-gradient(to bottom,
-          transparent 0%,
-          #ccc 30%,
-          #aaa 50%,
-          #ccc 70%,
-          transparent 100%);
+          transparent 0%, #ccc 30%, #aaa 50%, #ccc 70%, transparent 100%);
       }
 
       /* ── Panel ── */
@@ -100,49 +96,15 @@
           overflow: hidden;
       }
 
-      .panel-primary > .panel-heading {
-          background: #071B7D;
-          color: white;
-          padding: 20px;
-          border: none;
-      }
+      .panel-primary > .panel-heading { background: #071B7D; color: white; padding: 20px; border: none; }
+      .panel-success > .panel-heading { background: #5cb85c; color: white; padding: 20px; border: none; }
+      .panel-danger  > .panel-heading { background: #d9534f; color: white; padding: 20px; border: none; }
+      .panel-warning > .panel-heading { background: #f0ad4e; color: white; padding: 20px; border: none; }
 
-      .panel-success > .panel-heading {
-          background: #5cb85c;
-          color: white;
-          padding: 20px;
-          border: none;
-      }
+      .panel-title { font-size: 24px; font-weight: 600; margin: 0; }
+      .panel-body  { padding: 30px; background: white; }
 
-      .panel-danger > .panel-heading {
-          background: #d9534f;
-          color: white;
-          padding: 20px;
-          border: none;
-      }
-
-      .panel-warning > .panel-heading {
-          background: #f0ad4e;
-          color: white;
-          padding: 20px;
-          border: none;
-      }
-
-      .panel-title {
-          font-size: 24px;
-          font-weight: 600;
-          margin: 0;
-      }
-
-      .panel-body {
-          padding: 30px;
-          background: white;
-      }
-
-      .alert {
-          border-radius: 4px;
-          margin-bottom: 20px;
-      }
+      .alert { border-radius: 4px; margin-bottom: 20px; }
 
       .btn-primary {
           background: #071B7D;
@@ -163,16 +125,10 @@
       }
 
       .text-primary { color: #071B7D !important; }
-
       hr { border-top: 2px solid #f0f0f0; margin: 20px 0; }
-
       .checkbox label { font-weight: normal; padding-left: 25px; }
 
-      .alert-info {
-          background-color: #e8f4fd;
-          border-color: #bee5eb;
-          color: #0c5460;
-      }
+      .alert-info { background-color: #e8f4fd; border-color: #bee5eb; color: #0c5460; }
 
       .flash-messages {
           position: fixed;
@@ -195,18 +151,11 @@
           padding-left: 12px;
       }
 
-      .select2-container--default .select2-selection--single .select2-selection__arrow {
-          height: 32px;
-      }
+      .select2-container--default .select2-selection--single .select2-selection__arrow { height: 32px; }
 
       .required .control-label:after { content: " *"; color: #d9534f; }
 
-      .checkbox input[type="checkbox"] {
-          width: 18px;
-          height: 18px;
-          margin-right: 8px;
-          cursor: pointer;
-      }
+      .checkbox input[type="checkbox"] { width: 18px; height: 18px; margin-right: 8px; cursor: pointer; }
 
       .checkbox-required {
           border: 2px solid #d9534f;
@@ -222,24 +171,85 @@
       .datepicker table tr td.active { background-color: #071B7D !important; color: white !important; }
       .datepicker table tr td.active:hover { background-color: #05145a !important; }
 
+      /* ══════════════════════════════════════════════════
+         FECHA DE NACIMIENTO — 3 selects nativos
+         Reemplaza el datepicker en el formulario público.
+         Mucho más amigable en móvil.
+         ══════════════════════════════════════════════════ */
+      .fn-wrap { margin-bottom: 0; }
+
+      .fn-selects-row {
+          display: flex;
+          gap: 8px;
+          align-items: flex-end;
+      }
+
+      .fn-col       { flex: 1; }
+      .fn-col--anio { flex: 1.5; }
+
+      .fn-sublabel {
+          display: block;
+          font-size: 10px;
+          font-weight: 700;
+          color: #999;
+          text-transform: uppercase;
+          letter-spacing: 0.5px;
+          margin-bottom: 3px;
+      }
+
+      .fn-sel {
+          display: block;
+          width: 100%;
+          height: 34px;
+          padding: 0 8px;
+          font-size: 14px;
+          color: #333;
+          background: #fff;
+          border: 1px solid #d2d6de;
+          border-radius: 3px;
+          cursor: pointer;
+          appearance: auto;
+          -webkit-appearance: auto;
+      }
+
+      .fn-sel:focus {
+          outline: none;
+          border-color: #071B7D;
+          box-shadow: 0 0 0 2px rgba(7,27,125,0.15);
+      }
+
+      .fn-sel.fn-invalid {
+          border-color: #d9534f !important;
+          box-shadow: 0 0 0 2px rgba(217,83,79,0.2) !important;
+      }
+
+      .fn-error {
+          display: none;
+          color: #d9534f;
+          font-size: 12px;
+          margin-top: 5px;
+      }
+
+      .fn-error.visible { display: block; }
+
+      /* ── Responsive ── */
       @media (max-width: 768px) {
           .panel-body { padding: 20px 15px; }
-
           .flash-messages { right: 10px; left: 10px; max-width: none; }
 
-          .rp-logos-header {
-              padding: 14px 20px;
-              gap: 16px;
-              border-radius: 12px;
-              margin-bottom: 18px;
-              max-width: 100%;
-          }
-
-          .rp-logo-principal { height: 36px; }
-          .rp-logo-ancla     { height: 32px; }
-          .rp-logo-divider   { height: 28px; }
-          .rp-imah-logo      { height: 30px; }
+          .rp-logos-header { padding: 14px 20px; gap: 16px; border-radius: 12px; margin-bottom: 18px; max-width: 100%; }
+          .rp-logo-principal    { height: 36px; }
+          .rp-logo-ancla        { height: 32px; }
+          .rp-logo-divider      { height: 28px; }
+          .rp-imah-logo         { height: 30px; }
           .rp-logo-divider-imah { height: 24px; }
+
+          .fn-sel { font-size: 13px; }
+      }
+
+      @media (max-width: 400px) {
+          .fn-selects-row { gap: 5px; }
+          .fn-sel { padding: 0 4px; }
       }
 
       /* jQuery UI Datepicker — tema corporativo */
@@ -301,8 +311,7 @@
 </head>
 
 <body>
-
-<%# ── Mensajes Flash ── %>
+<!-- Mensajes Flash -->
 <div class="flash-messages">
   <% if flash[:notice] %>
     <div class="alert alert-success alert-dismissible fade in" role="alert">
@@ -332,11 +341,9 @@
   <% end %>
 </div>
 
-<%# ── Header logos (visible en todas las páginas públicas) ── %>
 <div class="container">
   <div class="row">
     <div class="col-md-8 col-md-offset-2 col-sm-10 col-sm-offset-1">
-
       <div class="rp-logos-header">
         <%= image_tag 'logos/Recurso_4logo.png', class: 'rp-logo-principal', alt: 'Logo' %>
         <div class="rp-logo-divider"></div>
@@ -344,19 +351,21 @@
         <div class="rp-logo-divider-imah"></div>
         <%= image_tag 'Imah-logo.png', class: 'rp-imah-logo', alt: 'Imah Software' %>
       </div>
-
     </div>
   </div>
 </div>
 
-<%# ── Contenido Principal ── %>
+
+<!-- Contenido Principal -->
 <%= yield %>
 
+<!-- Script para inicializar Select2 y Datepicker -->
 <script>
     (function() {
         console.log('📅 Inicializando datepicker con selectores...');
 
         jQuery(document).ready(function($) {
+            // Inicializar Select2
             if (typeof $.fn.select2 !== 'undefined') {
                 $('.select2').select2({
                     width: '100%',
@@ -366,13 +375,79 @@
                 console.log('✅ Select2 inicializado');
             }
 
+            // CONFIGURACIÓN DEL DATEPICKER CON TÍTULO CLICKEABLE (pseudo-selectores)
+            if (typeof $.fn.datepicker !== 'undefined') {
 
+                // DESTRUIR cualquier datepicker existente primero
+                $('.datepicker').datepicker('destroy');
+
+                // Inicializar con configuración COMPLETA EN ESPAÑOL
+                $('.datepicker').datepicker({
+                    format: 'dd/mm/yyyy',              // ✅ FORMATO dd/mm/yyyy
+                    language: 'es',                    // ✅ ESPAÑOL
+                    autoclose: true,                   // Cierra al seleccionar
+                    todayHighlight: true,              // Resalta hoy
+                    orientation: 'bottom auto',        // Orientación automática
+                    endDate: new Date(),               // ✅ No permite fechas futuras (hoy como máximo)
+                    startDate: '-100y',                // Hasta 100 años atrás
+                    forceParse: true,                  // Fuerza el parseo
+                    todayBtn: 'linked',                // Botón "Hoy" enlazado
+                    clearBtn: false,                   // Sin botón limpiar
+                    disableTouchKeyboard: true,        // Deshabilita teclado táctil
+                    enableOnReadonly: true,            // Funciona en readonly
+                    immediateUpdates: true,            // Actualiza inmediatamente
+                    weekStart: 1,                      // ✅ Semana empieza en Lunes (Europa/Latinoamérica)
+                    daysOfWeekHighlighted: [0,6],      // Resalta fines de semana
+                    calendarWeeks: false,              // Sin número de semana
+                    // ✅ CLAVE: Al hacer click en el título, navega por años/meses
+                    title: 'Seleccione una fecha',
+                    maxViewMode: 2,                    // 0=días, 1=meses, 2=años
+                    minViewMode: 0                     // Vista mínima: días
+                });
+
+                console.log('✅ Datepicker configurado: español + navegación por título');
+                console.log('💡 Haz click en "Marzo 2022" para navegar por meses/años');
+
+                // EVENTO: Cuando se selecciona una fecha
+                $('.datepicker').on('changeDate', function(e) {
+                    if (e.date) {
+                        var dia = ("0" + e.date.getDate()).slice(-2);
+                        var mes = ("0" + (e.date.getMonth() + 1)).slice(-2);
+                        var anio = e.date.getFullYear();
+                        var fechaFormateada = dia + '/' + mes + '/' + anio;
+
+                        console.log('📅 Fecha seleccionada:', fechaFormateada);
+
+                        $(this).val(fechaFormateada);
+                        $(this).trigger('change');
+                    }
+                });
+
+                // Prevenir escritura manual
+                $('.datepicker').on('keydown', function(e) {
+                    if ($.inArray(e.keyCode, [46, 8, 9, 27, 13]) !== -1) {
+                        return;
+                    }
+                    e.preventDefault();
+                });
+
+                // Click para abrir
+                $('.datepicker').on('click focus', function() {
+                    $(this).datepicker('show');
+                });
+
+            } else {
+                console.error('❌ Bootstrap Datepicker no está disponible');
+            }
+
+            // Auto-cerrar alertas
             setTimeout(function() { $('.alert-success').fadeOut('slow'); }, 5000);
             setTimeout(function() { $('.alert-warning').fadeOut('slow'); }, 7000);
 
+            // Validación de formularios
             $('form').on('submit', function(e) {
                 var politica = $('input[name="eventospersona[acepta_politica]"]');
-                var cultura  = $('input[name="eventospersona[acepta_cultura]"]');
+                var cultura = $('input[name="eventospersona[acepta_cultura]"]');
 
                 if (politica.length && !politica.is(':checked')) {
                     e.preventDefault();
@@ -392,6 +467,7 @@
             });
 
             console.log('✅ Inicialización completa');
+            console.log('💡 TIP: Haz click en el título del mes/año para navegar rápidamente');
         });
     })();
 </script>
