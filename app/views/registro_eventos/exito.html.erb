@@ -103,6 +103,19 @@
         object-fit: contain;
     }
 
+    /* ── Logo Imah dentro de la card ── */
+    .ex-imah-wrap {
+        display: flex;
+        justify-content: center;
+        padding: 24px 24px 0;
+    }
+
+    .ex-imah-logo {
+        height: 52px;
+        width: auto;
+        object-fit: contain;
+    }
+
     /* ── Card body ── */
     .ex-card-body {
         padding: 20px 28px 30px;
@@ -274,8 +287,6 @@
     <%= image_tag 'logos/Recurso_4logo.png', class: 'ex-header-logo-main', alt: 'Logo' %>
     <div class="ex-header-divider"></div>
     <%= image_tag 'logos/ancla.png', class: 'ex-header-logo-ancla', alt: 'Ancla' %>
-    <div class="ex-header-divider" style="background: linear-gradient(to bottom, transparent 0%, #ccc 30%, #aaa 50%, #ccc 70%, transparent 100%);"></div>
-    <%= image_tag 'Imah-logo.png', class: 'ex-imah-logo', alt: 'Imah Software', style: 'height:38px;' %>
   </div>
 
   <%# ── Card ── %>
@@ -284,6 +295,11 @@
     <div class="ex-card-band">
       <i class="fa fa-check-circle"></i>
       <h3>Registro Exitoso</h3>
+    </div>
+
+    <%# ── Logo Imah dentro de la card ── %>
+    <div class="ex-imah-wrap">
+      <%= image_tag 'Imah-logo.png', class: 'ex-imah-logo', alt: 'Imah Software' %>
     </div>
 
     <div class="ex-card-body">
