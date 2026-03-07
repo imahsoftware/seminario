@@ -173,7 +173,11 @@ class RegistroEventosController < ApplicationController
 
   def buscar_persona
     @evento = Evento.find_by_guid!(params[:guid])
-    persona = Persona.find_by(identificacion: params[:identificacion])
+
+    identificacion    = params[:identificacion].to_s.strip
+    documento_tipo_id = params[:documento_tipo_id].to_s.strip
+
+    persona = Persona.find_by(identificacion: identificacion, documento_tipo_id: documento_tipo_id)
 
     if persona
       documento = Documento.where(persona_id: persona.id).order(updated_at: :desc).first
