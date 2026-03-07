@@ -1,7 +1,7 @@
 # app/controllers/registro_eventos_controller.rb
 class RegistroEventosController < ApplicationController
-  skip_before_action :authenticate_user!, only: [:show, :create, :exito, :pendiente, :autorizacion, :vencido, :no_encontrado, :no_iniciado, :vigente, :sin_cupos, :autorizar_participacion, :buscar_persona]
-  skip_before_action :verify_authenticity_token, only: [:create]
+  skip_before_action :authenticate_user!, only: [:show, :create, :exito, :pendiente, :autorizacion, :vencido, :no_encontrado, :no_iniciado, :vigente, :sin_cupos, :autorizar_participacion, :buscar_persona, :no_autorizado]
+  skip_before_action :verify_authenticity_token, only: [:create, :autorizar_participacion]
   layout 'registro_publico'
 
   def show
@@ -32,19 +32,19 @@ class RegistroEventosController < ApplicationController
     end
 
     # ── 1. Leer base64 de params ─────────────────────────────────────────────
-    frente_b64 = params.dig(:eventospersona, :cedula_frente_base64)
-    reverso_b64 = params.dig(:eventospersona, :cedula_reverso_base64)
+    frente_b64     = params.dig(:eventospersona, :cedula_frente_base64)
+    reverso_b64    = params.dig(:eventospersona, :cedula_reverso_base64)
     acu_frente_b64 = params.dig(:eventospersona, :acudiente_cedula_frente_base64)
-    acu_rev_b64 = params.dig(:eventospersona, :acudiente_cedula_reverso_base64)
+    acu_rev_b64    = params.dig(:eventospersona, :acudiente_cedula_reverso_base64)
 
     # ── 2. Construir el modelo ───────────────────────────────────────────────
     @eventospersona = @evento.eventospersonas.build(eventospersona_params)
 
     # ── 3. Asignar fotos a attr_accessor ANTES del save ──────────────────────
-    base64_a_paperclip(frente_b64, 'cedula_frente') { |f| @eventospersona.cedula_frente = f }
-    base64_a_paperclip(reverso_b64, 'cedula_reverso') { |f| @eventospersona.cedula_reverso = f }
-    base64_a_paperclip(acu_frente_b64, 'acudiente_cedula_frente') { |f| @eventospersona.acudiente_cedula_frente = f }
-    base64_a_paperclip(acu_rev_b64, 'acudiente_cedula_reverso') { |f| @eventospersona.acudiente_cedula_reverso = f }
+    base64_a_paperclip(frente_b64,     'cedula_frente')          { |f| @eventospersona.cedula_frente          = f }
+    base64_a_paperclip(reverso_b64,    'cedula_reverso')         { |f| @eventospersona.cedula_reverso         = f }
+    base64_a_paperclip(acu_frente_b64, 'acudiente_cedula_frente'){ |f| @eventospersona.acudiente_cedula_frente = f }
+    base64_a_paperclip(acu_rev_b64,    'acudiente_cedula_reverso'){ |f| @eventospersona.acudiente_cedula_reverso = f }
 
     # ── 4. Verificar si el titular ya tiene documentos ───────────────────────
     persona_existente = Persona.find_by(identificacion: @eventospersona.identificacion)
@@ -67,34 +67,18 @@ class RegistroEventosController < ApplicationController
       # ── 7. Documento del titular ────────────────────────────────────────
       if @eventospersona.persona_id.present? && (frente_b64.present? || reverso_b64.present?)
         doc_titular = Documento.find_or_initialize_by(
-          persona_id: @eventospersona.persona_id,
+          persona_id:       @eventospersona.persona_id,
           tipo_documento_id: @eventospersona.documento_tipo_id || 1
         )
         doc_titular.eventospersona_id = @eventospersona.id
-        base64_a_paperclip(frente_b64, 'cedula_frente') { |f| doc_titular.cedula_frente = f }
+        base64_a_paperclip(frente_b64,  'cedula_frente')  { |f| doc_titular.cedula_frente  = f }
         base64_a_paperclip(reverso_b64, 'cedula_reverso') { |f| doc_titular.cedula_reverso = f }
         unless doc_titular.save
           Rails.logger.error "❌ Error guardando Documento titular: #{doc_titular.errors.full_messages}"
         end
       end
 
-      # ── 8. Documento del acudiente (solo menores) ───────────────────────
-      if @eventospersona.menor_de_edad? && @eventospersona.acudiente_id.present? &&
-        (acu_frente_b64.present? || acu_rev_b64.present?)
-
-        doc_acu = Documento.find_or_initialize_by(
-          persona_id: @eventospersona.acudiente_id,
-          tipo_documento_id: @eventospersona.acudiente_documento_tipo_id || 1
-        )
-        doc_acu.eventospersona_id = @eventospersona.id
-        base64_a_paperclip(acu_frente_b64, 'acudiente_cedula_frente') { |f| doc_acu.cedula_frente = f }
-        base64_a_paperclip(acu_rev_b64, 'acudiente_cedula_reverso') { |f| doc_acu.cedula_reverso = f }
-        unless doc_acu.save
-          Rails.logger.error "❌ Error guardando Documento acudiente: #{doc_acu.errors.full_messages}"
-        end
-      end
-
-      # ── 9. Redirección según edad ────────────────────────────────────────
+      # ── 8. Redirección según edad ────────────────────────────────────────
       if @eventospersona.menor_de_edad?
         begin
           WssmsController.envio_sms_colombiaredenvio(@eventospersona)
@@ -110,15 +94,13 @@ class RegistroEventosController < ApplicationController
 
     else
       errores = @eventospersona.errors.full_messages
-      errores = @eventospersona.errors.full_messages
       Rails.logger.error "❌ Errores de validación:"
       errores.each { |error| Rails.logger.error "  - #{error}" }
 
-      # ✅ Preservar fotos para que no se pierdan al re-renderizar
-      @frente_b64 = frente_b64
-      @reverso_b64 = reverso_b64
+      @frente_b64    = frente_b64
+      @reverso_b64   = reverso_b64
       @acu_frente_b64 = acu_frente_b64
-      @acu_rev_b64 = acu_rev_b64
+      @acu_rev_b64   = acu_rev_b64
 
       flash.now[:alert] = "Por favor, corrige los siguientes errores:"
       render :show
@@ -135,40 +117,70 @@ class RegistroEventosController < ApplicationController
   end
 
   def pendiente
-    @evento = Evento.find_by_guid!(params[:guid])
+    @evento         = Evento.find_by_guid!(params[:guid])
     @eventospersona = @evento.eventospersonas.find(params[:id])
   end
 
   def autorizacion
-    @evento = Evento.find_by_guid!(params[:guid])
+    @evento         = Evento.find_by_guid!(params[:guid])
     @eventospersona = @evento.eventospersonas.find(params[:id])
+    # Si ya fue respondida la vista misma muestra la guardia "no disponible"
   end
 
+  # ── Procesar decisión del acudiente ─────────────────────────────────────
   def autorizar_participacion
-    @evento          = Evento.find_by_guid!(params[:guid])
-    @eventospersona  = @evento.eventospersonas.find(params[:id])
+    @evento         = Evento.find_by_guid!(params[:guid])
+    @eventospersona = @evento.eventospersonas.find(params[:id])
 
-    # ── Guardar documento del acudiente si vienen fotos ─────────────
-    acu_frente_b64  = params[:acudiente_cedula_frente_base64]
-    acu_rev_b64     = params[:acudiente_cedula_reverso_base64]
-    acu_tipo_id     = params[:acudiente_documento_tipo_id]
-
-    if @eventospersona.acudiente_id.present? && (acu_frente_b64.present? || acu_rev_b64.present?)
-      doc_acu = Documento.find_or_initialize_by(
-        persona_id:       @eventospersona.acudiente_id,
-        tipo_documento_id: acu_tipo_id.presence || 1
-      )
-      doc_acu.eventospersona_id = @eventospersona.id
-      base64_a_paperclip(acu_frente_b64, 'acudiente_cedula_frente') { |f| doc_acu.cedula_frente  = f }
-      base64_a_paperclip(acu_rev_b64,   'acudiente_cedula_reverso') { |f| doc_acu.cedula_reverso = f }
-      unless doc_acu.save
-        Rails.logger.error "❌ Error guardando doc acudiente en autorización: #{doc_acu.errors.full_messages}"
-      end
+    # Guardia: si ya fue respondida no procesar de nuevo
+    if @eventospersona.acudiente_firma.present?
+      redirect_to autorizacion_registro_evento_path(@evento.guid, @eventospersona.id) and return
     end
 
-    @eventospersona.update(acudiente_firma: 'SI')
-    flash[:notice] = "La participación del menor ha sido autorizada correctamente."
-    redirect_to exito_registro_evento_path(@evento.guid)
+    decision = params[:decision].to_s.upcase  # 'SI' o 'NO'
+
+    if decision == 'SI'
+      # ── Guardar documento del acudiente ──────────────────────────────────
+      acu_frente_b64 = params[:acudiente_cedula_frente_base64]
+      acu_rev_b64    = params[:acudiente_cedula_reverso_base64]
+      acu_tipo_id    = params[:acudiente_documento_tipo_id]
+
+      if @eventospersona.acudiente_id.present? && (acu_frente_b64.present? || acu_rev_b64.present?)
+        doc_acu = Documento.find_or_initialize_by(
+          persona_id:        @eventospersona.acudiente_id,
+          tipo_documento_id: acu_tipo_id.presence || 1
+        )
+        doc_acu.eventospersona_id = @eventospersona.id
+        base64_a_paperclip(acu_frente_b64, 'acudiente_cedula_frente') { |f| doc_acu.cedula_frente  = f }
+        base64_a_paperclip(acu_rev_b64,    'acudiente_cedula_reverso'){ |f| doc_acu.cedula_reverso = f }
+        unless doc_acu.save
+          Rails.logger.error "❌ Error guardando doc acudiente en autorización: #{doc_acu.errors.full_messages}"
+        end
+
+        # Actualizar tipo de documento en la persona acudiente
+        if acu_tipo_id.present? && @eventospersona.acudiente_id.present?
+          Persona.find_by(id: @eventospersona.acudiente_id)&.update(documento_tipo_id: acu_tipo_id)
+        end
+      end
+
+      @eventospersona.update(acudiente_firma: 'SI')
+      flash[:notice] = "La participación del menor ha sido autorizada correctamente."
+      redirect_to exito_registro_evento_path(@evento.guid)
+
+    else
+      # NO autoriza
+      @eventospersona.update(acudiente_firma: 'NO')
+      redirect_to no_autorizado_registro_evento_path(@evento.guid)
+    end
+
+  rescue ActiveRecord::RecordNotFound
+    render :no_encontrado
+  end
+
+  def no_autorizado
+    @evento = Evento.find_by_guid!(params[:guid])
+  rescue ActiveRecord::RecordNotFound
+    render :no_encontrado
   end
 
   def buscar_persona
@@ -183,19 +195,19 @@ class RegistroEventosController < ApplicationController
       documento = Documento.where(persona_id: persona.id).order(updated_at: :desc).first
 
       render json: {
-        encontrada: true,
-        nombre: persona.nombre,
-        apellido: persona.apellido,
-        fecha_nacimiento: persona.fecha_nacimiento&.strftime("%d/%m/%Y"),
-        celular: persona.celular,
-        email: persona.email,
-        direccion: persona.direccion,
-        sexo: persona.sexo,
-        estado_civil_id: persona.estado_civil_id,
-        documento_tipo_id: persona.documento_tipo_id,
-        tiene_documentos: documento.present?,
-        cedula_frente_url: documento&.cedula_frente&.url,
-        cedula_reverso_url: documento&.cedula_reverso&.url
+        encontrada:          true,
+        nombre:              persona.nombre,
+        apellido:            persona.apellido,
+        fecha_nacimiento:    persona.fecha_nacimiento&.strftime("%d/%m/%Y"),
+        celular:             persona.celular,
+        email:               persona.email,
+        direccion:           persona.direccion,
+        sexo:                persona.sexo,
+        estado_civil_id:     persona.estado_civil_id,
+        documento_tipo_id:   persona.documento_tipo_id,
+        tiene_documentos:    documento.present?,
+        cedula_frente_url:   documento&.cedula_frente&.url,
+        cedula_reverso_url:  documento&.cedula_reverso&.url
       }
     else
       render json: { encontrada: false }
@@ -217,8 +229,8 @@ class RegistroEventosController < ApplicationController
       tempfile.rewind
 
       yield ActionDispatch::Http::UploadedFile.new(
-        tempfile: tempfile,
-        filename: "#{prefix}_#{Time.now.to_i}.png",
+        tempfile:     tempfile,
+        filename:     "#{prefix}_#{Time.now.to_i}.png",
         content_type: 'image/png'
       )
     rescue => e

@@ -1,0 +1,53 @@
+<!-- app/views/registro_eventos/no_autorizado.html.erb -->
+<style>
+    @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap');
+</style>
+
+<div class="ex-page">
+  <div class="ex-header">
+    <%= image_tag 'logos/Recurso_4logo.png', class: 'ex-header-logo-main', alt: 'Logo' %>
+    <div class="ex-header-divider"></div>
+    <%= image_tag 'logos/ancla.png', class: 'ex-header-logo-ancla', alt: 'Ancla' %>
+  </div>
+
+  <div class="ex-card">
+    <div class="ex-card-band" style="background: linear-gradient(135deg, #a93226 0%, #e74c3c 100%);">
+      <i class="fa fa-times-circle"></i>
+      <h3>Participación No Autorizada</h3>
+    </div>
+
+    <div class="ex-card-body">
+
+      <div class="ex-icon-wrap" style="background: linear-gradient(135deg,#e74c3c22,#e74c3c11); border-color:#e74c3c33;">
+        <i class="fa fa-times-circle" style="color:#e74c3c;"></i>
+      </div>
+
+      <h2 class="ex-title" style="color:#e74c3c;">Participación No Autorizada</h2>
+      <p class="ex-subtitle">
+        El acudiente ha indicado que <strong>no autoriza</strong> la participación del menor en el evento.
+      </p>
+
+      <div class="ex-detalles" style="background: linear-gradient(135deg,#a93226,#e74c3c);">
+        <h4><i class="fa fa-calendar"></i> Detalles del Evento</h4>
+        <ul>
+          <li><i class="fa fa-bookmark"></i><span><strong>Evento:</strong> <%= @evento.detalle %></span></li>
+          <li><i class="fa fa-tag"></i><span><strong>Tipo:</strong> <%= @evento.tiposevento.descripcion rescue 'N/A' %></span></li>
+          <li><i class="fa fa-calendar-check-o"></i><span><strong>Fecha:</strong> <%= @evento.fecha_inicio_e.strftime("%d/%m/%Y") rescue '' %></span></li>
+        </ul>
+      </div>
+
+      <div class="ex-info">
+        <i class="fa fa-info-circle"></i>
+        <span>Si esto fue un error, comunícate con el organizador del evento para más información.</span>
+      </div>
+
+      <% if is_auth_c('eventos') rescue false %>
+        <div class="ex-btn-wrap">
+          <a href="/" class="ex-btn-home"><i class="fa fa-home"></i> Volver al Inicio</a>
+        </div>
+      <% end %>
+
+    </div>
+  </div>
+
+</div>

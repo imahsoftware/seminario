@@ -12,6 +12,9 @@ Rails.application.routes.draw do
   get 'registro/:guid/pendiente/:id', to: 'registro_eventos#pendiente', as: 'pendiente_registro_evento'
   post 'registro/:guid/autorizacion/:id', to: 'registro_eventos#autorizar_participacion', as: 'autorizar_participacion_registro_evento'
   get 'registro_eventos/:guid/buscar_persona', to: 'registro_eventos#buscar_persona', as: 'buscar_persona_registro_evento'
+  get  'registro/:guid/no_autorizado', to: 'registro_eventos#no_autorizado', as: 'no_autorizado_registro_evento'
+
+
   resources :eventos do
     get :exportar_excel, defaults: { format: :xlsx }
     member do
