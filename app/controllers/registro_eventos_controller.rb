@@ -102,7 +102,7 @@ class RegistroEventosController < ApplicationController
           Rails.logger.error "Error enviando SMS: #{e.message}"
         end
         flash[:notice] = "Registro recibido. Pendiente autorización de acudiente."
-        redirect_to pendiente_registro_evento_path(@evento.guid)
+        redirect_to pendiente_registro_evento_path(@evento.guid, @eventospersona.id)
       else
         flash[:notice] = "¡Registro exitoso! Gracias por inscribirte al evento."
         redirect_to exito_registro_evento_path(@evento.guid)
@@ -135,6 +135,7 @@ class RegistroEventosController < ApplicationController
 
   def pendiente
     @evento = Evento.find_by_guid!(params[:guid])
+    @eventospersona = @evento.eventospersonas.find(params[:id])
   end
 
   def autorizacion
