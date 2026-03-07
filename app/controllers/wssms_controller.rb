@@ -10,11 +10,13 @@ class WssmsController < ApplicationController
   require 'base64'
 
   def self.envio_sms_colombiaredenvio(eventopersona)
-    mensaje = "Hola #{eventopersona.acudiente_nombre} Acudiente de #{eventopersona.nombre} para completar la inscripción al evento debes abrir el siguiente enlace:"
+
+    mensaje = "Hola #{eventopersona.acudiente_nombre}, soy del Seminario Redemptoris Mater. #{eventopersona.nombre} se inscribió a un evento y necesita tu autorización. Por favor abre este enlace para completar el proceso:"
     dominio  = Parametro.find(37).valor
     url_sms  = "#{dominio}/registro/#{eventopersona&.evento&.guid}/autorizacion/#{eventopersona&.id}"
     username = Parametro.find(31).valor
     password = Parametro.find(32).valor
+
 
     token = Base64.strict_encode64("#{username}:#{password}")
     url   = URI.parse('https://apitellit.aldeamo.com/SmsiWS/smsSendPost/')
