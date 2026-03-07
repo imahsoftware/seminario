@@ -11,6 +11,10 @@ class Eventospersona < ApplicationRecord
   attr_accessor :cedula_frente, :cedula_reverso,
                 :acudiente_cedula_frente, :acudiente_cedula_reverso
 
+  # Campos base64 que llegan desde el formulario HTML
+  attr_accessor :cedula_frente_base64, :cedula_reverso_base64,
+                :acudiente_cedula_frente_base64, :acudiente_cedula_reverso_base64
+
   attr_accessor :ya_tiene_documentos, :persona_ya_tiene_documentos,
                 :acudiente_ya_tiene_documentos  # ✅ separado del titular
 
