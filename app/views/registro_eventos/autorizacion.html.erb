@@ -71,11 +71,13 @@
             </div>
 
             <%# ── HABEAS DATA ── %>
-            <div style="margin-top: 20px; margin-bottom: 20px;">
-              <a href="<%= @evento.habeas_data.url %>" target="_blank" class="btn btn-default">
-                <i class="fa fa-file-pdf-o"></i> Ver Tratamiento de Datos
-              </a>
-            </div>
+            <% if @evento.habeas_data_parametro.present? %>
+              <div style="margin-top: 20px; margin-bottom: 20px;">
+                <a href="<%= @evento.habeas_data_parametro.valor %>" target="_blank" class="btn btn-default">
+                  <i class="fa fa-file-pdf-o"></i> Ver Tratamiento de Datos
+                </a>
+              </div>
+            <% end %>
 
             <hr>
 

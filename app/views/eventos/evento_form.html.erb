@@ -21,19 +21,26 @@
                         input_html: { class: 'select2', id: 'evento_iglesiascomunidad_id' },
                         as: :select, include_blank: true, label: "Comunidad" %>
           </div>
+
           <div class="col-md-3">
-            <%= f.input :tiposevento_id, collection: Tiposevento.where(estado: "ACTIVO").order(:descripcion).collect { |p| [p.descripcion, p.id] }, input_html: { class: 'select2' }, as: :select, include_blank: true, label: "Tipo de Evento " %>
+            <%= f.input :tiposevento_id,
+                        collection: Tiposevento.where(estado: "ACTIVO").order(:descripcion).collect { |p| [p.descripcion, p.id] },
+                        input_html: { class: 'select2' },
+                        as: :select, include_blank: true, label: "Tipo de Evento" %>
           </div>
+
           <div class="col-md-3">
             <label>Fecha Inicio Inscripción</label>
             <div class="input-group">
               <div class="input-group-addon" style="background: #EDEDED;">
                 <i class="fa fa-calendar"></i>
               </div>
-              <%= f.input :fecha_inicio, as: :string, label: false, input_html: { class: 'form-control datepicker', autocomplete: 'off' } %>
+              <%= f.input :fecha_inicio, as: :string, label: false,
+                          input_html: { class: 'form-control datepicker', autocomplete: 'off' } %>
             </div>
           </div>
         </div>
+
         <div class="row">
           <div class="col-md-3">
             <label>Fecha Fin Inscripción</label>
@@ -41,31 +48,41 @@
               <div class="input-group-addon" style="background: #EDEDED;">
                 <i class="fa fa-calendar"></i>
               </div>
-              <%= f.input :fecha_fin, as: :string, label: false, input_html: { class: 'form-control datepicker', autocomplete: 'off' } %>
+              <%= f.input :fecha_fin, as: :string, label: false,
+                          input_html: { class: 'form-control datepicker', autocomplete: 'off' } %>
             </div>
           </div>
+
           <div class="col-md-3">
             <label>Fecha Inicio Evento</label>
             <div class="input-group">
               <div class="input-group-addon" style="background: #EDEDED;">
                 <i class="fa fa-calendar"></i>
               </div>
-              <%= f.input :fecha_inicio_e, as: :string, label: false, input_html: { class: 'form-control datepicker', autocomplete: 'off' } %>
+              <%= f.input :fecha_inicio_e, as: :string, label: false,
+                          input_html: { class: 'form-control datepicker', autocomplete: 'off' } %>
             </div>
           </div>
+
           <div class="col-md-3">
             <label>Fecha Fin Evento</label>
             <div class="input-group">
               <div class="input-group-addon" style="background: #EDEDED;">
                 <i class="fa fa-calendar"></i>
               </div>
-              <%= f.input :fecha_fin_e, as: :string, label: false, input_html: { class: 'form-control datepicker', autocomplete: 'off' } %>
+              <%= f.input :fecha_fin_e, as: :string, label: false,
+                          input_html: { class: 'form-control datepicker', autocomplete: 'off' } %>
             </div>
           </div>
+
           <div class="col-md-3">
-            <%= f.input :estado, collection: select_estado, as: :select, input_html: { data: { width: '100%' }, class: 'select2' } %>
+            <%= f.input :estado,
+                        collection: select_estado,
+                        as: :select,
+                        input_html: { data: { width: '100%' }, class: 'select2' } %>
           </div>
         </div>
+
         <div class="row">
           <div class="col-md-3">
             <%= f.input :cantidad_persona,
@@ -73,6 +90,7 @@
                         label: "Cantidad de Personas Permitidas",
                         input_html: { class: 'form-control', min: 0 } %>
           </div>
+
           <div class="col-md-3">
             <label class="form-label">Cantidad de Personas Registradas</label>
             <%= text_field_tag :cantidad_registradas,
@@ -80,58 +98,57 @@
                                class: 'form-control',
                                disabled: true %>
           </div>
+
           <div class="col-md-6">
-            <%= f.input :detalle, as: :text, input_html: { :onchange => "javascript:this.value=this.value.toUpperCase();" } %>
-          </div>
-          <div class="col-md-3">
-            <%= f.input :habeas_data, as: :file, input_html: { :onchange => "javascript:this.value=this.value.toUpperCase();" } %>
+            <%= f.input :detalle, as: :text,
+                        input_html: { onchange: "this.value=this.value.toUpperCase();" } %>
           </div>
         </div>
-        <div class="row">
-          <% if @evento.habeas_data.present? %>
-            <div class="row">
-              <div class="col-md-12">
-                <div style="background:#f9f9f9; padding:20px; border-radius:5px; margin-top:20px;">
-                  <h4><i class="fa fa-shield"></i> Documento actual (Habeas Data)</h4>
 
-                  <iframe src="<%= @evento.habeas_data.url %>"
-                          width="100%"
-                          height="500px"
-                          style="border:1px solid #ccc; margin-top:15px;">
-                  </iframe>
-
-                  <br>
-                  <%= link_to "Descargar documento",
-                              @evento.habeas_data.url,
-                              class: "btn btn-default",
-                              target: "_blank" %>
-                </div>
-              </div>
-            </div>
-          <% end %>
+        <%# ── Selector Habeas Data + botón descarga ── %>
+        <div class="row" style="margin-top: 10px;">
+          <div class="col-md-4">
+            <%= f.input :habeas_data_parametro_id,
+                        label: "Habeas Data",
+                        collection: Parametro.where(id: 41).order(:descripcion).collect { |p| [p.descripcion, p.id] },
+                        as: :select,
+                        input_html: { class: 'select2', id: 'evento_habeas_data_parametro_id' },
+                        include_blank: 'Seleccione documento...' %>
+          </div>
+          <div class="col-md-2" style="padding-top: 25px;">
+            <a id="habeas-data-link"
+               href="<%= @evento.habeas_data_parametro&.valor.to_s %>"
+               class="btn btn-default"
+               target="_blank"
+               style="<%= @evento.habeas_data_parametro_id.present? ? '' : 'display:none;' %>">
+              <i class="fa fa-download"></i> Descargar
+            </a>
+          </div>
         </div>
 
-        <!-- Sección de URL pública (solo si el evento ya fue creado) -->
+        <!-- URL pública (solo si el evento ya fue creado) -->
         <% if @evento.persisted? && @evento.url_publica.present? %>
-          <div class="row">
+          <div class="row" style="margin-top: 20px;">
             <div class="col-md-12">
-
               <h4><i class="icon fa fa-link"></i> URL de Registro Público</h4>
               <p>Comparte esta URL para que las personas se registren en el evento:</p>
               <div class="input-group">
-                <input type="text" class="form-control" id="url_publica" value="<%= @evento.url_publica %>" readonly>
+                <input type="text" class="form-control" id="url_publica"
+                       value="<%= @evento.url_publica %>" readonly>
                 <span class="input-group-btn">
-                    <button class="btn btn-primary" type="button" id="btn_copiar_url" data-clipboard-target="#url_publica">
-                      <i class="fa fa-copy"></i> Copiar URL
-                    </button>
-                    <a href="<%= @evento.url_publica %>" target="_blank" class="btn btn-success">
-                      <i class="fa fa-external-link"></i> Ver formulario
-                    </a>
-                  </span>
+                  <button class="btn btn-primary" type="button"
+                          id="btn_copiar_url" data-clipboard-target="#url_publica">
+                    <i class="fa fa-copy"></i> Copiar URL
+                  </button>
+                  <a href="<%= @evento.url_publica %>" target="_blank" class="btn btn-success">
+                    <i class="fa fa-external-link"></i> Ver formulario
+                  </a>
+                </span>
               </div>
               <small class="help-block">
                 <strong>Vigencia:</strong>
-                Del <%= @evento.fecha_inicio.strftime("%d/%m/%Y") %> al <%= @evento.fecha_fin.strftime("%d/%m/%Y") %>
+                Del <%= @evento.fecha_inicio.strftime("%d/%m/%Y") %>
+                al <%= @evento.fecha_fin.strftime("%d/%m/%Y") %>
                 <% if @evento.vigente? %>
                   <span class="label label-success">VIGENTE</span>
                 <% elsif @evento.vencido? %>
@@ -140,80 +157,95 @@
                   <span class="label label-warning">NO INICIADO</span>
                 <% end %>
               </small>
-
             </div>
           </div>
         <% end %>
 
-        <div class="box-footer">
-        </div>
+        <div class="box-footer"></div>
         <div class="box-tools pull-right">
           <%= f.button :submit, "#{t :guardar}", class: "btn btn-danger pull-right" %>
-        </div><!-- /.box-tools -->
+        </div>
       </div>
     </div>
   <% end %>
+
 <% elsif @evento.etapa.to_s == "B" %>
   <%= render "eventospersonas/tabla", eventospersonas: @eventospersonas %>
 <% end %>
 
 <% if @evento.persisted? && @evento.url_publica.present? %>
-  <!-- Script para copiar al portapapeles -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.11/clipboard.min.js"></script>
   <script>
       $(document).ready(function () {
           var clipboard = new ClipboardJS('#btn_copiar_url');
-
           clipboard.on('success', function (e) {
               toastr.success('URL copiada al portapapeles');
               e.clearSelection();
           });
-
-          clipboard.on('error', function (e) {
+          clipboard.on('error', function () {
               toastr.error('Error al copiar la URL');
           });
       });
   </script>
-  <script>
-      $(document).ready(function () {
-
-          // Si hay una iglesia seleccionada al cargar (modo edición), cargar sus comunidades
-          var iglesiaActual = $('#evento_iglesia_id').val();
-          var comunidadActual = '<%= @evento.iglesiascomunidad_id %>';
-
-          if (iglesiaActual) {
-              cargarComunidades(iglesiaActual, comunidadActual);
-          }
-
-          // Cuando cambia la iglesia
-          $('#evento_iglesia_id').on('change', function () {
-              cargarComunidades($(this).val(), null);
-          });
-
-          function cargarComunidades(iglesiaId, comunidadSeleccionada) {
-              var $select = $('#evento_iglesiascomunidad_id');
-              $select.empty().append('<option value="">Seleccione...</option>');
-
-              if (!iglesiaId) return;
-
-              $.ajax({
-                  url: '/iglesiascomunidades/por_iglesia',
-                  data: {iglesia_id: iglesiaId},
-                  success: function (data) {
-
-                      if (data.mensaje) {
-                          $select.append('<option value="">' + data.mensaje + '</option>');
-                      } else {
-                          $.each(data, function (i, comunidad) {
-                              var selected = comunidad.id == comunidadSeleccionada ? 'selected' : '';
-                              $select.append('<option value="' + comunidad.id + '" ' + selected + '>' + comunidad.nombre + '</option>');
-                          });
-                      }
-
-                      $select.trigger('change');
-                  }
-              });
-          }
-      });
-  </script>
 <% end %>
+
+<script>
+    $(document).ready(function () {
+
+        // ── Mapa precargado: id => { descripcion, url } ──────────────────
+        var habeasDataMap = <%= raw Parametro.where(id: 41).each_with_object({}) { |p, h|
+        h[p.id] = { descripcion: p.descripcion.to_s, url: p.valor.to_s }
+      }.to_json %>;
+
+        // ── Mostrar/ocultar botón de descarga al cambiar el selector ─────
+        $('#evento_habeas_data_parametro_id').on('change', function () {
+            var id = $(this).val();
+            var $link = $('#habeas-data-link');
+
+            if (!id || !habeasDataMap[id]) {
+                $link.hide();
+                return;
+            }
+
+            $link.attr('href', habeasDataMap[id].url).show();
+        });
+
+        // ── Comunidades por iglesia ──────────────────────────────────────
+        var iglesiaActual = $('#evento_iglesia_id').val();
+        var comunidadActual = '<%= @evento.iglesiascomunidad_id %>';
+
+        if (iglesiaActual) {
+            cargarComunidades(iglesiaActual, comunidadActual);
+        }
+
+        $('#evento_iglesia_id').on('change', function () {
+            cargarComunidades($(this).val(), null);
+        });
+
+        function cargarComunidades(iglesiaId, comunidadSeleccionada) {
+            var $select = $('#evento_iglesiascomunidad_id');
+            $select.empty().append('<option value="">Seleccione...</option>');
+            if (!iglesiaId) return;
+
+            $.ajax({
+                url: '/iglesiascomunidades/por_iglesia',
+                data: {iglesia_id: iglesiaId},
+                success: function (data) {
+                    if (data.mensaje) {
+                        $select.append('<option value="">' + data.mensaje + '</option>');
+                    } else {
+                        $.each(data, function (i, comunidad) {
+                            var selected = comunidad.id == comunidadSeleccionada ? 'selected' : '';
+                            $select.append(
+                                '<option value="' + comunidad.id + '" ' + selected + '>' +
+                                comunidad.nombre + '</option>'
+                            );
+                        });
+                    }
+                    $select.trigger('change');
+                }
+            });
+        }
+
+    });
+</script>
