@@ -186,6 +186,10 @@
                                     include_blank: 'Seleccione...' %>
                 </div>
                 <div class="col-md-3">
+                  <%= f.input :acudiente_identificacion, label: "Identificación del Acudiente",
+                              input_html: { class: 'form-control acudiente-field', maxlength: 30, id: 'acudiente_identificacion' } %>
+                </div>
+                <div class="col-md-3">
                   <%= f.input :acudiente_nombre, label: "Nombre del Acudiente",
                               input_html: { class: 'form-control acudiente-field', onchange: 'this.value=this.value.toUpperCase();', id: 'acudiente_nombre' } %>
                 </div>
@@ -193,10 +197,7 @@
                   <%= f.input :acudiente_apellido, label: "Apellido del Acudiente",
                               input_html: { class: 'form-control acudiente-field', onchange: 'this.value=this.value.toUpperCase();', id: 'acudiente_apellido' } %>
                 </div>
-                <div class="col-md-3">
-                  <%= f.input :acudiente_identificacion, label: "Identificación del Acudiente",
-                              input_html: { class: 'form-control acudiente-field', maxlength: 30, id: 'acudiente_identificacion' } %>
-                </div>
+
               </div>
 
               <%# Fila 2: Email + Celular %>
