@@ -22,7 +22,7 @@ class Evento < ApplicationRecord
   def actualizar_url_si_necesario
     return if guid.blank?
     if new_record? || guid_changed?
-      base_url = Rails.env.production? ? "https://apps.srmmedellin.org/" : "https://apps.srmmedellin.org/
+      base_url = Rails.env.production? ? "https://apps.srmmedellin.org/" : "https://apps.srmmedellin.org/"
       self.url_publica = "#{base_url}/registro/#{self.guid}"
     end
   end
