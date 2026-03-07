@@ -4,6 +4,9 @@
   menores   = todos.select { |p| p.fecha_nacimiento.present? && ((hoy - p.fecha_nacimiento.to_date).to_i / 365.25) < 18 }
   mayores   = todos.select { |p| p.fecha_nacimiento.present? && ((hoy - p.fecha_nacimiento.to_date).to_i / 365.25) >= 18 }
   sin_fecha = todos.select { |p| p.fecha_nacimiento.blank? }
+  autorizados    = menores.select { |p| p.acudiente_firma == 'SI' }
+  no_autorizados = menores.select { |p| p.acudiente_firma == 'NO' }
+  pendientes     = menores.select { |p| p.acudiente_firma.blank? }
 %>
 
 <div class="box box-danger">
@@ -71,6 +74,39 @@
             <div class="info-box-content">
               <span class="info-box-text">Sin Fecha Nac.</span>
               <span class="info-box-number"><%= sin_fecha.count %></span>
+            </div>
+          </div>
+        </div>
+      <% end %>
+
+
+      <%# ── Autorización menores ── %>
+      <% if menores.any? %>
+        <div class="col-xs-12"><hr style="margin:8px 0 10px; border-color:#ddd;"><p class="text-muted" style="font-size:12px; margin:0 0 8px;"><i class="fa fa-info-circle"></i> <strong>Estado de autorización (menores)</strong></p></div>
+        <div class="col-md-4 col-sm-6 col-xs-12">
+          <div class="info-box bg-green">
+            <span class="info-box-icon"><i class="fa fa-check-circle"></i></span>
+            <div class="info-box-content">
+              <span class="info-box-text">Autorizados</span>
+              <span class="info-box-number"><%= autorizados.count %></span>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-4 col-sm-6 col-xs-12">
+          <div class="info-box bg-red">
+            <span class="info-box-icon"><i class="fa fa-times-circle"></i></span>
+            <div class="info-box-content">
+              <span class="info-box-text">No Autorizados</span>
+              <span class="info-box-number"><%= no_autorizados.count %></span>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-4 col-sm-6 col-xs-12">
+          <div class="info-box bg-orange">
+            <span class="info-box-icon"><i class="fa fa-clock-o"></i></span>
+            <div class="info-box-content">
+              <span class="info-box-text">Pendientes</span>
+              <span class="info-box-number"><%= pendientes.count %></span>
             </div>
           </div>
         </div>
@@ -149,6 +185,22 @@
               <% else %>
                 <span class="label label-danger">Sin acudiente</span>
               <% end %>
+              <%# ── Badge estado autorización ── %>
+              <div style="margin-top:5px;">
+                <% if ep.acudiente_firma == 'SI' %>
+                  <span class="label label-success">
+                    <i class="fa fa-check-circle"></i> Autorizado
+                  </span>
+                <% elsif ep.acudiente_firma == 'NO' %>
+                  <span class="label label-danger">
+                    <i class="fa fa-times-circle"></i> No Autorizado
+                  </span>
+                <% else %>
+                  <span class="label label-warning">
+                    <i class="fa fa-clock-o"></i> Pendiente
+                  </span>
+                <% end %>
+              </div>
             <% else %>
               <span class="text-muted">—</span>
             <% end %>
@@ -409,14 +461,22 @@
                           <p><strong><%= ep.acudiente_codigorec.presence || 'N/D' %></strong></p>
                         </div>
 
-                        <% if ep.acudiente_firma.present? %>
-                          <div class="col-md-12">
-                            <p class="text-muted" style="margin-bottom:2px;"><small>Firma Acudiente</small></p>
-                            <div style="border:1px solid #ddd; padding:5px; display:inline-block; background:#fff;">
-                              <%= image_tag ep.acudiente_firma, style: 'max-height:80px;', alt: 'Firma' %>
-                            </div>
-                          </div>
-                        <% end %>
+                        <div class="col-md-12">
+                          <p class="text-muted" style="margin-bottom:2px;"><small>Autorización</small></p>
+                          <% if ep.acudiente_firma == 'SI' %>
+                            <span class="label label-success" style="font-size:13px; padding:5px 10px;">
+                              <i class="fa fa-check-circle"></i> Autorizado por el acudiente
+                            </span>
+                          <% elsif ep.acudiente_firma == 'NO' %>
+                            <span class="label label-danger" style="font-size:13px; padding:5px 10px;">
+                              <i class="fa fa-times-circle"></i> No autorizado por el acudiente
+                            </span>
+                          <% else %>
+                            <span class="label label-warning" style="font-size:13px; padding:5px 10px;">
+                              <i class="fa fa-clock-o"></i> Pendiente de autorización
+                            </span>
+                          <% end %>
+                        </div>
 
                       </div>
                     </div>
