@@ -55,16 +55,13 @@ class Eventospersona < ApplicationRecord
             presence: { message: "es obligatorio para menores de edad" },
             if: :menor_de_edad?
 
-  validates :acudiente_documento_tipo_id,
-            presence: { message: "es obligatorio para menores de edad" },
-            if: :menor_de_edad?
 
   validates :acudiente_email,
             format: { with: URI::MailTo::EMAIL_REGEXP, message: "no es válido" },
             if: :menor_de_edad?
 
   # ── Validaciones custom ───────────────────────────────────────────────────
-  validate :documentos_obligatorios
+  #validate :documentos_obligatorios
   validate :validar_cupos_disponibles
 
   # ── Callbacks ─────────────────────────────────────────────────────────────
