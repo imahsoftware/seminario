@@ -177,13 +177,16 @@
               <%# Fila 1: Tipo doc + Nombre + Apellido + Identificación %>
               <div class="row">
                 <div class="col-md-3">
-                  <%# ── NUEVO: Tipo de documento del acudiente (obligatorio) ── %>
                   <%= f.association :acudiente_documento_tipo,
                                     label: "Tipo Doc. Acudiente *",
                                     collection: DocumentoTipo.where(estado: 'activo').order(:nombre),
                                     value_method: :id, label_method: :nombre,
-                                    input_html: { class: 'select2 acudiente-field', id: 'acudiente_documento_tipo_id_select' },
+                                    input_html: { class: 'select2 acudiente-field', width: '100%', id: 'acudiente_documento_tipo_id_select' },
                                     include_blank: 'Seleccione...' %>
+                </div>
+                <div class="col-md-3">
+                  <%= f.input :acudiente_identificacion, label: "Identificación del Acudiente",
+                              input_html: { class: 'form-control acudiente-field', maxlength: 30, id: 'acudiente_identificacion' } %>
                 </div>
                 <div class="col-md-3">
                   <%= f.input :acudiente_nombre, label: "Nombre del Acudiente",
@@ -192,10 +195,6 @@
                 <div class="col-md-3">
                   <%= f.input :acudiente_apellido, label: "Apellido del Acudiente",
                               input_html: { class: 'form-control acudiente-field', onchange: 'this.value=this.value.toUpperCase();', id: 'acudiente_apellido' } %>
-                </div>
-                <div class="col-md-3">
-                  <%= f.input :acudiente_identificacion, label: "Identificación del Acudiente",
-                              input_html: { class: 'form-control acudiente-field', maxlength: 30, id: 'acudiente_identificacion' } %>
                 </div>
               </div>
 
