@@ -74,6 +74,6 @@ class EventospersonasController < ApplicationController
 
     # Only allow a list of trusted parameters through.
     def eventospersona_params
-      params.require(:eventospersona).permit(:evento_id, :identificacion, :nombre, :apellido, :fecha_nacimiento, :direccion, :celular, :email, :sexo, :estado_civil, :acudiente_nombre, :acudiente_apellido, :acudiente_identificacion, :acudiente_email, :acudiente_celular, :acudiente_codigoval, :acudiente_codigorec, :acudiente_firma, :acepta_politica, :acepta_cultura)
+      params.require(:eventospersona).permit!
     end
 end

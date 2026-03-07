@@ -25,6 +25,14 @@
   <script src="https://code.jquery.com/ui/1.14.2/jquery-ui.js"></script>
 
   <style>
+      /* ══════════════════════════════════════════════════════════════
+    REGISTRO EVENTOS — Hoja de estilos principal
+    ══════════════════════════════════════════════════════════════ */
+
+
+      /* ══════════════════════════════════════════════════════════════
+         1. BASE / LAYOUT
+         ══════════════════════════════════════════════════════════════ */
       body {
           background: linear-gradient(6deg, #f2f2f2 0%, #d9d9d9 100%);
           min-height: 100vh;
@@ -32,7 +40,162 @@
           padding: 20px 0;
       }
 
-      /* ── Header logos ── */
+      hr { border-top: 2px solid #f0f0f0; margin: 20px 0; }
+
+      .text-primary { color: #071B7D !important; }
+
+      .alert { border-radius: 4px; margin-bottom: 20px; }
+      .alert-info { background-color: #e8f4fd; border-color: #bee5eb; color: #0c5460; }
+
+      .flash-messages {
+          position: fixed;
+          top: 20px;
+          right: 20px;
+          z-index: 9999;
+          max-width: 400px;
+      }
+
+      .alert-dismissible { padding-right: 35px; }
+
+
+      /* ══════════════════════════════════════════════════════════════
+         2. PANEL
+         ══════════════════════════════════════════════════════════════ */
+      .panel {
+          margin-top: 0;
+          margin-bottom: 40px;
+          box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+          border: none;
+          border-radius: 8px;
+          overflow: hidden;
+      }
+
+      .panel-primary > .panel-heading { background: #071B7D; color: white; padding: 20px; border: none; }
+      .panel-success > .panel-heading { background: #5cb85c;  color: white; padding: 20px; border: none; }
+      .panel-danger  > .panel-heading { background: #d9534f;  color: white; padding: 20px; border: none; }
+      .panel-warning > .panel-heading { background: #f0ad4e;  color: white; padding: 20px; border: none; }
+
+      .panel-title { font-size: 24px; font-weight: 600; margin: 0; }
+      .panel-body  { padding: 30px; background: white; }
+
+
+      /* ══════════════════════════════════════════════════════════════
+         3. BOTONES
+         ══════════════════════════════════════════════════════════════ */
+      .btn-primary {
+          background: #071B7D;
+          border-color: #071B7D;
+          padding: 12px 30px;
+          font-size: 16px;
+          font-weight: 600;
+          transition: all 0.3s ease;
+      }
+
+      .btn-primary:hover,
+      .btn-primary:focus,
+      .btn-primary:active {
+          background: #05145a;
+          border-color: #05145a;
+          transform: translateY(-2px);
+          box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+      }
+
+
+      /* ══════════════════════════════════════════════════════════════
+         4. FORMULARIO — checkboxes y selects
+         ══════════════════════════════════════════════════════════════ */
+      .checkbox label { font-weight: normal; padding-left: 25px; }
+      .checkbox input[type="checkbox"] { width: 18px; height: 18px; margin-right: 8px; cursor: pointer; }
+
+      .checkbox-required {
+          border: 2px solid #d9534f;
+          padding: 15px;
+          border-radius: 4px;
+          background: #fff5f5;
+          margin-bottom: 15px;
+      }
+
+      .checkbox-required label { font-weight: 600; color: #333; margin: 0; }
+
+      .required .control-label:after { content: " *"; color: #d9534f; }
+
+      .select2-container--default .select2-selection--single {
+          height: 34px;
+          border: 1px solid #d2d6de;
+          border-radius: 0;
+      }
+
+      .select2-container--default .select2-selection--single .select2-selection__rendered {
+          line-height: 32px;
+          padding-left: 12px;
+      }
+
+      .select2-container--default .select2-selection--single .select2-selection__arrow { height: 32px; }
+
+      /* Error celular duplicado */
+      .celular-error {
+          border-color: #d9534f !important;
+          box-shadow: inset 0 1px 1px rgba(0,0,0,.075), 0 0 6px #ce8483 !important;
+      }
+
+
+      /* ══════════════════════════════════════════════════════════════
+         5. FECHA DE NACIMIENTO — 3 selects nativos
+         ══════════════════════════════════════════════════════════════ */
+      .fn-wrap { margin-bottom: 0; }
+
+      .fn-selects-row {
+          display: flex;
+          gap: 8px;
+          align-items: flex-end;
+      }
+
+      .fn-col       { flex: 1; }
+      .fn-col--anio { flex: 1.5; }
+
+      .fn-sublabel {
+          display: block;
+          font-size: 10px;
+          font-weight: 700;
+          color: #999;
+          text-transform: uppercase;
+          letter-spacing: 0.5px;
+          margin-bottom: 3px;
+      }
+
+      .fn-sel {
+          display: block;
+          width: 100%;
+          height: 34px;
+          padding: 0 8px;
+          font-size: 14px;
+          color: #333;
+          background: #fff;
+          border: 1px solid #d2d6de;
+          border-radius: 3px;
+          cursor: pointer;
+          appearance: auto;
+          -webkit-appearance: auto;
+      }
+
+      .fn-sel:focus {
+          outline: none;
+          border-color: #071B7D;
+          box-shadow: 0 0 0 2px rgba(7,27,125,0.15);
+      }
+
+      .fn-sel.fn-invalid {
+          border-color: #d9534f !important;
+          box-shadow: 0 0 0 2px rgba(217,83,79,0.2) !important;
+      }
+
+      .fn-error { display: none; color: #d9534f; font-size: 12px; margin-top: 5px; }
+      .fn-error.visible { display: block; }
+
+
+      /* ══════════════════════════════════════════════════════════════
+         6. HEADER DE LOGOS — variante rp-* (registro público)
+         ══════════════════════════════════════════════════════════════ */
       .rp-logos-header {
           display: flex;
           align-items: center;
@@ -86,173 +249,434 @@
           transparent 0%, #ccc 30%, #aaa 50%, #ccc 70%, transparent 100%);
       }
 
-      /* ── Panel ── */
-      .panel {
-          margin-top: 0;
-          margin-bottom: 40px;
-          box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-          border: none;
-          border-radius: 8px;
-          overflow: hidden;
-      }
 
-      .panel-primary > .panel-heading { background: #071B7D; color: white; padding: 20px; border: none; }
-      .panel-success > .panel-heading { background: #5cb85c; color: white; padding: 20px; border: none; }
-      .panel-danger  > .panel-heading { background: #d9534f; color: white; padding: 20px; border: none; }
-      .panel-warning > .panel-heading { background: #f0ad4e; color: white; padding: 20px; border: none; }
-
-      .panel-title { font-size: 24px; font-weight: 600; margin: 0; }
-      .panel-body  { padding: 30px; background: white; }
-
-      .alert { border-radius: 4px; margin-bottom: 20px; }
-
-      .btn-primary {
-          background: #071B7D;
-          border-color: #071B7D;
-          padding: 12px 30px;
-          font-size: 16px;
-          font-weight: 600;
-          transition: all 0.3s ease;
-      }
-
-      .btn-primary:hover,
-      .btn-primary:focus,
-      .btn-primary:active {
-          background: #05145a;
-          border-color: #05145a;
-          transform: translateY(-2px);
-          box-shadow: 0 4px 8px rgba(0,0,0,0.2);
-      }
-
-      .text-primary { color: #071B7D !important; }
-      hr { border-top: 2px solid #f0f0f0; margin: 20px 0; }
-      .checkbox label { font-weight: normal; padding-left: 25px; }
-
-      .alert-info { background-color: #e8f4fd; border-color: #bee5eb; color: #0c5460; }
-
-      .flash-messages {
-          position: fixed;
-          top: 20px;
-          right: 20px;
-          z-index: 9999;
-          max-width: 400px;
-      }
-
-      .alert-dismissible { padding-right: 35px; }
-
-      .select2-container--default .select2-selection--single {
-          height: 34px;
-          border: 1px solid #d2d6de;
-          border-radius: 0;
-      }
-
-      .select2-container--default .select2-selection--single .select2-selection__rendered {
-          line-height: 32px;
-          padding-left: 12px;
-      }
-
-      .select2-container--default .select2-selection--single .select2-selection__arrow { height: 32px; }
-
-      .required .control-label:after { content: " *"; color: #d9534f; }
-
-      .checkbox input[type="checkbox"] { width: 18px; height: 18px; margin-right: 8px; cursor: pointer; }
-
-      .checkbox-required {
-          border: 2px solid #d9534f;
-          padding: 15px;
-          border-radius: 4px;
-          background: #fff5f5;
-          margin-bottom: 15px;
-      }
-
-      .checkbox-required label { font-weight: 600; color: #333; margin: 0; }
-
-      .datepicker table tr td.today  { background-color: #071B7D !important; color: white !important; }
-      .datepicker table tr td.active { background-color: #071B7D !important; color: white !important; }
-      .datepicker table tr td.active:hover { background-color: #05145a !important; }
-
-      /* ══════════════════════════════════════════════════
-         FECHA DE NACIMIENTO — 3 selects nativos
-         Reemplaza el datepicker en el formulario público.
-         Mucho más amigable en móvil.
-         ══════════════════════════════════════════════════ */
-      .fn-wrap { margin-bottom: 0; }
-
-      .fn-selects-row {
-          display: flex;
-          gap: 8px;
-          align-items: flex-end;
-      }
-
-      .fn-col       { flex: 1; }
-      .fn-col--anio { flex: 1.5; }
-
-      .fn-sublabel {
-          display: block;
-          font-size: 10px;
-          font-weight: 700;
-          color: #999;
-          text-transform: uppercase;
-          letter-spacing: 0.5px;
-          margin-bottom: 3px;
-      }
-
-      .fn-sel {
-          display: block;
+      /* ══════════════════════════════════════════════════════════════
+         7. HEADER DE LOGOS — variante nf-* (notificaciones / show)
+         ══════════════════════════════════════════════════════════════ */
+      .nf-header {
           width: 100%;
-          height: 34px;
-          padding: 0 8px;
-          font-size: 14px;
-          color: #333;
+          max-width: 560px;
           background: #fff;
-          border: 1px solid #d2d6de;
-          border-radius: 3px;
+          border-radius: 16px;
+          box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+          padding: 20px 32px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          gap: 24px;
+          margin-bottom: 28px;
+          box-sizing: border-box;
+          margin-left: auto;
+          margin-right: auto;
+      }
+
+      .nf-header-logo-main {
+          height: 56px;
+          width: auto;
+          object-fit: contain;
+          flex: 1;
+          max-width: 60%;
+      }
+
+      .nf-header-divider {
+          width: 1px;
+          height: 44px;
+          flex-shrink: 0;
+          background: linear-gradient(to bottom,
+          transparent 0%, #071B7D55 30%,
+          #071B7D99 50%, #071B7D55 70%, transparent 100%);
+      }
+
+      .nf-header-logo-ancla {
+          height: 52px;
+          width: auto;
+          object-fit: contain;
+          flex-shrink: 0;
+      }
+
+
+      /* ══════════════════════════════════════════════════════════════
+         8. CARD nf-* (notificación / confirmación)
+         ══════════════════════════════════════════════════════════════ */
+      .nf-card {
+          width: 100%;
+          max-width: 560px;
+          background: #fff;
+          border-radius: 20px;
+          box-shadow: 0 8px 40px rgba(0, 0, 0, 0.10);
+          overflow: hidden;
+          box-sizing: border-box;
+      }
+
+      .nf-card-band {
+          background: linear-gradient(135deg, #d68910 0%, #f39c12 100%);
+          padding: 18px 24px;
+          display: flex;
+          align-items: center;
+          gap: 10px;
+      }
+
+      .nf-card-band h3 { color: #fff; font-size: 18px; font-weight: 700; margin: 0; letter-spacing: 0.3px; }
+      .nf-card-band i  { color: #fff; font-size: 20px; }
+
+      .nf-imah-wrap { display: flex; justify-content: center; padding: 24px 24px 0; }
+      .nf-imah-logo { height: 52px; width: auto; object-fit: contain; }
+
+      .nf-card-body { padding: 20px 28px 30px; text-align: center; }
+
+      .nf-icon-wrap {
+          margin: 10px auto 18px;
+          width: 88px;
+          height: 88px;
+          background: linear-gradient(135deg, #f39c1222, #f39c1211);
+          border-radius: 50%;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          border: 3px solid #f39c1233;
+      }
+
+      .nf-icon-wrap i { font-size: 44px; color: #f39c12; }
+
+      .nf-estado-badge {
+          display: inline-flex;
+          align-items: center;
+          gap: 6px;
+          background: #fef9ec;
+          border: 1.5px solid #f39c1266;
+          color: #d68910;
+          font-size: 13px;
+          font-weight: 700;
+          padding: 5px 14px;
+          border-radius: 20px;
+          margin-bottom: 14px;
+          letter-spacing: 0.5px;
+      }
+
+      .nf-title    { font-size: 26px; font-weight: 700; color: #d68910; margin: 0 0 10px; }
+      .nf-subtitle { font-size: 16px; color: #555; font-weight: 400; margin: 0 0 20px; line-height: 1.5; }
+
+      /* Caja aviso amarilla */
+      .nf-aviso-box {
+          background: #fffbf2;
+          border: 1px solid #f39c1244;
+          border-left: 4px solid #f39c12;
+          border-radius: 12px;
+          padding: 18px 20px;
+          text-align: left;
+          margin-bottom: 16px;
+      }
+
+      .nf-aviso-box h4 { color: #d68910; font-size: 15px; font-weight: 700; margin: 0 0 12px; display: flex; align-items: center; gap: 7px; }
+      .nf-aviso-box p  { font-size: 14px; color: #555; margin: 0 0 8px; line-height: 1.55; }
+      .nf-aviso-box p:last-child { margin-bottom: 0; }
+      .nf-aviso-box p strong { color: #333; }
+
+      /* Caja info azul */
+      .nf-info-box {
+          background: #f0f7ff;
+          border: 1px solid #3498db33;
+          border-left: 4px solid #3498db;
+          border-radius: 12px;
+          padding: 18px 20px;
+          text-align: left;
+          margin-bottom: 20px;
+      }
+
+      .nf-info-box h4 { color: #2980b9; font-size: 15px; font-weight: 700; margin: 0 0 14px; display: flex; align-items: center; gap: 7px; }
+
+      .nf-info-row { display: flex; align-items: flex-start; gap: 8px; margin-bottom: 10px; font-size: 14px; color: #444; line-height: 1.4; }
+      .nf-info-row:last-child { margin-bottom: 0; }
+      .nf-info-row i      { color: #3498db; font-size: 14px; flex-shrink: 0; margin-top: 2px; }
+      .nf-info-row strong { color: #333; margin-right: 4px; }
+
+      /* Nota inferior */
+      .nf-nota {
+          background: #f8f9fa;
+          border: 1px solid #e9ecef;
+          border-radius: 10px;
+          padding: 14px 18px;
+          font-size: 14px;
+          color: #666;
+          display: flex;
+          align-items: center;
+          gap: 10px;
+          text-align: left;
+      }
+
+      .nf-nota i { color: #3498db; font-size: 16px; flex-shrink: 0; }
+
+      /* Botón home */
+      .nf-btn-wrap { margin-top: 24px; }
+
+      .nf-btn-home {
+          display: inline-flex;
+          align-items: center;
+          gap: 8px;
+          background: #071B7D;
+          color: #fff !important;
+          text-decoration: none;
+          padding: 12px 28px;
+          border-radius: 8px;
+          font-size: 15px;
+          font-weight: 600;
+          font-family: 'Outfit', sans-serif;
+          transition: background 0.25s, transform 0.2s;
+          border: none;
           cursor: pointer;
-          appearance: auto;
-          -webkit-appearance: auto;
       }
 
-      .fn-sel:focus {
-          outline: none;
-          border-color: #071B7D;
-          box-shadow: 0 0 0 2px rgba(7,27,125,0.15);
+      .nf-btn-home:hover {
+          background: #06176B;
+          transform: translateY(-1px);
+          color: #fff !important;
+          text-decoration: none;
       }
 
-      .fn-sel.fn-invalid {
-          border-color: #d9534f !important;
-          box-shadow: 0 0 0 2px rgba(217,83,79,0.2) !important;
+
+      /* ══════════════════════════════════════════════════════════════
+         9. MODAL DE CÁMARA
+         ══════════════════════════════════════════════════════════════ */
+      #modalCamara            { overflow: hidden !important; }
+      #modalCamara .modal-body { overflow: hidden !important; padding: 0 !important; }
+
+      .modal-camara-header {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          background: rgba(0, 0, 0, 0.85);
+          padding: 12px 16px;
+          flex-shrink: 0;
+          z-index: 10;
       }
 
-      .fn-error {
-          display: none;
-          color: #d9534f;
-          font-size: 12px;
-          margin-top: 5px;
+      .modal-camara-titulo { color: #fff; font-size: 16px; font-weight: 600; }
+
+      .modal-camara-close {
+          background: rgba(255, 255, 255, 0.15);
+          border: none;
+          color: #fff;
+          width: 36px;
+          height: 36px;
+          border-radius: 50%;
+          font-size: 16px;
+          cursor: pointer;
+          display: flex;
+          align-items: center;
+          justify-content: center;
       }
 
-      .fn-error.visible { display: block; }
+      .modal-camara-close:hover { background: rgba(255, 255, 255, 0.3); }
 
-      /* ── Responsive ── */
-      @media (max-width: 768px) {
-          .panel-body { padding: 20px 15px; }
-          .flash-messages { right: 10px; left: 10px; max-width: none; }
-
-          .rp-logos-header { padding: 14px 20px; gap: 16px; border-radius: 12px; margin-bottom: 18px; max-width: 100%; }
-          .rp-logo-principal    { height: 36px; }
-          .rp-logo-ancla        { height: 32px; }
-          .rp-logo-divider      { height: 28px; }
-          .rp-imah-logo         { height: 30px; }
-          .rp-logo-divider-imah { height: 24px; }
-
-          .fn-sel { font-size: 13px; }
+      .modal-camara-body {
+          flex: 1;
+          position: relative;
+          overflow: hidden;
+          background: #111;
+          min-height: 0;
       }
 
-      @media (max-width: 400px) {
-          .fn-selects-row { gap: 5px; }
-          .fn-sel { padding: 0 4px; }
+      .modal-camara-footer {
+          background: rgba(0, 0, 0, 0.88);
+          padding: 12px 20px;
+          padding-bottom: max(12px, env(safe-area-inset-bottom));
+          flex-shrink: 0;
+          z-index: 10;
+          min-height: 56px;
       }
 
-      /* jQuery UI Datepicker — tema corporativo */
+      .modal-camara-content {
+          display: flex;
+          flex-direction: column;
+          border: none;
+          overflow: hidden;
+          background: #000;
+      }
+
+      .footer-cancelar-wrap { display: flex; justify-content: flex-end; }
+
+      .footer-estado {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          gap: 16px;
+          margin-top: 10px;
+      }
+
+      /* Cámara — video y canvas */
+      .camara-video,
+      .camara-canvas {
+          position: absolute;
+          inset: 0;
+          width: 100%;
+          height: 100%;
+          object-fit: cover;
+      }
+
+      /* Flash */
+      .camara-flash {
+          position: absolute;
+          inset: 0;
+          background: #fff;
+          opacity: 0;
+          pointer-events: none;
+          z-index: 20;
+          transition: opacity 0s;
+      }
+
+      .camara-flash.disparar { animation: flashAnim 0.4s ease-out forwards; }
+
+      @keyframes flashAnim {
+          0%   { opacity: 0.9; }
+          100% { opacity: 0; }
+      }
+
+      /* Guías de encuadre */
+      .camara-guia {
+          position: absolute;
+          inset: 0;
+          pointer-events: none;
+          z-index: 5;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+      }
+
+      .guia-texto {
+          position: absolute;
+          bottom: 12px;
+          left: 50%;
+          transform: translateX(-50%);
+          color: rgba(255, 255, 255, 0.7);
+          font-size: 13px;
+          background: rgba(0, 0, 0, 0.4);
+          padding: 3px 12px;
+          border-radius: 20px;
+          white-space: nowrap;
+      }
+
+      .guia-esquina { position: absolute; width: 28px; height: 28px; border-color: rgba(255,255,255,0.8); border-style: solid; }
+      .guia-tl { top: 16px;  left: 16px;  border-width: 3px 0 0 3px; border-radius: 4px 0 0 0; }
+      .guia-tr { top: 16px;  right: 16px; border-width: 3px 3px 0 0; border-radius: 0 4px 0 0; }
+      .guia-bl { left: 16px; border-width: 0 0 3px 3px; border-radius: 0 0 0 4px; }
+      .guia-br { right: 16px; border-width: 0 3px 3px 0; border-radius: 0 0 4px 0; }
+
+      /* Error overlay */
+      .camara-error-overlay {
+          position: absolute;
+          inset: 0;
+          background: rgba(0, 0, 0, 0.85);
+          color: #fff;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          justify-content: center;
+          gap: 12px;
+          text-align: center;
+          padding: 20px;
+          z-index: 15;
+      }
+
+      /* Botón snap flotante */
+      .snap-flotante {
+          position: absolute;
+          bottom: 20px;
+          left: 0;
+          right: 0;
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          z-index: 8;
+          pointer-events: none;
+      }
+
+      .snap-flotante > * { pointer-events: auto; }
+
+      .btn-camara-snap { display: flex; flex-direction: column; align-items: center; gap: 6px; background: none; border: none; cursor: pointer; }
+
+      .btn-snap-circulo {
+          width: 72px;
+          height: 72px;
+          background: #fff;
+          border-radius: 50%;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          font-size: 30px;
+          color: #071B7D;
+          box-shadow: 0 0 0 5px rgba(255,255,255,0.25), 0 4px 20px rgba(0,0,0,0.4);
+          transition: transform 0.15s, box-shadow 0.15s;
+      }
+
+      .btn-camara-snap:active .btn-snap-circulo {
+          transform: scale(0.91);
+          box-shadow: 0 0 0 3px rgba(255,255,255,0.15), 0 2px 8px rgba(0,0,0,0.3);
+      }
+
+      .btn-snap-label { color: rgba(255,255,255,0.85); font-size: 12px; font-weight: 600; }
+
+      .btn-camara-cancelar {
+          background: rgba(255,255,255,0.12);
+          border: 1px solid rgba(255,255,255,0.25);
+          color: #fff;
+          padding: 10px 18px;
+          border-radius: 8px;
+          font-size: 14px;
+          cursor: pointer;
+          transition: background 0.2s;
+      }
+
+      .btn-camara-cancelar:hover { background: rgba(255,255,255,0.22); }
+
+      .btn-camara-usar {
+          flex: 1;
+          background: #27ae60;
+          border: none;
+          color: #fff;
+          padding: 14px 20px;
+          border-radius: 10px;
+          font-size: 16px;
+          font-weight: 700;
+          cursor: pointer;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          gap: 8px;
+          transition: background 0.2s, transform 0.15s;
+      }
+
+      .btn-camara-usar:active { transform: scale(0.97); background: #219a52; }
+
+      .btn-camara-repetir {
+          background: rgba(255,255,255,0.12);
+          border: 1px solid rgba(255,255,255,0.25);
+          color: #fff;
+          padding: 14px 16px;
+          border-radius: 10px;
+          font-size: 14px;
+          cursor: pointer;
+          display: flex;
+          align-items: center;
+          gap: 6px;
+          transition: background 0.2s;
+      }
+
+      .btn-camara-repetir:hover { background: rgba(255,255,255,0.22); }
+
+      .btn-camara-doc { font-size: 15px; padding: 10px 18px; }
+
+
+      /* ══════════════════════════════════════════════════════════════
+         10. JQUERY UI DATEPICKER — tema corporativo
+         ══════════════════════════════════════════════════════════════ */
+      .ui-datepicker {
+          box-shadow: 0 4px 16px rgba(0,0,0,0.18);
+          border-radius: 6px;
+          border: 1px solid #ccc;
+          font-family: 'Source Sans Pro', sans-serif;
+          z-index: 9999 !important;
+      }
+
       .ui-datepicker-header {
           background: #071B7D !important;
           border-color: #071B7D !important;
@@ -261,14 +685,9 @@
       }
 
       .ui-datepicker-header .ui-datepicker-prev,
-      .ui-datepicker-header .ui-datepicker-next {
-          top: 6px;
-          cursor: pointer;
-      }
+      .ui-datepicker-header .ui-datepicker-next { top: 6px; cursor: pointer; }
 
-      .ui-datepicker-header .ui-icon {
-          background-image: none !important;
-      }
+      .ui-datepicker-header .ui-icon { background-image: none !important; }
 
       .ui-datepicker-prev span,
       .ui-datepicker-next span { display: none; }
@@ -287,26 +706,99 @@
       }
 
       .ui-datepicker td a.ui-state-highlight,
-      .ui-datepicker td span.ui-state-highlight {
-          background: #d0d8f5;
-          border-color: #071B7D;
-          color: #071B7D;
-      }
+      .ui-datepicker td span.ui-state-highlight { background: #d0d8f5; border-color: #071B7D; color: #071B7D; }
 
       .ui-datepicker td a.ui-state-active,
-      .ui-datepicker td a:hover {
-          background: #071B7D !important;
-          border-color: #071B7D !important;
-          color: #fff !important;
+      .ui-datepicker td a:hover { background: #071B7D !important; border-color: #071B7D !important; color: #fff !important; }
+
+      .datepicker table tr td.today  { background-color: #071B7D !important; color: white !important; }
+      .datepicker table tr td.active { background-color: #071B7D !important; color: white !important; }
+      .datepicker table tr td.active:hover { background-color: #05145a !important; }
+
+
+      /* ══════════════════════════════════════════════════════════════
+         11. RESPONSIVE
+         ══════════════════════════════════════════════════════════════ */
+
+      /* Tablet / móvil general */
+      @media (max-width: 768px) {
+          .panel-body     { padding: 20px 15px; }
+          .flash-messages { right: 10px; left: 10px; max-width: none; }
+          .fn-sel         { font-size: 13px; }
+
+          .rp-logos-header      { padding: 14px 20px; gap: 16px; border-radius: 12px; margin-bottom: 18px; max-width: 100%; }
+          .rp-logo-principal    { height: 36px; }
+          .rp-logo-ancla        { height: 32px; }
+          .rp-logo-divider      { height: 28px; }
+          .rp-imah-logo         { height: 30px; }
+          .rp-logo-divider-imah { height: 24px; }
       }
 
-      .ui-datepicker {
-          box-shadow: 0 4px 16px rgba(0,0,0,0.18);
-          border-radius: 6px;
-          border: 1px solid #ccc;
-          font-family: 'Source Sans Pro', sans-serif;
-          z-index: 9999 !important;
+      /* Móvil pequeño */
+      @media (max-width: 400px) {
+          .fn-selects-row { gap: 5px; }
+          .fn-sel         { padding: 0 4px; }
       }
+
+      /* Modal cámara — móvil: pantalla completa */
+      @media (max-width: 767px) {
+          .modal-camara-custom {
+              margin: 0 !important;
+              width: 100% !important;
+              max-width: 100% !important;
+              height: calc(var(--vh, 1vh) * 100);
+              position: fixed !important;
+              top: 0 !important; left: 0 !important; right: 0 !important; bottom: 0 !important;
+          }
+
+          .modal-camara-content {
+              height: calc(var(--vh, 1vh) * 100);
+              border-radius: 0;
+          }
+
+          .modal-camara-body { height: auto; }
+          .guia-bl           { bottom: 60px; }
+          .guia-br           { bottom: 60px; }
+      }
+
+      /* Modal cámara — escritorio */
+      @media (min-width: 768px) {
+          .modal-camara-custom {
+              width: 580px;
+              max-width: 580px;
+              margin: 60px auto;
+              position: relative !important;
+              height: auto;
+          }
+
+          .modal-camara-content { height: auto; border-radius: 12px; }
+
+          .modal-camara-body {
+              height: 420px !important;
+              min-height: 420px !important;
+              display: block !important;
+          }
+
+          .guia-bl { bottom: 16px; }
+          .guia-br { bottom: 16px; }
+      }
+
+      /* Card nf-* — móvil */
+      @media (max-width: 600px) {
+          .nf-header              { padding: 14px 20px; gap: 16px; border-radius: 12px; margin-bottom: 20px; }
+          .nf-header-logo-main    { height: 44px; }
+          .nf-header-logo-ancla   { height: 40px; }
+          .nf-header-divider      { height: 36px; }
+          .nf-card                { border-radius: 16px; }
+          .nf-card-band h3        { font-size: 16px; }
+          .nf-card-body           { padding: 16px 18px 24px; }
+          .nf-icon-wrap           { width: 72px; height: 72px; }
+          .nf-icon-wrap i         { font-size: 36px; }
+          .nf-title               { font-size: 22px; }
+          .nf-subtitle            { font-size: 15px; }
+          .nf-imah-logo           { height: 42px; }
+      }
+
   </style>
 </head>
 

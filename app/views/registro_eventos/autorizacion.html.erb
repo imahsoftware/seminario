@@ -12,7 +12,7 @@
 
         <div class="panel-body">
 
-          <!-- DATOS DEL EVENTO -->
+          <%# ── DATOS DEL EVENTO ── %>
           <div class="alert alert-info">
             <h4><i class="fa fa-calendar"></i> Información del Evento</h4>
             <p><strong>Evento:</strong> <%= @evento.detalle %></p>
@@ -20,38 +20,348 @@
             <p><strong>Fecha:</strong> <%= @evento.fecha_inicio_e.strftime("%d/%m/%Y") rescue '' %></p>
           </div>
 
-          <!-- DATOS DEL MENOR -->
+          <%# ── DATOS DEL MENOR ── %>
           <div class="alert alert-info">
             <h4><i class="fa fa-user"></i> Información del Participante</h4>
             <p><strong>Nombre:</strong> <%= @eventospersona.nombre %></p>
-            <p><strong>Apellido:</strong> <%= @eventospersona.apellido %> </p>
+            <p><strong>Apellido:</strong> <%= @eventospersona.apellido %></p>
             <p><strong>Identificación:</strong> <%= @eventospersona.identificacion %></p>
             <p><strong>Edad:</strong> <%= @eventospersona.calcular_edad %> años</p>
           </div>
 
-          <!-- HABEAS DATA -->
-          <div style="background:#f9f9f9; padding:20px; border-radius:5px; margin-top:20px;">
-            <h4><i class="fa fa-shield"></i> Autorización de Tratamiento de Datos (Habeas Data)</h4>
-            <iframe src="<%= @evento.habeas_data.url %>"
-                    width="100%"
-                    height="500px"
-                    style="border:1px solid #ccc; margin-top:15px;">
-            </iframe>
+          <%# ── DOCUMENTO DEL ACUDIENTE ── %>
+          <h4 class="text-primary" style="margin-top: 30px;">
+            <i class="fa fa-id-card"></i> Documento de Identidad del Acudiente
+          </h4>
+          <p class="text-muted">
+            <small><i class="fa fa-info-circle"></i> Fotografía el frente y reverso de tu documento de identidad para completar la autorización.</small>
+          </p>
+          <hr>
+
+          <%# Campos hidden para base64 %>
+          <input type="hidden" id="acu_frente_b64"  value="">
+          <input type="hidden" id="acu_reverso_b64" value="">
+
+          <%# Tipo de documento %>
+          <div class="row">
+            <div class="col-md-5">
+              <div class="form-group">
+                <label>Tipo de Documento <span class="text-danger">*</span></label>
+                <select id="acu_documento_tipo_id" class="form-control select2">
+                  <option value="">Seleccione...</option>
+                  <% DocumentoTipo.where(estado: 'activo').order(:nombre).each do |d| %>
+                    <option value="<%= d.id %>"><%= d.nombre %></option>
+                  <% end %>
+                </select>
+              </div>
+            </div>
           </div>
 
-          <!-- BOTÓN AUTORIZAR -->
-          <div style="margin-top:30px; text-align:center;">
-
-            <%= button_to "Autorizar Participación del Menor",
-                          autorizar_participacion_registro_evento_path(@evento.guid, @eventospersona.id),
-                          method: :post,
-                          class: "btn btn-success btn-lg",
-                          data: { confirm: "¿Confirma que autoriza la participación del menor en este evento?" } %>
-
+          <%# Capturas de cámara %>
+          <div class="row" style="margin-top: 10px;">
+            <div class="col-md-6">
+              <div class="form-group">
+                <label><i class="fa fa-image"></i> Cédula Frente <span class="text-danger">*</span></label>
+                <div>
+                  <button type="button" class="btn btn-warning btn-camara-doc"
+                          onclick="autoriz.abrirCamara('frente', 'acu_frente_b64')">
+                    <i class="fa fa-camera"></i> Capturar Frente
+                  </button>
+                </div>
+                <small class="text-muted">Parte frontal de tu documento</small>
+                <div id="preview-acu-frente" style="display:none; margin-top:10px;">
+                  <p class="text-success" style="margin-bottom:5px;">
+                    <i class="fa fa-check-circle"></i> <strong>Vista previa:</strong>
+                  </p>
+                  <img id="preview-acu-frente-img" src="#" alt="Frente"
+                       style="max-width:100%; max-height:200px; border:2px solid #5cb85c; border-radius:4px;"/>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="form-group">
+                <label><i class="fa fa-image"></i> Cédula Reverso <span class="text-danger">*</span></label>
+                <div>
+                  <button type="button" class="btn btn-warning btn-camara-doc"
+                          onclick="autoriz.abrirCamara('reverso', 'acu_reverso_b64')">
+                    <i class="fa fa-camera"></i> Capturar Reverso
+                  </button>
+                </div>
+                <small class="text-muted">Parte trasera de tu documento</small>
+                <div id="preview-acu-reverso" style="display:none; margin-top:10px;">
+                  <p class="text-success" style="margin-bottom:5px;">
+                    <i class="fa fa-check-circle"></i> <strong>Vista previa:</strong>
+                  </p>
+                  <img id="preview-acu-reverso-img" src="#" alt="Reverso"
+                       style="max-width:100%; max-height:200px; border:2px solid #5cb85c; border-radius:4px;"/>
+                </div>
+              </div>
+            </div>
           </div>
 
-        </div>
+          <%# ── HABEAS DATA — botón para ver PDF ── %>
+          <div style="margin-top: 30px;">
+            <a href="<%= @evento.habeas_data.url %>" target="_blank" class="btn btn-default">
+              <i class="fa fa-file-pdf-o"></i> Ver Tratamiento de Datos
+            </a>
+          </div>
+
+          <%# ── BOTÓN AUTORIZAR — se habilita solo cuando hay fotos y tipo ── %>
+          <div style="margin-top: 30px; text-align: center;">
+
+            <%# Formulario oculto que envía los documentos junto con la autorización %>
+            <%= form_tag autorizar_participacion_registro_evento_path(@evento.guid, @eventospersona.id),
+                         method: :post, id: 'form-autorizar' do %>
+              <input type="hidden" name="acudiente_cedula_frente_base64"  id="h_frente"  value="">
+              <input type="hidden" name="acudiente_cedula_reverso_base64" id="h_reverso" value="">
+              <input type="hidden" name="acudiente_documento_tipo_id"     id="h_tipo"    value="">
+
+              <button type="submit" id="btn-autorizar"
+                      class="btn btn-success btn-lg"
+                      disabled="disabled"
+                      style="opacity: 0.5; cursor: not-allowed;">
+                <i class="fa fa-check-circle"></i> Autorizar Participación del Menor
+              </button>
+            <% end %>
+
+            <p class="text-muted" style="margin-top: 12px;">
+              <small><i class="fa fa-info-circle"></i> El botón se habilitará una vez que captures las dos fotos del documento.</small>
+            </p>
+          </div>
+
+        </div><%# fin panel-body %>
       </div>
     </div>
   </div>
 </div>
+
+<%# ════════════════════════════════════════════════════════════════
+    MODAL DE CÁMARA
+    ════════════════════════════════════════════════════════════════ %>
+<div class="modal fade" id="modalCamara" tabindex="-1" role="dialog"
+     style="padding:0 !important; overflow:hidden !important;">
+  <div class="modal-dialog modal-camara-custom" role="document">
+    <div class="modal-content modal-camara-content">
+
+      <div class="modal-camara-header">
+        <span id="modal-titulo" class="modal-camara-titulo">
+          <i class="fa fa-camera"></i> Capturar Documento
+        </span>
+        <button type="button" class="modal-camara-close" data-dismiss="modal">
+          <i class="fa fa-times"></i>
+        </button>
+      </div>
+
+      <div class="modal-camara-body">
+        <div id="camara-flash" class="camara-flash"></div>
+        <video id="camara-video" autoplay playsinline class="camara-video" style="display:block;"></video>
+        <canvas id="camara-canvas" class="camara-canvas" style="display:none;"></canvas>
+
+        <div id="camara-guia" class="camara-guia">
+          <div class="guia-esquina guia-tl"></div>
+          <div class="guia-esquina guia-tr"></div>
+          <div class="guia-esquina guia-bl"></div>
+          <div class="guia-esquina guia-br"></div>
+          <span class="guia-texto">Encuadra el documento</span>
+        </div>
+
+        <div id="camara-error" class="camara-error-overlay" style="display:none;">
+          <i class="fa fa-exclamation-triangle fa-2x"></i>
+          <p>No se pudo acceder a la cámara.<br>Verifica los permisos del navegador.</p>
+        </div>
+
+        <div id="footer-capturar" class="snap-flotante">
+          <button type="button" id="btn-snap" class="btn-camara-snap">
+            <span class="btn-snap-circulo"><i class="fa fa-camera"></i></span>
+            <span class="btn-snap-label">Tomar Foto</span>
+          </button>
+        </div>
+      </div>
+
+      <div class="modal-camara-footer">
+        <div class="footer-cancelar-wrap">
+          <button type="button" class="btn-camara-cancelar" data-dismiss="modal" id="btn-cancelar-camara">
+            <i class="fa fa-times"></i> Cancelar
+          </button>
+        </div>
+        <div id="footer-confirmar" class="footer-estado" style="display:none;">
+          <button type="button" id="btn-usar-foto" class="btn-camara-usar">
+            <i class="fa fa-check"></i> Usar esta foto
+          </button>
+          <button type="button" id="btn-repetir" class="btn-camara-repetir">
+            <i class="fa fa-refresh"></i> Repetir
+          </button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<script>
+    var autoriz = (function ($) {
+
+        var streamActual    = null;
+        var campoObjetivo   = null;
+        var previewObjetivo = null;
+
+        var titulosCamara = {
+            'frente':  'Capturar Documento – Frente',
+            'reverso': 'Capturar Documento – Reverso'
+        };
+
+        // ── Abrir cámara ───────────────────────────────────────────────
+        function abrirCamara(prefixPreview, campoId) {
+            campoObjetivo   = campoId;
+            previewObjetivo = prefixPreview;
+            document.getElementById('modal-titulo').innerHTML =
+                '<i class="fa fa-camera"></i> ' + (titulosCamara[prefixPreview] || 'Capturar Documento');
+
+            var canvas = document.getElementById('camara-canvas');
+            canvas.style.display = 'none';
+            document.getElementById('camara-video').style.display          = 'block';
+            document.getElementById('footer-capturar').style.display       = 'flex';
+            document.getElementById('footer-confirmar').style.display      = 'none';
+            document.getElementById('btn-cancelar-camara').style.display   = 'block';
+            document.getElementById('camara-guia').style.display           = 'flex';
+            document.getElementById('camara-error').style.display          = 'none';
+
+            $('#modalCamara').modal('show');
+        }
+
+        // ── Iniciar stream al abrir modal ──────────────────────────────
+        $('#modalCamara').on('shown.bs.modal', function () {
+            navigator.mediaDevices.getUserMedia({
+                video: { facingMode: { ideal: 'environment' }, width: { ideal: 1280 }, height: { ideal: 720 } }
+            })
+                .then(function (stream) {
+                    streamActual = stream;
+                    var video = document.getElementById('camara-video');
+                    video.srcObject = stream;
+                    video.play();
+                })
+                .catch(function (err) {
+                    console.error('Error cámara:', err);
+                    document.getElementById('camara-error').style.display = 'flex';
+                });
+        });
+
+        // ── Cerrar stream ──────────────────────────────────────────────
+        $('#modalCamara').on('hidden.bs.modal', function () {
+            if (streamActual) {
+                streamActual.getTracks().forEach(function (t) { t.stop(); });
+                streamActual = null;
+            }
+            document.getElementById('camara-video').srcObject = null;
+        });
+
+        // ── Tomar foto ─────────────────────────────────────────────────
+        document.getElementById('btn-snap').addEventListener('click', function () {
+            var video  = document.getElementById('camara-video');
+            var canvas = document.getElementById('camara-canvas');
+            var ctx    = canvas.getContext('2d');
+
+            canvas.width  = video.videoWidth  || 1280;
+            canvas.height = video.videoHeight || 720;
+            ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+            var flash = document.getElementById('camara-flash');
+            flash.classList.remove('disparar');
+            void flash.offsetWidth;
+            flash.classList.add('disparar');
+
+            setTimeout(function () {
+                video.style.display  = 'none';
+                canvas.style.display = 'block';
+                document.getElementById('camara-guia').style.display          = 'none';
+                document.getElementById('footer-capturar').style.display      = 'none';
+                document.getElementById('footer-confirmar').style.display     = 'flex';
+                document.getElementById('btn-cancelar-camara').style.display  = 'none';
+            }, 150);
+        });
+
+        // ── Repetir ────────────────────────────────────────────────────
+        document.getElementById('btn-repetir').addEventListener('click', function () {
+            var video  = document.getElementById('camara-video');
+            var canvas = document.getElementById('camara-canvas');
+            canvas.style.display = 'none';
+            video.style.display  = 'block';
+            document.getElementById('camara-guia').style.display          = 'flex';
+            document.getElementById('footer-capturar').style.display      = 'flex';
+            document.getElementById('footer-confirmar').style.display     = 'none';
+            document.getElementById('btn-cancelar-camara').style.display  = 'block';
+        });
+
+        // ── Usar foto ──────────────────────────────────────────────────
+        document.getElementById('btn-usar-foto').addEventListener('click', function () {
+            var canvas  = document.getElementById('camara-canvas');
+            var dataUrl = canvas.toDataURL('image/jpeg', 0.85);
+            document.getElementById(campoObjetivo).value = dataUrl.split(',')[1];
+
+            var div = document.getElementById('preview-acu-' + previewObjetivo);
+            var img = document.getElementById('preview-acu-' + previewObjetivo + '-img');
+            if (div && img) { img.src = dataUrl; div.style.display = 'block'; }
+
+            $('#modalCamara').modal('hide');
+            verificarHabilitarBoton();
+        });
+
+        // ── Verificar si se puede habilitar el botón Autorizar ─────────
+        function verificarHabilitarBoton() {
+            var frente  = document.getElementById('acu_frente_b64').value;
+            var reverso = document.getElementById('acu_reverso_b64').value;
+            var tipo    = document.getElementById('acu_documento_tipo_id').value;
+            var btn     = document.getElementById('btn-autorizar');
+
+            if (frente && reverso && tipo) {
+                btn.disabled = false;
+                btn.style.opacity = '1';
+                btn.style.cursor  = 'pointer';
+            } else {
+                btn.disabled = true;
+                btn.style.opacity = '0.5';
+                btn.style.cursor  = 'not-allowed';
+            }
+        }
+
+        // ── Verificar también al cambiar el select de tipo ─────────────
+        $('#acu_documento_tipo_id').on('change', function () {
+            verificarHabilitarBoton();
+        });
+
+        // ── Al enviar: copiar valores a los campos del form oculto ─────
+        $('#form-autorizar').on('submit', function (e) {
+            var frente  = document.getElementById('acu_frente_b64').value;
+            var reverso = document.getElementById('acu_reverso_b64').value;
+            var tipo    = document.getElementById('acu_documento_tipo_id').value;
+
+            if (!frente || !reverso || !tipo) {
+                e.preventDefault();
+                alert('⚠️ Debes capturar el frente, el reverso de tu documento y seleccionar el tipo.');
+                return false;
+            }
+
+            document.getElementById('h_frente').value  = frente;
+            document.getElementById('h_reverso').value = reverso;
+            document.getElementById('h_tipo').value    = tipo;
+        });
+
+        // ── Altura real del viewport (Safari/Chrome móvil) ─────────────
+        (function () {
+            function setVh() {
+                var vh = window.innerHeight * 0.01;
+                document.documentElement.style.setProperty('--vh', vh + 'px');
+            }
+            setVh();
+            window.addEventListener('resize', setVh);
+            window.addEventListener('orientationchange', function () { setTimeout(setVh, 200); });
+            document.getElementById('modalCamara').addEventListener('shown.bs.modal', function () {
+                setTimeout(setVh, 100);
+            });
+        })();
+
+        console.log('✅ autoriz inicializado');
+        return { abrirCamara: abrirCamara };
+
+    }(jQuery));
+</script>
