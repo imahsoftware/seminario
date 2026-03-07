@@ -8,15 +8,18 @@ class Eventospersona < ApplicationRecord
   belongs_to :acudiente_documento_tipo, class_name: 'DocumentoTipo',
              foreign_key: 'acudiente_documento_tipo_id',
              optional: true
+
+  # ── Adjuntos Paperclip (se asignan en el controller) ─────────────────────
   attr_accessor :cedula_frente, :cedula_reverso,
                 :acudiente_cedula_frente, :acudiente_cedula_reverso
 
-  # Campos base64 que llegan desde el formulario HTML
+  # ── Campos base64 que llegan desde el formulario HTML ────────────────────
   attr_accessor :cedula_frente_base64, :cedula_reverso_base64,
                 :acudiente_cedula_frente_base64, :acudiente_cedula_reverso_base64
 
+  # ── Flags de documentos existentes ───────────────────────────────────────
   attr_accessor :ya_tiene_documentos, :persona_ya_tiene_documentos,
-                :acudiente_ya_tiene_documentos  # ✅ separado del titular
+                :acudiente_ya_tiene_documentos
 
   TIPOS_PERSONA = ['CASADO', 'SEMINARISTA', 'SOLTERO'].freeze
 
@@ -50,18 +53,19 @@ class Eventospersona < ApplicationRecord
   }
 
   # ── Validaciones condicionales (menores de edad) ──────────────────────────
+  # Nota: acudiente_documento_tipo_id ya NO se valida aquí.
+  # El acudiente sube su documento en la vista de autorización (después del registro).
   validates :acudiente_nombre, :acudiente_apellido, :acudiente_identificacion,
             :acudiente_celular, :acudiente_email,
             presence: { message: "es obligatorio para menores de edad" },
             if: :menor_de_edad?
-
 
   validates :acudiente_email,
             format: { with: URI::MailTo::EMAIL_REGEXP, message: "no es válido" },
             if: :menor_de_edad?
 
   # ── Validaciones custom ───────────────────────────────────────────────────
-  #validate :documentos_obligatorios
+  validate :documentos_obligatorios
   validate :validar_cupos_disponibles
 
   # ── Callbacks ─────────────────────────────────────────────────────────────
@@ -87,24 +91,16 @@ class Eventospersona < ApplicationRecord
 
   private
 
-  # ── Validación: documentos obligatorios ───────────────────────────────────
+  # ── Validación: documentos obligatorios del TITULAR ──────────────────────
+  # Los documentos del acudiente se capturan en la vista de autorización,
+  # por eso NO se validan aquí.
   def documentos_obligatorios
     return unless new_record?
 
-    # ── Documentos del titular ──────────────────────────────────────────────
     titular_tiene_docs = ya_tiene_documentos || persona_ya_tiene_documentos == "1"
     unless titular_tiene_docs
       errors.add(:cedula_frente,  "es obligatorio capturar la foto del documento frente")  if cedula_frente.blank?
       errors.add(:cedula_reverso, "es obligatorio capturar la foto del documento reverso") if cedula_reverso.blank?
-    end
-
-    # ── Documentos del acudiente (solo menores de edad) ─────────────────────
-    if menor_de_edad?
-      # ✅ Verificar flag del acudiente por separado — no mezclar con el titular
-      unless acudiente_ya_tiene_documentos
-        errors.add(:acudiente_cedula_frente,  "es obligatorio capturar el documento del acudiente frente")  if acudiente_cedula_frente.blank?
-        errors.add(:acudiente_cedula_reverso, "es obligatorio capturar el documento del acudiente reverso") if acudiente_cedula_reverso.blank?
-      end
     end
   end
 
@@ -113,7 +109,7 @@ class Eventospersona < ApplicationRecord
     errors.add(:base, "El evento ya alcanzó el número máximo de participantes") if evento.lleno?
   end
 
-  # ── Parsear fecha_nacimiento desde string DD/MM/YYYY o MM/DD/YYYY ─────────
+  # ── Parsear fecha_nacimiento desde string DD/MM/YYYY ─────────────────────
   def parsear_fecha_nacimiento
     return if fecha_nacimiento.blank? || fecha_nacimiento.is_a?(Date)
 
@@ -123,9 +119,9 @@ class Eventospersona < ApplicationRecord
     d, m, y = $1.to_i, $2.to_i, $3.to_i
 
     self.fecha_nacimiento = if m > 12
-                              Date.new(y, d, m) rescue nil  # viene MM/DD/YYYY → invertir
+                              Date.new(y, d, m) rescue nil  # MM/DD/YYYY → invertir
                             else
-                              Date.new(y, m, d) rescue nil  # viene DD/MM/YYYY → normal
+                              Date.new(y, m, d) rescue nil  # DD/MM/YYYY → normal
                             end
   end
 
@@ -146,6 +142,7 @@ class Eventospersona < ApplicationRecord
 
   # ── Buscar o crear Persona y Acudiente en tabla personas ─────────────────
   def buscar_o_crear_persona
+    # ── Titular ────────────────────────────────────────────────────────────
     persona = Persona.find_or_initialize_by(identificacion: self.identificacion)
     persona.assign_attributes(
       nombre:            nombre,
@@ -165,22 +162,26 @@ class Eventospersona < ApplicationRecord
       Rails.logger.warn "⚠️ No se pudo guardar Persona: #{persona.errors.full_messages}"
     end
 
-    if menor_de_edad? && acudiente_identificacion.present?
-      acudiente = Persona.find_or_initialize_by(identificacion: acudiente_identificacion)
-      acudiente.assign_attributes(
-        nombre:            acudiente_nombre,
-        apellido:          acudiente_apellido,
-        celular:           acudiente_celular,
-        email:             acudiente_email,
-        documento_tipo_id: acudiente_documento_tipo_id,
-        estado_civil_id:   acudiente.estado_civil_id.presence || 1
-      )
+    # ── Acudiente (solo menores) ────────────────────────────────────────────
+    return unless menor_de_edad? && acudiente_identificacion.present?
 
-      if acudiente.save
-        self.acudiente_id = acudiente.id
-      else
-        Rails.logger.warn "⚠️ No se pudo guardar Acudiente: #{acudiente.errors.full_messages}"
-      end
+    acudiente = Persona.find_or_initialize_by(identificacion: acudiente_identificacion)
+    acudiente.assign_attributes(
+      nombre:            acudiente_nombre,
+      apellido:          acudiente_apellido,
+      celular:           acudiente_celular,
+      email:             acudiente_email,
+      # documento_tipo_id se actualizará cuando el acudiente suba su doc en autorización.
+      # Se usa el valor existente si ya tiene uno, o 1 como fallback para no romper el NOT NULL.
+      documento_tipo_id: acudiente_documento_tipo_id.presence ||
+        acudiente.documento_tipo_id.presence || 1,
+      estado_civil_id:   acudiente.estado_civil_id.presence || 1
+    )
+
+    if acudiente.save
+      self.acudiente_id = acudiente.id
+    else
+      Rails.logger.warn "⚠️ No se pudo guardar Acudiente: #{acudiente.errors.full_messages}"
     end
   end
 end
