@@ -2,23 +2,31 @@
 
 <%# ── Guardia: si ya fue respondida, mostrar página no disponible ── %>
 <% if @eventospersona.acudiente_firma.present? %>
-  <div class="ex-page">
-    <div class="ex-header">
-      <%= image_tag 'logos/Recurso_4logo.png', class: 'ex-header-logo-main', alt: 'Logo' %>
-      <div class="ex-header-divider"></div>
-      <%= image_tag 'logos/ancla.png', class: 'ex-header-logo-ancla', alt: 'Ancla' %>
+  <div class="container" style="margin-top: 50px;">
+    <div class="nf-header">
+      <%= image_tag 'logos/Recurso_4logo.png', class: 'nf-header-logo-main', alt: 'Logo' %>
+      <div class="nf-header-divider"></div>
+      <%= image_tag 'logos/ancla.png', class: 'nf-header-logo-ancla', alt: 'Ancla' %>
     </div>
-    <div class="ex-card">
-      <div class="ex-card-band" style="background: linear-gradient(135deg,#555 0%,#888 100%);">
-        <i class="fa fa-ban"></i>
-        <h3>Página no disponible</h3>
-      </div>
-      <div class="ex-card-body">
-        <div class="ex-icon-wrap" style="background:linear-gradient(135deg,#88888822,#88888811); border-color:#88888833;">
-          <i class="fa fa-ban" style="color:#888;"></i>
+    <div class="row">
+      <div class="col-md-6 col-md-offset-3">
+        <div class="panel" style="border-radius:8px; overflow:hidden; box-shadow:0 4px 6px rgba(0,0,0,0.1);">
+          <div class="panel-heading" style="background: linear-gradient(135deg,#555 0%,#888 100%); padding:20px; border:none;">
+            <h3 class="panel-title"><i class="fa fa-ban"></i> Página no disponible</h3>
+          </div>
+          <div class="panel-body" style="text-align:center; padding: 40px 30px;">
+            <div style="margin: 0 auto 20px; width:80px; height:80px; border-radius:50%;
+              background:linear-gradient(135deg,#88888822,#88888811);
+              border:3px solid #88888844;
+              display:flex; align-items:center; justify-content:center;">
+              <i class="fa fa-ban" style="font-size:38px; color:#999;"></i>
+            </div>
+            <h3 style="color:#888; font-weight:700; margin:0 0 10px;">Esta página ya no está disponible</h3>
+            <p style="color:#999; font-size:15px; margin:0;">
+              La autorización de participación ya fue respondida anteriormente y no puede modificarse.
+            </p>
+          </div>
         </div>
-        <h2 class="ex-title" style="color:#888;">Esta página ya no está disponible</h2>
-        <p class="ex-subtitle">La autorización de participación ya fue respondida anteriormente y no puede modificarse.</p>
       </div>
     </div>
   </div>

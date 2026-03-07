@@ -486,7 +486,7 @@
         function limpiarFormulario() {
             ['nombre','apellido','celular','email','direccion'].forEach(function(f){ $('#eventospersona_'+f).val('').trigger('change'); });
             $fn.val('');
-            $('#eventospersona_sexo,#eventospersona_estado_civil_id,#eventospersona_documento_tipo_id').val('').trigger('change');
+            $('#eventospersona_sexo,#eventospersona_estado_civil_id').val('').trigger('change');
             $('#cedula_frente_base64,#cedula_reverso_base64').val('');
             $('#preview-frente,#preview-reverso').hide();
             $('#persona_ya_tiene_documentos').val('0');
