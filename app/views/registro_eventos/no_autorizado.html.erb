@@ -61,7 +61,8 @@
             <span>Si esto fue un error, comunícate con el organizador del evento para más información.</span>
           </div>
 
-          <% if is_auth_c('eventos') rescue false %>
+          <% begin; show_home = is_auth_c('eventos'); rescue; show_home = false; end %>
+          <% if show_home %>
             <div style="margin-top:24px;">
               <a href="/" style="display:inline-flex; align-items:center; gap:8px; background:#071B7D;
                 color:#fff !important; text-decoration:none; padding:12px 28px;
