@@ -1,5 +1,6 @@
 Rails.application.routes.draw do
 
+  resources :eventos_responsable, only: [:index, :show]
   resources :eventosperlistados, only: [:index] do
     member do
       delete :cancelar

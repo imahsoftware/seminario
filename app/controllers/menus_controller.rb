@@ -5,9 +5,13 @@ class MenusController < ApplicationController
   require 'rqrcode'
 
   def index
-    # ── Si es usuario INSCRITO, redirigir a sus eventos ──────────────────
     if current_user.tipoconsulta == 'INSCRITO'
       redirect_to eventosperlistados_path and return
+    end
+
+    # ── NUEVO: SUPERVISOR ve solo sus eventos asignados ──────────────
+    if current_user.tipoconsulta == 'SUPERVISOR'
+      redirect_to eventos_responsable_index_path and return
     end
   end
 

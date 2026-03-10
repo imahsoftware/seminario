@@ -1,0 +1,369 @@
+<section class="content-header">
+  <h1>
+    <i class="fa fa-calendar"></i> <%= @evento.detalle %>
+    <small>Personas Inscritas</small>
+  </h1>
+  <ol class="breadcrumb">
+    <li><%= link_to '<i class="fa fa-home"></i> Inicio'.html_safe, root_path %></li>
+    <li><%= link_to 'Mis Eventos', eventos_responsable_index_path %></li>
+    <li class="active"><%= @evento.detalle %></li>
+  </ol>
+</section>
+
+<section class="content">
+
+  <%# ── Header del evento ──────────────────────────────────────────── %>
+  <div class="row">
+    <div class="col-xs-12">
+      <div class="box box-primary">
+        <div class="box-body">
+          <div class="row">
+            <div class="col-md-4">
+              <p class="text-muted"><small><i class="fa fa-calendar"></i> EVENTO</small></p>
+              <p><strong><%= @evento.detalle %></strong></p>
+              <small class="text-muted">
+                <%= @evento.iglesia&.descripcion rescue '' %>
+                &nbsp;|&nbsp;
+                <%= @evento.iglesiascomunidad&.descripcion rescue '' %>
+              </small>
+            </div>
+            <div class="col-md-2">
+              <p class="text-muted"><small><i class="fa fa-pencil"></i> INSCRIPCIÓN</small></p>
+              <p><strong><%= @evento.fecha_inicio&.strftime('%d/%m/%Y') %></strong></p>
+              <small class="text-muted">al <%= @evento.fecha_fin&.strftime('%d/%m/%Y') %></small>
+            </div>
+            <div class="col-md-2">
+              <p class="text-muted"><small><i class="fa fa-calendar"></i> EVENTO</small></p>
+              <p><strong><%= @evento.fecha_inicio_e&.strftime('%d/%m/%Y') %></strong></p>
+              <small class="text-muted">al <%= @evento.fecha_fin_e&.strftime('%d/%m/%Y') %></small>
+            </div>
+            <div class="col-md-2">
+              <p class="text-muted"><small><i class="fa fa-users"></i> CUPOS</small></p>
+              <p>
+                <strong><%= @evento.eventospersonas.count %></strong>
+                / <%= @evento.cantidad_persona %>
+              </p>
+              <small class="text-muted"><%= @evento.cantidad_persona.to_i - @evento.eventospersonas.count %>
+                disponibles</small>
+            </div>
+            <div class="col-md-2">
+              <p class="text-muted"><small><i class="fa fa-info-circle"></i> ESTADO</small></p>
+              <% if @evento.vigente? %>
+                <span class="label label-success label-lg"><i class="fa fa-check-circle"></i> Vigente</span>
+              <% elsif @evento.vencido? %>
+                <span class="label label-danger"><i class="fa fa-times-circle"></i> Vencido</span>
+              <% elsif @evento.no_iniciado? %>
+                <span class="label label-warning"><i class="fa fa-clock-o"></i> Próximamente</span>
+              <% end %>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <%# ── Indicadores ─────────────────────────────────────────────────── %>
+  <div class="row">
+    <div class="col-md-3 col-sm-6 col-xs-12">
+      <div class="info-box bg-aqua">
+        <span class="info-box-icon"><i class="fa fa-users"></i></span>
+        <div class="info-box-content">
+          <span class="info-box-text">Total Inscritos</span>
+          <span class="info-box-number"><%= @total_inscritos %></span>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-3 col-sm-6 col-xs-12">
+      <div class="info-box bg-green">
+        <span class="info-box-icon"><i class="fa fa-user"></i></span>
+        <div class="info-box-content">
+          <span class="info-box-text">Mayores de Edad</span>
+          <span class="info-box-number"><%= @total_mayores %></span>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-3 col-sm-6 col-xs-12">
+      <div class="info-box bg-yellow">
+        <span class="info-box-icon"><i class="fa fa-child"></i></span>
+        <div class="info-box-content">
+          <span class="info-box-text">Menores de Edad</span>
+          <span class="info-box-number"><%= @total_menores %></span>
+        </div>
+      </div>
+    </div>
+    <% if @sin_fecha > 0 %>
+      <div class="col-md-3 col-sm-6 col-xs-12">
+        <div class="info-box bg-red">
+          <span class="info-box-icon"><i class="fa fa-question-circle"></i></span>
+          <div class="info-box-content">
+            <span class="info-box-text">Sin Fecha Nac.</span>
+            <span class="info-box-number"><%= @sin_fecha %></span>
+          </div>
+        </div>
+      </div>
+    <% end %>
+
+    <% if @total_menores > 0 %>
+      <div class="col-xs-12">
+        <hr style="margin:8px 0 10px; border-color:#ddd;">
+        <p class="text-muted" style="font-size:12px; margin:0 0 8px;">
+          <i class="fa fa-info-circle"></i>
+          <strong>Estado de autorización (menores)</strong>
+        </p>
+      </div>
+      <div class="col-md-4 col-sm-6 col-xs-12">
+        <div class="info-box bg-green">
+          <span class="info-box-icon"><i class="fa fa-check-circle"></i></span>
+          <div class="info-box-content">
+            <span class="info-box-text">Autorizados</span>
+            <span class="info-box-number"><%= @autorizados %></span>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-4 col-sm-6 col-xs-12">
+        <div class="info-box bg-red">
+          <span class="info-box-icon"><i class="fa fa-times-circle"></i></span>
+          <div class="info-box-content">
+            <span class="info-box-text">No Autorizados</span>
+            <span class="info-box-number"><%= @no_autorizados %></span>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-4 col-sm-6 col-xs-12">
+        <div class="info-box bg-orange">
+          <span class="info-box-icon"><i class="fa fa-clock-o"></i></span>
+          <div class="info-box-content">
+            <span class="info-box-text">Pendientes</span>
+            <span class="info-box-number"><%= @pendientes %></span>
+          </div>
+        </div>
+      </div>
+    <% end %>
+  </div>
+
+  <%# ── Tabla de inscritos ──────────────────────────────────────────── %>
+  <div class="row">
+    <div class="col-xs-12">
+      <div class="box box-danger">
+        <div class="box-header with-border">
+          <h3 class="box-title"><i class="fa fa-users"></i> Personas Inscritas</h3>
+          <div class="box-tools pull-right">
+            <%= search_form_for @q,
+                                url: eventos_responsable_path(@evento),
+                                method: :get do |f| %>
+              <div class="input-group input-group-sm" style="width:250px;">
+                <%= f.search_field :identificacion_or_nombre_or_apellido_or_email_or_celular_cont,
+                                   class: 'form-control input_uppercase',
+                                   placeholder: 'Buscar...' %>
+                <div class="input-group-btn">
+                  <%= button_tag(type: 'submit', class: 'btn btn-default') do %>
+                    <i class="fa fa-search"></i>
+                  <% end %>
+                </div>
+              </div>
+            <% end %>
+          </div>
+        </div>
+
+        <div class="box-body table-responsive">
+          <table class="table table-bordered table-hover table-striped">
+            <thead>
+            <tr class="thcolor">
+              <th class="text-center" style="width:60px;">Ver</th>
+              <th class="text-center">Identificación</th>
+              <th>Nombre Completo</th>
+              <th class="text-center">Edad</th>
+              <th class="text-center">Celular</th>
+              <th>Email</th>
+              <th class="text-center">Inscripción</th>
+              <th>Acudiente / Celular</th>
+            </tr>
+            </thead>
+            <tbody>
+            <% @eventospersonas.each do |ep| %>
+              <%
+                edad = ep.fecha_nacimiento.present? ? ((Date.today - ep.fecha_nacimiento.to_date).to_i / 365.25).floor : nil
+                es_menor = edad.present? && edad < 18
+                documento = @documentos_por_identificacion[ep.identificacion]
+              %>
+              <tr class="<%= es_menor ? 'warning' : '' %>">
+                <td class="text-center">
+                  <button class="btn btn-xs btn-primary btn-detalle-persona"
+                          data-id="<%= ep.id %>"
+                          data-toggle="tooltip"
+                          title="Ver detalle">
+                    <i class="fa fa-eye"></i>
+                  </button>
+                </td>
+                <td class="text-center"><%= ep.identificacion %></td>
+                <td><%= "#{ep.nombre} #{ep.apellido}".strip %></td>
+                <td class="text-center">
+                  <% if edad.present? %>
+                        <span class="badge <%= es_menor ? 'bg-yellow' : 'bg-green' %>">
+                          <%= edad %> años
+                        </span>
+                  <% else %>
+                    <span class="label label-default">N/D</span>
+                  <% end %>
+                </td>
+                <td class="text-center"><%= ep.celular %></td>
+                <td><%= ep.email %></td>
+                <td class="text-center">
+                  <%= ep.created_at.strftime('%d/%m/%Y %H:%M') rescue 'N/D' %>
+                </td>
+                <td>
+                  <% if es_menor %>
+                    <strong><%= "#{ep.acudiente_nombre} #{ep.acudiente_apellido}".strip %></strong><br>
+                    <small><%= ep.acudiente_celular %></small>
+                    <div style="margin-top:5px;">
+                      <% if ep.acudiente_firma == 'SI' %>
+                        <span class="label label-success"><i class="fa fa-check-circle"></i> Autorizado</span>
+                      <% elsif ep.acudiente_firma == 'NO' %>
+                        <span class="label label-danger"><i class="fa fa-times-circle"></i> No Autorizado</span>
+                      <% else %>
+                        <span class="label label-warning"><i class="fa fa-clock-o"></i> Pendiente</span>
+                      <% end %>
+                    </div>
+                  <% else %>
+                    <span class="text-muted">—</span>
+                  <% end %>
+                </td>
+              </tr>
+
+              <%# Modal detalle — solo lectura, sin botones de acción %>
+              <div class="modal fade" id="modal-persona-<%= ep.id %>" tabindex="-1" role="dialog">
+                <div class="modal-dialog modal-lg" role="document">
+                  <div class="modal-content">
+                    <div class="modal-header <%= es_menor ? 'bg-yellow' : 'bg-primary' %>"
+                         style="color:#fff; border-radius:3px 3px 0 0;">
+                      <button type="button" class="close" data-dismiss="modal"
+                              style="color:#fff; opacity:1;"><span>&times;</span></button>
+                      <h4 class="modal-title">
+                        <i class="fa fa-user"></i>
+                        <%= "#{ep.nombre} #{ep.apellido}".strip %>
+                      </h4>
+                    </div>
+                    <div class="modal-body" style="padding:20px 25px;">
+
+                      <div class="box box-solid box-primary" style="margin-bottom:15px;">
+                        <div class="box-header with-border" style="padding:8px 12px;">
+                          <h4 class="box-title"><i class="fa fa-id-card"></i> Datos Personales</h4>
+                        </div>
+                        <div class="box-body">
+                          <div class="row">
+                            <div class="col-md-4">
+                              <p class="text-muted"><small>Identificación</small></p>
+                              <p><strong><%= ep.identificacion %></strong></p>
+                            </div>
+                            <div class="col-md-4">
+                              <p class="text-muted"><small>Nombre Completo</small></p>
+                              <p><strong><%= "#{ep.nombre} #{ep.apellido}".strip %></strong></p>
+                            </div>
+                            <div class="col-md-4">
+                              <p class="text-muted"><small>Fecha de Nacimiento</small></p>
+                              <p>
+                                <strong><%= ep.fecha_nacimiento&.strftime('%d/%m/%Y') || 'N/D' %></strong>
+                                <% if edad.present? %>
+                                  <span class="badge <%= es_menor ? 'bg-yellow' : 'bg-green' %>"><%= edad %> años</span>
+                                <% end %>
+                              </p>
+                            </div>
+                            <div class="col-md-4">
+                              <p class="text-muted"><small>Celular</small></p>
+                              <p><i class="fa fa-mobile text-info"></i> <strong><%= ep.celular %></strong></p>
+                            </div>
+                            <div class="col-md-4">
+                              <p class="text-muted"><small>Email</small></p>
+                              <p><i class="fa fa-envelope text-info"></i> <strong><%= ep.email %></strong></p>
+                            </div>
+                            <div class="col-md-4">
+                              <p class="text-muted"><small>Dirección</small></p>
+                              <p><i class="fa fa-map-marker text-info"></i>
+                                <strong><%= ep.direccion.presence || 'N/D' %></strong></p>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+
+                      <% if es_menor %>
+                        <div class="box box-solid box-warning" style="margin-bottom:0;">
+                          <div class="box-header with-border" style="padding:8px 12px;">
+                            <h4 class="box-title"><i class="fa fa-user-plus"></i> Datos del Acudiente</h4>
+                          </div>
+                          <div class="box-body">
+                            <div class="row">
+                              <div class="col-md-4">
+                                <p class="text-muted"><small>Nombre</small></p>
+                                <p><strong><%= "#{ep.acudiente_nombre} #{ep.acudiente_apellido}".strip %></strong></p>
+                              </div>
+                              <div class="col-md-4">
+                                <p class="text-muted"><small>Celular</small></p>
+                                <p><strong><%= ep.acudiente_celular %></strong></p>
+                              </div>
+                              <div class="col-md-4">
+                                <p class="text-muted"><small>Autorización</small></p>
+                                <% if ep.acudiente_firma == 'SI' %>
+                                  <span class="label label-success"><i class="fa fa-check-circle"></i> Autorizado</span>
+                                <% elsif ep.acudiente_firma == 'NO' %>
+                                  <span class="label label-danger"><i class="fa fa-times-circle"></i> No Autorizado</span>
+                                <% else %>
+                                  <span class="label label-warning"><i class="fa fa-clock-o"></i> Pendiente</span>
+                                <% end %>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      <% end %>
+
+                    </div>
+                    <div class="modal-footer">
+                      <button type="button" class="btn btn-default" data-dismiss="modal">
+                        <i class="fa fa-times"></i> Cerrar
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+            <% end %>
+
+            <% if @eventospersonas.empty? %>
+              <tr>
+                <td colspan="8" class="text-center text-muted" style="padding:30px;">
+                  <i class="fa fa-info-circle"></i> No se encontraron personas inscritas.
+                </td>
+              </tr>
+            <% end %>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="box-footer clearfix">
+          <div class="pull-right">
+            <%= will_paginate @eventospersonas, renderer: BootstrapPagination::Rails %>
+          </div>
+          <div class="pull-left text-muted" style="padding-top:6px;">
+            <small>
+              Mostrando <%= @eventospersonas.offset_value + 1 %> –
+              <%= [@eventospersonas.offset_value + @eventospersonas.length, @eventospersonas.total_entries].min %>
+              de <%= @eventospersonas.total_entries %> registros
+            </small>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+</section>
+
+
+<script>
+    $(document).ready(function () {
+        $('[data-toggle="tooltip"]').tooltip();
+        $('.btn-detalle-persona').on('click', function () {
+            var id = $(this).data('id');
+            $('#modal-persona-' + id).modal('show');
+        });
+    });
+</script>

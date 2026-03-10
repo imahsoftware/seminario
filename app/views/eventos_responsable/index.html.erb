@@ -1,0 +1,130 @@
+<section class="content-header">
+  <h1>
+    <i class="fa fa-calendar"></i> Eventos a mi Cargo
+    <small>Eventos donde eres responsable</small>
+  </h1>
+  <ol class="breadcrumb">
+    <li><%= link_to '<i class="fa fa-home"></i> Inicio'.html_safe, root_path %></li>
+    <li class="active">Mis Eventos</li>
+  </ol>
+</section>
+
+<section class="content">
+
+  <div class="row">
+    <div class="col-md-4 col-sm-6 col-xs-12">
+      <div class="info-box bg-aqua">
+        <span class="info-box-icon"><i class="fa fa-calendar"></i></span>
+        <div class="info-box-content">
+          <span class="info-box-text">Total Eventos</span>
+          <span class="info-box-number"><%= @eventos.count %></span>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-4 col-sm-6 col-xs-12">
+      <div class="info-box bg-green">
+        <span class="info-box-icon"><i class="fa fa-check-circle"></i></span>
+        <div class="info-box-content">
+          <span class="info-box-text">Vigentes</span>
+          <span class="info-box-number"><%= @eventos.count(&:vigente?) %></span>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-4 col-sm-6 col-xs-12">
+      <div class="info-box bg-yellow">
+        <span class="info-box-icon"><i class="fa fa-clock-o"></i></span>
+        <div class="info-box-content">
+          <span class="info-box-text">Próximos</span>
+          <span class="info-box-number"><%= @eventos.count(&:no_iniciado?) %></span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col-xs-12">
+      <div class="box box-danger">
+        <div class="box-header with-border">
+          <h3 class="box-title"><i class="fa fa-list"></i> Listado de Eventos</h3>
+        </div>
+        <div class="box-body table-responsive">
+          <table class="table table-bordered table-hover table-striped">
+            <thead>
+            <tr class="thcolor">
+              <th class="text-center" style="width:50px;">Ver</th>
+              <th>Evento</th>
+              <th class="text-center">Fecha Evento</th>
+              <th class="text-center">Inscritos</th>
+              <th class="text-center">Estado</th>
+            </tr>
+            </thead>
+            <tbody>
+            <% if @eventos.empty? %>
+              <tr>
+                <td colspan="5" class="text-center text-muted" style="padding:30px;">
+                  <i class="fa fa-info-circle fa-2x"></i><br><br>
+                  No tienes eventos asignados aún.
+                </td>
+              </tr>
+            <% else %>
+              <% @eventos.each do |evento| %>
+                <tr>
+                  <td class="text-center">
+                    <%= link_to eventos_responsable_path(evento),
+                                class: 'btn btn-xs btn-primary',
+                                'data-toggle': 'tooltip',
+                                title: 'Ver inscritos' do %>
+                      <i class="fa fa-eye"></i>
+                    <% end %>
+                  </td>
+                  <td>
+                    <strong><%= evento.detalle %></strong><br>
+                    <small class="text-muted">
+                      <i class="fa fa-map-marker"></i>
+                      <%= evento.iglesia&.descripcion rescue '' %>
+                    </small>
+                  </td>
+                  <td class="text-center">
+                    <i class="fa fa-play-circle text-success"></i>
+                    <%= evento.fecha_inicio_e&.strftime('%d/%m/%Y') %><br>
+                    <small class="text-muted">al</small><br>
+                    <i class="fa fa-stop-circle text-danger"></i>
+                    <%= evento.fecha_fin_e&.strftime('%d/%m/%Y') %>
+                  </td>
+                  <td class="text-center">
+                    <% inscritos = evento.eventospersonas.count %>
+                    <% cupos = evento.cantidad_persona.to_i %>
+                    <span class="badge bg-aqua"><%= inscritos %></span>
+                    <small class="text-muted">/ <%= cupos %></small>
+                    <div class="progress progress-xs" style="margin:5px 0 0;">
+                      <% pct = cupos > 0 ? [(inscritos * 100 / cupos), 100].min : 0 %>
+                      <div class="progress-bar progress-bar-<%= pct >= 100 ? 'danger' : pct >= 75 ? 'warning' : 'success' %>"
+                           style="width:<%= pct %>%"></div>
+                    </div>
+                  </td>
+                  <td class="text-center">
+                    <% if evento.vigente? %>
+                      <span class="label label-success"><i class="fa fa-check-circle"></i> Vigente</span>
+                    <% elsif evento.vencido? %>
+                      <span class="label label-danger"><i class="fa fa-times-circle"></i> Vencido</span>
+                    <% elsif evento.no_iniciado? %>
+                      <span class="label label-warning"><i class="fa fa-clock-o"></i> Próximamente</span>
+                    <% end %>
+                  </td>
+                </tr>
+              <% end %>
+            <% end %>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<script>
+    $(document).ready(function () {
+        $('[data-toggle="tooltip"]').tooltip();
+    });
+</script>

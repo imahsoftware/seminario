@@ -20,6 +20,10 @@ class Evento < ApplicationRecord
 
   validate :validar_fechas
 
+  def responsables
+    User.where(id: eventosusers.pluck(:user_administra))
+  end
+
   def actualizar_url_si_necesario
     return if guid.blank?
     if new_record? || guid_changed?
