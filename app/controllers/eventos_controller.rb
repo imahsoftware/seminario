@@ -27,18 +27,23 @@ class EventosController < ApplicationController
 
       hoy = Date.today
 
-      @total_inscritos  = resultado_completo.count
-      @total_menores    = resultado_completo.where(
-        "fecha_nacimiento > ?", hoy - 18.years
-      ).count
-      @total_mayores    = resultado_completo.where(
-        "fecha_nacimiento <= ?", hoy - 18.years
-      ).count
-      @sin_fecha        = resultado_completo.where(fecha_nacimiento: nil).count
+      @total_inscritos = resultado_completo.count
+      @total_menores   = resultado_completo.where("fecha_nacimiento > ?", hoy - 18.years).count
+      @total_mayores   = resultado_completo.where("fecha_nacimiento <= ?", hoy - 18.years).count
+      @sin_fecha       = resultado_completo.where(fecha_nacimiento: nil).count
 
       @eventospersonas = resultado_completo
+                           .includes(:estado_civil)
                            .order('created_at desc')
                            .paginate(page: params[:page], per_page: 10)
+
+      # Pre-cargar documentos para evitar N+1 en la vista
+      identificaciones = @eventospersonas.map(&:identificacion).compact.uniq
+      personas_map     = Persona.where(identificacion: identificaciones).index_by(&:identificacion)
+      persona_ids      = personas_map.values.map(&:id)
+      documentos_map   = Documento.where(persona_id: persona_ids).index_by(&:persona_id)
+
+      @documentos_por_identificacion = personas_map.transform_values { |p| documentos_map[p.id] }
     end
 
     render :evento_form

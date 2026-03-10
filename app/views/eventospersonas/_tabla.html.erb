@@ -1,3 +1,762 @@
+<style>
+    /* ══════════════════════════════════════════════════════════════
+  REGISTRO EVENTOS — Hoja de estilos principal
+  ══════════════════════════════════════════════════════════════ */
+
+
+    /* ══════════════════════════════════════════════════════════════
+       1. BASE / LAYOUT
+       ══════════════════════════════════════════════════════════════ */
+    body {
+        background: linear-gradient(6deg, #f2f2f2 0%, #d9d9d9 100%);
+        min-height: 100vh;
+        font-family: 'Source Sans Pro', sans-serif;
+        padding: 20px 0;
+    }
+
+    hr { border-top: 2px solid #f0f0f0; margin: 20px 0; }
+
+    .text-primary { color: #071B7D !important; }
+
+    .alert { border-radius: 4px; margin-bottom: 20px; }
+    .alert-info { background-color: #e8f4fd; border-color: #bee5eb; color: #0c5460; }
+
+    .flash-messages {
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        z-index: 9999;
+        max-width: 400px;
+    }
+
+    .alert-dismissible { padding-right: 35px; }
+
+
+    /* ══════════════════════════════════════════════════════════════
+       2. PANEL
+       ══════════════════════════════════════════════════════════════ */
+    .panel {
+        margin-top: 0;
+        margin-bottom: 40px;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        border: none;
+        border-radius: 8px;
+        overflow: hidden;
+    }
+
+    .panel-primary > .panel-heading { background: #071B7D; color: white; padding: 20px; border: none; }
+    .panel-success > .panel-heading { background: #5cb85c;  color: white; padding: 20px; border: none; }
+    .panel-danger  > .panel-heading { background: #d9534f;  color: white; padding: 20px; border: none; }
+    .panel-warning > .panel-heading { background: #f0ad4e;  color: white; padding: 20px; border: none; }
+
+    .panel-title { font-size: 24px; font-weight: 600; margin: 0; }
+    .panel-body  { padding: 30px; background: white; }
+
+
+    /* ══════════════════════════════════════════════════════════════
+       3. BOTONES
+       ══════════════════════════════════════════════════════════════ */
+
+    /* ══════════════════════════════════════════════════════════════
+       4. FORMULARIO — checkboxes y selects
+       ══════════════════════════════════════════════════════════════ */
+    .checkbox label { font-weight: normal; padding-left: 25px; }
+    .checkbox input[type="checkbox"] { width: 18px; height: 18px; margin-right: 8px; cursor: pointer; }
+
+    .checkbox-required {
+        border: 2px solid #d9534f;
+        padding: 15px;
+        border-radius: 4px;
+        background: #fff5f5;
+        margin-bottom: 15px;
+    }
+
+    .checkbox-required label { font-weight: 600; color: #333; margin: 0; }
+
+    .required .control-label:after { content: " *"; color: #d9534f; }
+
+    .select2-container--default .select2-selection--single {
+        height: 34px;
+        border: 1px solid #d2d6de;
+        border-radius: 0;
+    }
+
+    .select2-container--default .select2-selection--single .select2-selection__rendered {
+        line-height: 32px;
+        padding-left: 12px;
+    }
+
+    .select2-container--default .select2-selection--single .select2-selection__arrow { height: 32px; }
+
+    /* Error celular duplicado */
+    .celular-error {
+        border-color: #d9534f !important;
+        box-shadow: inset 0 1px 1px rgba(0,0,0,.075), 0 0 6px #ce8483 !important;
+    }
+
+
+    /* ══════════════════════════════════════════════════════════════
+       5. FECHA DE NACIMIENTO — 3 selects nativos
+       ══════════════════════════════════════════════════════════════ */
+    .fn-wrap { margin-bottom: 0; }
+
+    .fn-selects-row {
+        display: flex;
+        gap: 8px;
+        align-items: flex-end;
+    }
+
+    .fn-col       { flex: 1; }
+    .fn-col--anio { flex: 1.5; }
+
+    .fn-sublabel {
+        display: block;
+        font-size: 10px;
+        font-weight: 700;
+        color: #999;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        margin-bottom: 3px;
+    }
+
+    .fn-sel {
+        display: block;
+        width: 100%;
+        height: 34px;
+        padding: 0 8px;
+        font-size: 14px;
+        color: #333;
+        background: #fff;
+        border: 1px solid #d2d6de;
+        border-radius: 3px;
+        cursor: pointer;
+        appearance: auto;
+        -webkit-appearance: auto;
+    }
+
+    .fn-sel:focus {
+        outline: none;
+        border-color: #071B7D;
+        box-shadow: 0 0 0 2px rgba(7,27,125,0.15);
+    }
+
+    .fn-sel.fn-invalid {
+        border-color: #d9534f !important;
+        box-shadow: 0 0 0 2px rgba(217,83,79,0.2) !important;
+    }
+
+    .fn-error { display: none; color: #d9534f; font-size: 12px; margin-top: 5px; }
+    .fn-error.visible { display: block; }
+
+
+    /* ══════════════════════════════════════════════════════════════
+       6. HEADER DE LOGOS — variante rp-* (registro público)
+       ══════════════════════════════════════════════════════════════ */
+    .rp-logos-header {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 18px;
+        background: #fff;
+        border-radius: 12px;
+        box-shadow: 0 2px 14px rgba(0,0,0,0.08);
+        padding: 10px 28px;
+        margin: 0 auto 20px;
+        max-width: 680px;
+        box-sizing: border-box;
+    }
+
+    .rp-logo-principal {
+        height: 42px;
+        width: auto;
+        object-fit: contain;
+        flex: 1;
+        max-width: 48%;
+    }
+
+    .rp-logo-divider {
+        width: 1px;
+        height: 34px;
+        flex-shrink: 0;
+        background: linear-gradient(to bottom,
+        transparent 0%, #071B7D55 30%,
+        #071B7D99 50%, #071B7D55 70%, transparent 100%);
+    }
+
+    .rp-logo-ancla {
+        height: 38px;
+        width: auto;
+        object-fit: contain;
+        flex-shrink: 0;
+    }
+
+    .rp-imah-logo {
+        height: 36px;
+        width: auto;
+        object-fit: contain;
+        flex-shrink: 0;
+    }
+
+    .rp-logo-divider-imah {
+        width: 1px;
+        height: 28px;
+        flex-shrink: 0;
+        background: linear-gradient(to bottom,
+        transparent 0%, #ccc 30%, #aaa 50%, #ccc 70%, transparent 100%);
+    }
+
+
+    /* ══════════════════════════════════════════════════════════════
+       7. HEADER DE LOGOS — variante nf-* (notificaciones / show)
+       ══════════════════════════════════════════════════════════════ */
+    .nf-header {
+        width: 100%;
+        max-width: 560px;
+        background: #fff;
+        border-radius: 16px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+        padding: 20px 32px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 24px;
+        margin-bottom: 28px;
+        box-sizing: border-box;
+        margin-left: auto;
+        margin-right: auto;
+    }
+
+    .nf-header-logo-main {
+        height: 56px;
+        width: auto;
+        object-fit: contain;
+        flex: 1;
+        max-width: 60%;
+    }
+
+    .nf-header-divider {
+        width: 1px;
+        height: 44px;
+        flex-shrink: 0;
+        background: linear-gradient(to bottom,
+        transparent 0%, #071B7D55 30%,
+        #071B7D99 50%, #071B7D55 70%, transparent 100%);
+    }
+
+    .nf-header-logo-ancla {
+        height: 52px;
+        width: auto;
+        object-fit: contain;
+        flex-shrink: 0;
+    }
+
+
+    /* ══════════════════════════════════════════════════════════════
+       8. CARD nf-* (notificación / confirmación)
+       ══════════════════════════════════════════════════════════════ */
+    .nf-card {
+        width: 100%;
+        max-width: 560px;
+        background: #fff;
+        border-radius: 20px;
+        box-shadow: 0 8px 40px rgba(0, 0, 0, 0.10);
+        overflow: hidden;
+        box-sizing: border-box;
+    }
+
+    .nf-card-band {
+        background: linear-gradient(135deg, #d68910 0%, #f39c12 100%);
+        padding: 18px 24px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .nf-card-band h3 { color: #fff; font-size: 18px; font-weight: 700; margin: 0; letter-spacing: 0.3px; }
+    .nf-card-band i  { color: #fff; font-size: 20px; }
+
+    .nf-imah-wrap { display: flex; justify-content: center; padding: 24px 24px 0; }
+    .nf-imah-logo { height: 52px; width: auto; object-fit: contain; }
+
+    .nf-card-body { padding: 20px 28px 30px; text-align: center; }
+
+    .nf-icon-wrap {
+        margin: 10px auto 18px;
+        width: 88px;
+        height: 88px;
+        background: linear-gradient(135deg, #f39c1222, #f39c1211);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border: 3px solid #f39c1233;
+    }
+
+    .nf-icon-wrap i { font-size: 44px; color: #f39c12; }
+
+    .nf-estado-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        background: #fef9ec;
+        border: 1.5px solid #f39c1266;
+        color: #d68910;
+        font-size: 13px;
+        font-weight: 700;
+        padding: 5px 14px;
+        border-radius: 20px;
+        margin-bottom: 14px;
+        letter-spacing: 0.5px;
+    }
+
+    .nf-title    { font-size: 26px; font-weight: 700; color: #d68910; margin: 0 0 10px; }
+    .nf-subtitle { font-size: 16px; color: #555; font-weight: 400; margin: 0 0 20px; line-height: 1.5; }
+
+    /* Caja aviso amarilla */
+    .nf-aviso-box {
+        background: #fffbf2;
+        border: 1px solid #f39c1244;
+        border-left: 4px solid #f39c12;
+        border-radius: 12px;
+        padding: 18px 20px;
+        text-align: left;
+        margin-bottom: 16px;
+    }
+
+    .nf-aviso-box h4 { color: #d68910; font-size: 15px; font-weight: 700; margin: 0 0 12px; display: flex; align-items: center; gap: 7px; }
+    .nf-aviso-box p  { font-size: 14px; color: #555; margin: 0 0 8px; line-height: 1.55; }
+    .nf-aviso-box p:last-child { margin-bottom: 0; }
+    .nf-aviso-box p strong { color: #333; }
+
+    /* Caja info azul */
+    .nf-info-box {
+        background: #f0f7ff;
+        border: 1px solid #3498db33;
+        border-left: 4px solid #3498db;
+        border-radius: 12px;
+        padding: 18px 20px;
+        text-align: left;
+        margin-bottom: 20px;
+    }
+
+    .nf-info-box h4 { color: #2980b9; font-size: 15px; font-weight: 700; margin: 0 0 14px; display: flex; align-items: center; gap: 7px; }
+
+    .nf-info-row { display: flex; align-items: flex-start; gap: 8px; margin-bottom: 10px; font-size: 14px; color: #444; line-height: 1.4; }
+    .nf-info-row:last-child { margin-bottom: 0; }
+    .nf-info-row i      { color: #3498db; font-size: 14px; flex-shrink: 0; margin-top: 2px; }
+    .nf-info-row strong { color: #333; margin-right: 4px; }
+
+    /* Nota inferior */
+    .nf-nota {
+        background: #f8f9fa;
+        border: 1px solid #e9ecef;
+        border-radius: 10px;
+        padding: 14px 18px;
+        font-size: 14px;
+        color: #666;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        text-align: left;
+    }
+
+    .nf-nota i { color: #3498db; font-size: 16px; flex-shrink: 0; }
+
+    /* Botón home */
+    .nf-btn-wrap { margin-top: 24px; }
+
+    .nf-btn-home {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        background: #071B7D;
+        color: #fff !important;
+        text-decoration: none;
+        padding: 12px 28px;
+        border-radius: 8px;
+        font-size: 15px;
+        font-weight: 600;
+        font-family: 'Outfit', sans-serif;
+        transition: background 0.25s, transform 0.2s;
+        border: none;
+        cursor: pointer;
+    }
+
+    .nf-btn-home:hover {
+        background: #06176B;
+        transform: translateY(-1px);
+        color: #fff !important;
+        text-decoration: none;
+    }
+
+
+    /* ══════════════════════════════════════════════════════════════
+       9. MODAL DE CÁMARA
+       ══════════════════════════════════════════════════════════════ */
+    #modalCamara            { overflow: hidden !important; }
+    #modalCamara .modal-body { overflow: hidden !important; padding: 0 !important; }
+
+    .modal-camara-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        background: rgba(0, 0, 0, 0.85);
+        padding: 12px 16px;
+        flex-shrink: 0;
+        z-index: 10;
+    }
+
+    .modal-camara-titulo { color: #fff; font-size: 16px; font-weight: 600; }
+
+    .modal-camara-close {
+        background: rgba(255, 255, 255, 0.15);
+        border: none;
+        color: #fff;
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        font-size: 16px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .modal-camara-close:hover { background: rgba(255, 255, 255, 0.3); }
+
+    .modal-camara-body {
+        flex: 1;
+        position: relative;
+        overflow: hidden;
+        background: #111;
+        min-height: 0;
+    }
+
+    .modal-camara-footer {
+        background: rgba(0, 0, 0, 0.88);
+        padding: 12px 20px;
+        padding-bottom: max(12px, env(safe-area-inset-bottom));
+        flex-shrink: 0;
+        z-index: 10;
+        min-height: 56px;
+    }
+
+    .modal-camara-content {
+        display: flex;
+        flex-direction: column;
+        border: none;
+        overflow: hidden;
+        background: #000;
+    }
+
+    .footer-cancelar-wrap { display: flex; justify-content: flex-end; }
+
+    .footer-estado {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 16px;
+        margin-top: 10px;
+    }
+
+    /* Cámara — video y canvas */
+    .camara-video,
+    .camara-canvas {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    /* Flash */
+    .camara-flash {
+        position: absolute;
+        inset: 0;
+        background: #fff;
+        opacity: 0;
+        pointer-events: none;
+        z-index: 20;
+        transition: opacity 0s;
+    }
+
+    .camara-flash.disparar { animation: flashAnim 0.4s ease-out forwards; }
+
+    @keyframes flashAnim {
+        0%   { opacity: 0.9; }
+        100% { opacity: 0; }
+    }
+
+    /* Guías de encuadre */
+    .camara-guia {
+        position: absolute;
+        inset: 0;
+        pointer-events: none;
+        z-index: 5;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .guia-texto {
+        position: absolute;
+        bottom: 12px;
+        left: 50%;
+        transform: translateX(-50%);
+        color: rgba(255, 255, 255, 0.7);
+        font-size: 13px;
+        background: rgba(0, 0, 0, 0.4);
+        padding: 3px 12px;
+        border-radius: 20px;
+        white-space: nowrap;
+    }
+
+    .guia-esquina { position: absolute; width: 28px; height: 28px; border-color: rgba(255,255,255,0.8); border-style: solid; }
+    .guia-tl { top: 16px;  left: 16px;  border-width: 3px 0 0 3px; border-radius: 4px 0 0 0; }
+    .guia-tr { top: 16px;  right: 16px; border-width: 3px 3px 0 0; border-radius: 0 4px 0 0; }
+    .guia-bl { left: 16px; border-width: 0 0 3px 3px; border-radius: 0 0 0 4px; }
+    .guia-br { right: 16px; border-width: 0 3px 3px 0; border-radius: 0 0 4px 0; }
+
+    /* Error overlay */
+    .camara-error-overlay {
+        position: absolute;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.85);
+        color: #fff;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 12px;
+        text-align: center;
+        padding: 20px;
+        z-index: 15;
+    }
+
+    /* Botón snap flotante */
+    .snap-flotante {
+        position: absolute;
+        bottom: 20px;
+        left: 0;
+        right: 0;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        z-index: 8;
+        pointer-events: none;
+    }
+
+    .snap-flotante > * { pointer-events: auto; }
+
+    .btn-camara-snap { display: flex; flex-direction: column; align-items: center; gap: 6px; background: none; border: none; cursor: pointer; }
+
+    .btn-snap-circulo {
+        width: 72px;
+        height: 72px;
+        background: #fff;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 30px;
+        color: #071B7D;
+        box-shadow: 0 0 0 5px rgba(255,255,255,0.25), 0 4px 20px rgba(0,0,0,0.4);
+        transition: transform 0.15s, box-shadow 0.15s;
+    }
+
+    .btn-camara-snap:active .btn-snap-circulo {
+        transform: scale(0.91);
+        box-shadow: 0 0 0 3px rgba(255,255,255,0.15), 0 2px 8px rgba(0,0,0,0.3);
+    }
+
+    .btn-snap-label { color: rgba(255,255,255,0.85); font-size: 12px; font-weight: 600; }
+
+    .btn-camara-cancelar {
+        background: rgba(255,255,255,0.12);
+        border: 1px solid rgba(255,255,255,0.25);
+        color: #fff;
+        padding: 10px 18px;
+        border-radius: 8px;
+        font-size: 14px;
+        cursor: pointer;
+        transition: background 0.2s;
+    }
+
+    .btn-camara-cancelar:hover { background: rgba(255,255,255,0.22); }
+
+    .btn-camara-usar {
+        flex: 1;
+        background: #27ae60;
+        border: none;
+        color: #fff;
+        padding: 14px 20px;
+        border-radius: 10px;
+        font-size: 16px;
+        font-weight: 700;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        transition: background 0.2s, transform 0.15s;
+    }
+
+    .btn-camara-usar:active { transform: scale(0.97); background: #219a52; }
+
+    .btn-camara-repetir {
+        background: rgba(255,255,255,0.12);
+        border: 1px solid rgba(255,255,255,0.25);
+        color: #fff;
+        padding: 14px 16px;
+        border-radius: 10px;
+        font-size: 14px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        transition: background 0.2s;
+    }
+
+    .btn-camara-repetir:hover { background: rgba(255,255,255,0.22); }
+
+    .btn-camara-doc { font-size: 15px; padding: 10px 18px; }
+
+
+    /* ══════════════════════════════════════════════════════════════
+       10. JQUERY UI DATEPICKER — tema corporativo
+       ══════════════════════════════════════════════════════════════ */
+    .ui-datepicker {
+        box-shadow: 0 4px 16px rgba(0,0,0,0.18);
+        border-radius: 6px;
+        border: 1px solid #ccc;
+        font-family: 'Source Sans Pro', sans-serif;
+        z-index: 9999 !important;
+    }
+
+    .ui-datepicker-header {
+        background: #071B7D !important;
+        border-color: #071B7D !important;
+        color: #fff !important;
+        border-radius: 4px 4px 0 0;
+    }
+
+    .ui-datepicker-header .ui-datepicker-prev,
+    .ui-datepicker-header .ui-datepicker-next { top: 6px; cursor: pointer; }
+
+    .ui-datepicker-header .ui-icon { background-image: none !important; }
+
+    .ui-datepicker-prev span,
+    .ui-datepicker-next span { display: none; }
+
+    .ui-datepicker-prev::after { content: '‹'; color: #fff; font-size: 18px; }
+    .ui-datepicker-next::after { content: '›'; color: #fff; font-size: 18px; }
+
+    .ui-datepicker-title select {
+        background: #0a2499;
+        color: #fff;
+        border: 1px solid #3a5acc;
+        border-radius: 3px;
+        padding: 2px 4px;
+        font-size: 13px;
+        cursor: pointer;
+    }
+
+    .ui-datepicker td a.ui-state-highlight,
+    .ui-datepicker td span.ui-state-highlight { background: #d0d8f5; border-color: #071B7D; color: #071B7D; }
+
+    .ui-datepicker td a.ui-state-active,
+    .ui-datepicker td a:hover { background: #071B7D !important; border-color: #071B7D !important; color: #fff !important; }
+
+    .datepicker table tr td.today  { background-color: #071B7D !important; color: white !important; }
+    .datepicker table tr td.active { background-color: #071B7D !important; color: white !important; }
+    .datepicker table tr td.active:hover { background-color: #05145a !important; }
+
+
+    /* ══════════════════════════════════════════════════════════════
+       11. RESPONSIVE
+       ══════════════════════════════════════════════════════════════ */
+
+    /* Tablet / móvil general */
+    @media (max-width: 768px) {
+        .panel-body     { padding: 20px 15px; }
+        .flash-messages { right: 10px; left: 10px; max-width: none; }
+        .fn-sel         { font-size: 13px; }
+
+        .rp-logos-header      { padding: 14px 20px; gap: 16px; border-radius: 12px; margin-bottom: 18px; max-width: 100%; }
+        .rp-logo-principal    { height: 36px; }
+        .rp-logo-ancla        { height: 32px; }
+        .rp-logo-divider      { height: 28px; }
+        .rp-imah-logo         { height: 30px; }
+        .rp-logo-divider-imah { height: 24px; }
+    }
+
+    /* Móvil pequeño */
+    @media (max-width: 400px) {
+        .fn-selects-row { gap: 5px; }
+        .fn-sel         { padding: 0 4px; }
+    }
+
+    /* Modal cámara — móvil: pantalla completa */
+    @media (max-width: 767px) {
+        .modal-camara-custom {
+            margin: 0 !important;
+            width: 100% !important;
+            max-width: 100% !important;
+            height: calc(var(--vh, 1vh) * 100);
+            position: fixed !important;
+            top: 0 !important; left: 0 !important; right: 0 !important; bottom: 0 !important;
+        }
+
+        .modal-camara-content {
+            height: calc(var(--vh, 1vh) * 100);
+            border-radius: 0;
+        }
+
+        .modal-camara-body { height: auto; }
+        .guia-bl           { bottom: 60px; }
+        .guia-br           { bottom: 60px; }
+    }
+
+    /* Modal cámara — escritorio */
+    @media (min-width: 768px) {
+        .modal-camara-custom {
+            width: 580px;
+            max-width: 580px;
+            margin: 60px auto;
+            position: relative !important;
+            height: auto;
+        }
+
+        .modal-camara-content { height: auto; border-radius: 12px; }
+
+        .modal-camara-body {
+            height: 420px !important;
+            min-height: 420px !important;
+            display: block !important;
+        }
+
+        .guia-bl { bottom: 16px; }
+        .guia-br { bottom: 16px; }
+    }
+
+    /* Card nf-* — móvil */
+    @media (max-width: 600px) {
+        .nf-header              { padding: 14px 20px; gap: 16px; border-radius: 12px; margin-bottom: 20px; }
+        .nf-header-logo-main    { height: 44px; }
+        .nf-header-logo-ancla   { height: 40px; }
+        .nf-header-divider      { height: 36px; }
+        .nf-card                { border-radius: 16px; }
+        .nf-card-band h3        { font-size: 16px; }
+        .nf-card-body           { padding: 16px 18px 24px; }
+        .nf-icon-wrap           { width: 72px; height: 72px; }
+        .nf-icon-wrap i         { font-size: 36px; }
+        .nf-title               { font-size: 22px; }
+        .nf-subtitle            { font-size: 15px; }
+        .nf-imah-logo           { height: 42px; }
+    }
+
+</style>
+
 <%
   hoy       = Date.today
   todos     = @q.result
@@ -84,7 +843,7 @@
     <table class="table table-bordered table-hover table-striped">
       <thead>
       <tr class="thcolor">
-        <th class="text-center" style="width: 60px;">Ver</th>
+        <th class="text-center" style="width: 80px;">Ver</th>
         <th class="text-center">Identificación</th>
         <th>Nombre Completo</th>
         <th class="text-center">Edad</th>
@@ -100,19 +859,23 @@
         <%
           edad     = ep.fecha_nacimiento.present? ? ((Date.today - ep.fecha_nacimiento.to_date).to_i / 365.25).floor : nil
           es_menor = edad.present? && edad < 18
-          persona_doc = Persona.find_by(identificacion: ep.identificacion)
-          documento = persona_doc.present? ? Documento.find_by(persona_id: persona_doc.id) : nil
+          documento = @documentos_por_identificacion&.fetch(ep.identificacion, nil)
         %>
 
         <tr class="<%= es_menor ? 'warning' : '' %>">
 
-          <%# Botón Ver Detalle %>
           <td class="text-center">
             <button class="btn btn-xs btn-primary btn-detalle-persona"
                     data-id="<%= ep.id %>"
                     data-toggle="tooltip"
                     title="Ver detalle completo">
               <i class="fa fa-eye"></i>
+            </button>
+            <button class="btn btn-xs btn-warning btn-editar-persona"
+                    data-id="<%= ep.id %>"
+                    data-toggle="tooltip"
+                    title="Editar persona">
+              <i class="fa fa-pencil"></i>
             </button>
           </td>
 
@@ -185,24 +948,20 @@
 
               <div class="modal-body" style="padding: 20px 25px;">
 
-                <%# ── Datos Personales ── %>
                 <div class="box box-solid box-primary" style="margin-bottom:15px;">
                   <div class="box-header with-border" style="padding: 8px 12px;">
                     <h4 class="box-title"><i class="fa fa-id-card"></i> Datos Personales</h4>
                   </div>
                   <div class="box-body" style="padding: 12px 15px;">
                     <div class="row">
-
                       <div class="col-md-4 col-sm-6">
                         <p class="text-muted" style="margin-bottom:2px;"><small>Identificación</small></p>
                         <p><strong><%= ep.identificacion %></strong></p>
                       </div>
-
                       <div class="col-md-4 col-sm-6">
                         <p class="text-muted" style="margin-bottom:2px;"><small>Nombre Completo</small></p>
                         <p><strong><%= "#{ep.nombre} #{ep.apellido}".strip %></strong></p>
                       </div>
-
                       <div class="col-md-4 col-sm-6">
                         <p class="text-muted" style="margin-bottom:2px;"><small>Fecha de Nacimiento</small></p>
                         <p>
@@ -214,7 +973,6 @@
                           <% end %>
                         </p>
                       </div>
-
                       <div class="col-md-4 col-sm-6">
                         <p class="text-muted" style="margin-bottom:2px;"><small>Sexo</small></p>
                         <p>
@@ -227,144 +985,102 @@
                           <% end %>
                         </p>
                       </div>
-
                       <div class="col-md-4 col-sm-6">
                         <p class="text-muted" style="margin-bottom:2px;"><small>Estado Civil</small></p>
                         <p><strong><%= ep.estado_civil.nombre rescue 'N/D' %></strong></p>
                       </div>
-
                       <div class="col-md-4 col-sm-6">
                         <p class="text-muted" style="margin-bottom:2px;"><small>Tipo Persona</small></p>
                         <p><strong><%= ep.tipo_persona.presence || 'N/D' %></strong></p>
                       </div>
-
                     </div>
                   </div>
                 </div>
 
-                <%# ── Contacto ── %>
                 <div class="box box-solid box-info" style="margin-bottom:15px;">
                   <div class="box-header with-border" style="padding: 8px 12px;">
                     <h4 class="box-title"><i class="fa fa-phone"></i> Contacto</h4>
                   </div>
                   <div class="box-body" style="padding: 12px 15px;">
                     <div class="row">
-
                       <div class="col-md-4 col-sm-6">
                         <p class="text-muted" style="margin-bottom:2px;"><small>Celular</small></p>
-                        <p>
-                          <i class="fa fa-mobile text-info"></i>
-                          <strong><%= ep.celular.presence || 'N/D' %></strong>
-                        </p>
+                        <p><i class="fa fa-mobile text-info"></i> <strong><%= ep.celular.presence || 'N/D' %></strong></p>
                       </div>
-
                       <div class="col-md-4 col-sm-6">
                         <p class="text-muted" style="margin-bottom:2px;"><small>Email</small></p>
-                        <p>
-                          <i class="fa fa-envelope text-info"></i>
-                          <strong><%= ep.email.presence || 'N/D' %></strong>
-                        </p>
+                        <p><i class="fa fa-envelope text-info"></i> <strong><%= ep.email.presence || 'N/D' %></strong></p>
                       </div>
-
                       <div class="col-md-4 col-sm-6">
                         <p class="text-muted" style="margin-bottom:2px;"><small>Dirección</small></p>
-                        <p>
-                          <i class="fa fa-map-marker text-info"></i>
-                          <strong><%= ep.direccion.presence || 'N/D' %></strong>
-                        </p>
+                        <p><i class="fa fa-map-marker text-info"></i> <strong><%= ep.direccion.presence || 'N/D' %></strong></p>
                       </div>
-
                     </div>
                   </div>
                 </div>
 
-                <%# ── Documentos de Identidad ── %>
                 <% if documento.present? %>
                   <div class="box box-solid box-success" style="margin-bottom:15px;">
                     <div class="box-header with-border" style="padding: 8px 12px;">
-                      <h4 class="box-title">
-                        <i class="fa fa-id-card-o"></i> Documentos de Identidad
-                      </h4>
+                      <h4 class="box-title"><i class="fa fa-id-card-o"></i> Documentos de Identidad</h4>
                     </div>
                     <div class="box-body" style="padding: 16px 20px;">
                       <div class="row">
-
-                        <%# ── Cédula Frente ── %>
                         <div class="col-md-6 col-sm-12" style="margin-bottom: 10px;">
                           <p class="text-muted text-center" style="margin-bottom: 8px;">
-                            <i class="fa fa-id-card text-success"></i>
-                            <small><strong>Cédula — Frente</strong></small>
+                            <i class="fa fa-id-card text-success"></i> <small><strong>Cédula — Frente</strong></small>
                           </p>
                           <% if documento.cedula_frente.present? %>
                             <% if documento.cedula_frente_content_type == 'application/pdf' %>
                               <div class="text-center" style="padding: 20px; background: #f9f9f9; border: 1px dashed #ccc; border-radius: 6px;">
                                 <i class="fa fa-file-pdf-o fa-3x text-danger"></i><br>
-                                <a href="<%= documento.cedula_frente.url %>"
-                                   target="_blank"
-                                   class="btn btn-sm btn-danger" style="margin-top: 10px;">
+                                <a href="<%= documento.cedula_frente.url %>" target="_blank" class="btn btn-sm btn-danger" style="margin-top: 10px;">
                                   <i class="fa fa-download"></i> Ver PDF
                                 </a>
                               </div>
                             <% else %>
                               <div class="doc-img-wrap" style="border: 2px solid #00a65a; border-radius: 8px; overflow: hidden; background: #f4f4f4; text-align: center; cursor: pointer;"
                                    onclick="abrirImagen('<%= documento.cedula_frente.url %>', 'Cédula Frente — <%= "#{ep.nombre} #{ep.apellido}".strip %>')">
-                                <%= image_tag documento.cedula_frente.url,
-                                              style: 'width:100%; max-height:180px; object-fit:cover; display:block;',
-                                              alt: 'Cédula Frente' %>
-                                <div style="padding: 6px; font-size: 11px; color: #555;">
-                                  <i class="fa fa-search-plus"></i> Click para ampliar
-                                </div>
+                                <%= image_tag documento.cedula_frente.url, style: 'width:100%; max-height:180px; object-fit:cover; display:block;', alt: 'Cédula Frente' %>
+                                <div style="padding: 6px; font-size: 11px; color: #555;"><i class="fa fa-search-plus"></i> Click para ampliar</div>
                               </div>
                             <% end %>
                           <% else %>
                             <div class="text-center text-muted" style="padding: 30px; background: #f9f9f9; border: 1px dashed #ddd; border-radius: 6px;">
-                              <i class="fa fa-picture-o fa-2x"></i><br>
-                              <small>Sin imagen</small>
+                              <i class="fa fa-picture-o fa-2x"></i><br><small>Sin imagen</small>
                             </div>
                           <% end %>
                         </div>
-
-                        <%# ── Cédula Reverso ── %>
                         <div class="col-md-6 col-sm-12" style="margin-bottom: 10px;">
                           <p class="text-muted text-center" style="margin-bottom: 8px;">
-                            <i class="fa fa-id-card-o text-success"></i>
-                            <small><strong>Cédula — Reverso</strong></small>
+                            <i class="fa fa-id-card-o text-success"></i> <small><strong>Cédula — Reverso</strong></small>
                           </p>
                           <% if documento.cedula_reverso.present? %>
                             <% if documento.cedula_reverso_content_type == 'application/pdf' %>
                               <div class="text-center" style="padding: 20px; background: #f9f9f9; border: 1px dashed #ccc; border-radius: 6px;">
                                 <i class="fa fa-file-pdf-o fa-3x text-danger"></i><br>
-                                <a href="<%= documento.cedula_reverso.url %>"
-                                   target="_blank"
-                                   class="btn btn-sm btn-danger" style="margin-top: 10px;">
+                                <a href="<%= documento.cedula_reverso.url %>" target="_blank" class="btn btn-sm btn-danger" style="margin-top: 10px;">
                                   <i class="fa fa-download"></i> Ver PDF
                                 </a>
                               </div>
                             <% else %>
                               <div class="doc-img-wrap" style="border: 2px solid #00a65a; border-radius: 8px; overflow: hidden; background: #f4f4f4; text-align: center; cursor: pointer;"
                                    onclick="abrirImagen('<%= documento.cedula_reverso.url %>', 'Cédula Reverso — <%= "#{ep.nombre} #{ep.apellido}".strip %>')">
-                                <%= image_tag documento.cedula_reverso.url,
-                                              style: 'width:100%; max-height:180px; object-fit:cover; display:block;',
-                                              alt: 'Cédula Reverso' %>
-                                <div style="padding: 6px; font-size: 11px; color: #555;">
-                                  <i class="fa fa-search-plus"></i> Click para ampliar
-                                </div>
+                                <%= image_tag documento.cedula_reverso.url, style: 'width:100%; max-height:180px; object-fit:cover; display:block;', alt: 'Cédula Reverso' %>
+                                <div style="padding: 6px; font-size: 11px; color: #555;"><i class="fa fa-search-plus"></i> Click para ampliar</div>
                               </div>
                             <% end %>
                           <% else %>
                             <div class="text-center text-muted" style="padding: 30px; background: #f9f9f9; border: 1px dashed #ddd; border-radius: 6px;">
-                              <i class="fa fa-picture-o fa-2x"></i><br>
-                              <small>Sin imagen</small>
+                              <i class="fa fa-picture-o fa-2x"></i><br><small>Sin imagen</small>
                             </div>
                           <% end %>
                         </div>
-
                       </div>
                     </div>
                   </div>
                 <% end %>
 
-                <%# ── Acudiente (solo menores) ── %>
                 <% if es_menor %>
                   <div class="box box-solid box-warning" style="margin-bottom:15px;">
                     <div class="box-header with-border" style="padding: 8px 12px;">
@@ -372,43 +1088,30 @@
                     </div>
                     <div class="box-body" style="padding: 12px 15px;">
                       <div class="row">
-
                         <div class="col-md-4 col-sm-6">
                           <p class="text-muted" style="margin-bottom:2px;"><small>Nombre Acudiente</small></p>
                           <p><strong><%= "#{ep.acudiente_nombre} #{ep.acudiente_apellido}".strip.presence || 'N/D' %></strong></p>
                         </div>
-
                         <div class="col-md-4 col-sm-6">
                           <p class="text-muted" style="margin-bottom:2px;"><small>Identificación</small></p>
                           <p><strong><%= ep.acudiente_identificacion.presence || 'N/D' %></strong></p>
                         </div>
-
                         <div class="col-md-4 col-sm-6">
                           <p class="text-muted" style="margin-bottom:2px;"><small>Celular</small></p>
-                          <p>
-                            <i class="fa fa-mobile text-warning"></i>
-                            <strong><%= ep.acudiente_celular.presence || 'N/D' %></strong>
-                          </p>
+                          <p><i class="fa fa-mobile text-warning"></i> <strong><%= ep.acudiente_celular.presence || 'N/D' %></strong></p>
                         </div>
-
                         <div class="col-md-4 col-sm-6">
                           <p class="text-muted" style="margin-bottom:2px;"><small>Email</small></p>
-                          <p>
-                            <i class="fa fa-envelope text-warning"></i>
-                            <strong><%= ep.acudiente_email.presence || 'N/D' %></strong>
-                          </p>
+                          <p><i class="fa fa-envelope text-warning"></i> <strong><%= ep.acudiente_email.presence || 'N/D' %></strong></p>
                         </div>
-
                         <div class="col-md-4 col-sm-6">
                           <p class="text-muted" style="margin-bottom:2px;"><small>Código Validación</small></p>
                           <p><strong><%= ep.acudiente_codigoval.presence || 'N/D' %></strong></p>
                         </div>
-
                         <div class="col-md-4 col-sm-6">
                           <p class="text-muted" style="margin-bottom:2px;"><small>Código Recepción</small></p>
                           <p><strong><%= ep.acudiente_codigorec.presence || 'N/D' %></strong></p>
                         </div>
-
                         <% if ep.acudiente_firma.present? %>
                           <div class="col-md-12">
                             <p class="text-muted" style="margin-bottom:2px;"><small>Firma Acudiente</small></p>
@@ -417,20 +1120,17 @@
                             </div>
                           </div>
                         <% end %>
-
                       </div>
                     </div>
                   </div>
                 <% end %>
 
-                <%# ── Autorizaciones y Registro ── %>
                 <div class="box box-solid box-default" style="margin-bottom:0;">
                   <div class="box-header with-border" style="padding: 8px 12px;">
                     <h4 class="box-title"><i class="fa fa-check-square-o"></i> Autorizaciones y Registro</h4>
                   </div>
                   <div class="box-body" style="padding: 12px 15px;">
                     <div class="row">
-
                       <div class="col-md-3 col-sm-6">
                         <p class="text-muted" style="margin-bottom:2px;"><small>Acepta Política</small></p>
                         <p>
@@ -441,7 +1141,6 @@
                           <% end %>
                         </p>
                       </div>
-
                       <div class="col-md-3 col-sm-6">
                         <p class="text-muted" style="margin-bottom:2px;"><small>Acepta Cultura</small></p>
                         <p>
@@ -452,23 +1151,14 @@
                           <% end %>
                         </p>
                       </div>
-
                       <div class="col-md-3 col-sm-6">
                         <p class="text-muted" style="margin-bottom:2px;"><small>Fecha Inscripción</small></p>
-                        <p>
-                          <i class="fa fa-calendar text-muted"></i>
-                          <strong><%= ep.created_at.strftime('%d/%m/%Y %H:%M') rescue 'N/D' %></strong>
-                        </p>
+                        <p><i class="fa fa-calendar text-muted"></i> <strong><%= ep.created_at.strftime('%d/%m/%Y %H:%M') rescue 'N/D' %></strong></p>
                       </div>
-
                       <div class="col-md-3 col-sm-6">
                         <p class="text-muted" style="margin-bottom:2px;"><small>Última Actualización</small></p>
-                        <p>
-                          <i class="fa fa-refresh text-muted"></i>
-                          <strong><%= ep.updated_at.strftime('%d/%m/%Y %H:%M') rescue 'N/D' %></strong>
-                        </p>
+                        <p><i class="fa fa-refresh text-muted"></i> <strong><%= ep.updated_at.strftime('%d/%m/%Y %H:%M') rescue 'N/D' %></strong></p>
                       </div>
-
                     </div>
                   </div>
                 </div>
@@ -487,7 +1177,297 @@
 
             </div>
           </div>
-        </div><%# fin modal %>
+        </div><%# fin modal detalle %>
+
+        <%# ── MODAL EDITAR ─────────────────────────────────────────── %>
+        <div class="modal fade"
+             id="modal-editar-<%= ep.id %>"
+             tabindex="-1"
+             role="dialog">
+          <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content">
+
+              <div class="modal-header <%= es_menor ? 'bg-yellow' : 'bg-warning' %>"
+                   style="color:#fff; border-radius: 3px 3px 0 0;">
+                <button type="button" class="close" data-dismiss="modal" style="color:#fff; opacity:1;">
+                  <span>&times;</span>
+                </button>
+                <h4 class="modal-title">
+                  <i class="fa fa-pencil"></i> Editar — <%= "#{ep.nombre} #{ep.apellido}".strip %>
+                  <% if es_menor %>
+                    <small style="font-size:12px; margin-left:8px;">
+                      <span class="label label-warning"><i class="fa fa-child"></i> MENOR DE EDAD</span>
+                    </small>
+                  <% end %>
+                </h4>
+              </div>
+
+              <%= form_tag url_for(controller: 'eventospersonas', action: 'update', id: ep.id),
+                           method: :patch,
+                           id: "form-editar-#{ep.id}",
+                           class: 'form-horizontal' do %>
+
+                <input type="hidden" id="editar-cedula-frente-<%= ep.id %>"  name="eventospersona[cedula_frente_base64]"  value="">
+                <input type="hidden" id="editar-cedula-reverso-<%= ep.id %>" name="eventospersona[cedula_reverso_base64]" value="">
+
+                <div class="modal-body" style="padding: 20px 25px;">
+
+                  <div class="box box-solid box-primary" style="margin-bottom:15px;">
+                    <div class="box-header with-border" style="padding: 8px 12px;">
+                      <h4 class="box-title"><i class="fa fa-id-card"></i> Datos Personales</h4>
+                    </div>
+                    <div class="box-body" style="padding: 12px 15px;">
+                      <div class="row">
+                        <div class="col-md-4 col-sm-6">
+                          <div class="form-group">
+                            <label class="control-label"><small>Identificación</small></label>
+                            <%= text_field_tag "eventospersona[identificacion]", ep.identificacion, class: 'form-control input-sm' %>
+                          </div>
+                        </div>
+                        <div class="col-md-4 col-sm-6">
+                          <div class="form-group">
+                            <label class="control-label"><small>Nombre</small></label>
+                            <%= text_field_tag "eventospersona[nombre]", ep.nombre, class: 'form-control input-sm', onchange: 'this.value=this.value.toUpperCase();' %>
+                          </div>
+                        </div>
+                        <div class="col-md-4 col-sm-6">
+                          <div class="form-group">
+                            <label class="control-label"><small>Apellido</small></label>
+                            <%= text_field_tag "eventospersona[apellido]", ep.apellido, class: 'form-control input-sm', onchange: 'this.value=this.value.toUpperCase();' %>
+                          </div>
+                        </div>
+                        <div class="col-md-4 col-sm-6">
+                          <div class="form-group">
+                            <label class="control-label"><small>Fecha de Nacimiento</small></label>
+                            <%= text_field_tag "eventospersona[fecha_nacimiento]",
+                                               ep.fecha_nacimiento.present? ? ep.fecha_nacimiento.strftime('%Y-%m-%d') : '',
+                                               class: 'form-control input-sm', type: 'date' %>
+                          </div>
+                        </div>
+                        <div class="col-md-4 col-sm-6">
+                          <div class="form-group">
+                            <label class="control-label"><small>Sexo</small></label>
+                            <%= select_tag "eventospersona[sexo]",
+                                           options_for_select(Iparametro.where("campo = 'GENERO'").order(:descripcion).collect { |p| [p.descripcion.to_s, p.valor.to_s] }, ep.sexo),
+                                           class: 'form-control input-sm', include_blank: 'Seleccione...' %>
+                          </div>
+                        </div>
+                        <div class="col-md-4 col-sm-6">
+                          <div class="form-group">
+                            <label class="control-label"><small>Estado Civil</small></label>
+                            <%= select_tag "eventospersona[estado_civil_id]",
+                                           options_from_collection_for_select(EstadoCivil.where(estado: 'ACTIVO').order(:nombre), :id, :nombre, ep.estado_civil_id),
+                                           class: 'form-control input-sm', include_blank: 'Seleccione...' %>
+                          </div>
+                        </div>
+                        <div class="col-md-4 col-sm-6">
+                          <div class="form-group">
+                            <label class="control-label"><small>Tipo Persona</small></label>
+                            <%= select_tag "eventospersona[tipo_persona]",
+                                           options_for_select(Iparametro.where("campo = 'TIPO_PERSONA'").order(:descripcion).collect { |p| [p.descripcion.to_s, p.valor.to_s] }, ep.tipo_persona),
+                                           class: 'form-control input-sm', include_blank: 'Seleccione...' %>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="box box-solid box-info" style="margin-bottom:15px;">
+                    <div class="box-header with-border" style="padding: 8px 12px;">
+                      <h4 class="box-title"><i class="fa fa-phone"></i> Contacto</h4>
+                    </div>
+                    <div class="box-body" style="padding: 12px 15px;">
+                      <div class="row">
+                        <div class="col-md-4 col-sm-6">
+                          <div class="form-group">
+                            <label class="control-label"><small>Celular</small></label>
+                            <%= text_field_tag "eventospersona[celular]", ep.celular, class: 'form-control input-sm', maxlength: 20 %>
+                          </div>
+                        </div>
+                        <div class="col-md-4 col-sm-6">
+                          <div class="form-group">
+                            <label class="control-label"><small>Email</small></label>
+                            <%= text_field_tag "eventospersona[email]", ep.email, class: 'form-control input-sm', type: 'email' %>
+                          </div>
+                        </div>
+                        <div class="col-md-4 col-sm-6">
+                          <div class="form-group">
+                            <label class="control-label"><small>Dirección</small></label>
+                            <%= text_field_tag "eventospersona[direccion]", ep.direccion, class: 'form-control input-sm', onchange: 'this.value=this.value.toUpperCase();' %>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <%# ── Documentos de Identidad con Cámara ── %>
+                  <div class="box box-solid box-success" style="margin-bottom:15px;">
+                    <div class="box-header with-border" style="padding: 8px 12px;">
+                      <h4 class="box-title"><i class="fa fa-id-card-o"></i> Documentos de Identidad</h4>
+                    </div>
+                    <div class="box-body" style="padding: 16px 20px;">
+                      <div class="row">
+
+                        <%# Frente %>
+                        <div class="col-md-6 col-sm-12" style="margin-bottom: 10px;">
+                          <p class="text-muted text-center" style="margin-bottom: 8px;">
+                            <i class="fa fa-id-card text-success"></i> <small><strong>Cédula — Frente</strong></small>
+                          </p>
+                          <% if documento.present? && documento.cedula_frente.present? %>
+                            <div style="margin-bottom:8px; border: 2px solid #00a65a; border-radius: 8px; overflow:hidden; text-align:center; cursor:pointer;"
+                                 onclick="abrirImagen('<%= documento.cedula_frente.url %>', 'Cédula Frente')">
+                              <%= image_tag documento.cedula_frente.url, style: 'width:100%; max-height:150px; object-fit:cover; display:block;', alt: 'Frente Actual' %>
+                              <div style="padding:4px; font-size:11px; color:#555; background:#f4f4f4;">
+                                <i class="fa fa-check-circle text-success"></i> Foto actual — <i class="fa fa-search-plus"></i> Ampliar
+                              </div>
+                            </div>
+                          <% end %>
+                          <div id="editar-preview-frente-<%= ep.id %>" style="display:none; margin-bottom:8px;">
+                            <p class="text-success" style="margin-bottom:4px; font-size:12px;">
+                              <i class="fa fa-check-circle"></i> <strong>Nueva foto capturada:</strong>
+                            </p>
+                            <img id="editar-preview-frente-img-<%= ep.id %>" src="#" alt="Frente nueva"
+                                 style="max-width:100%; max-height:150px; border:2px solid #5cb85c; border-radius:4px;"/>
+                          </div>
+                          <button type="button" class="btn btn-warning btn-sm btn-block"
+                                  onclick="abrirCamaraEditar('frente', 'editar-cedula-frente-<%= ep.id %>', '<%= ep.id %>')">
+                            <i class="fa fa-camera"></i>
+                            <%= documento.present? && documento.cedula_frente.present? ? 'Cambiar Foto Frente' : 'Capturar Frente' %>
+                          </button>
+                        </div>
+
+                        <%# Reverso %>
+                        <div class="col-md-6 col-sm-12" style="margin-bottom: 10px;">
+                          <p class="text-muted text-center" style="margin-bottom: 8px;">
+                            <i class="fa fa-id-card-o text-success"></i> <small><strong>Cédula — Reverso</strong></small>
+                          </p>
+                          <% if documento.present? && documento.cedula_reverso.present? %>
+                            <div style="margin-bottom:8px; border: 2px solid #00a65a; border-radius: 8px; overflow:hidden; text-align:center; cursor:pointer;"
+                                 onclick="abrirImagen('<%= documento.cedula_reverso.url %>', 'Cédula Reverso')">
+                              <%= image_tag documento.cedula_reverso.url, style: 'width:100%; max-height:150px; object-fit:cover; display:block;', alt: 'Reverso Actual' %>
+                              <div style="padding:4px; font-size:11px; color:#555; background:#f4f4f4;">
+                                <i class="fa fa-check-circle text-success"></i> Foto actual — <i class="fa fa-search-plus"></i> Ampliar
+                              </div>
+                            </div>
+                          <% end %>
+                          <div id="editar-preview-reverso-<%= ep.id %>" style="display:none; margin-bottom:8px;">
+                            <p class="text-success" style="margin-bottom:4px; font-size:12px;">
+                              <i class="fa fa-check-circle"></i> <strong>Nueva foto capturada:</strong>
+                            </p>
+                            <img id="editar-preview-reverso-img-<%= ep.id %>" src="#" alt="Reverso nueva"
+                                 style="max-width:100%; max-height:150px; border:2px solid #5cb85c; border-radius:4px;"/>
+                          </div>
+                          <button type="button" class="btn btn-warning btn-sm btn-block"
+                                  onclick="abrirCamaraEditar('reverso', 'editar-cedula-reverso-<%= ep.id %>', '<%= ep.id %>')">
+                            <i class="fa fa-camera"></i>
+                            <%= documento.present? && documento.cedula_reverso.present? ? 'Cambiar Foto Reverso' : 'Capturar Reverso' %>
+                          </button>
+                        </div>
+
+                      </div>
+                    </div>
+                  </div>
+
+                  <% if es_menor %>
+                    <div class="box box-solid box-warning" style="margin-bottom:15px;">
+                      <div class="box-header with-border" style="padding: 8px 12px;">
+                        <h4 class="box-title"><i class="fa fa-user-plus"></i> Datos del Acudiente</h4>
+                      </div>
+                      <div class="box-body" style="padding: 12px 15px;">
+                        <div class="row">
+                          <div class="col-md-4 col-sm-6">
+                            <div class="form-group">
+                              <label class="control-label"><small>Tipo Doc. Acudiente</small></label>
+                              <%= select_tag "eventospersona[acudiente_documento_tipo_id]",
+                                             options_from_collection_for_select(DocumentoTipo.where(estado: 'activo').order(:nombre), :id, :nombre, ep.acudiente_documento_tipo_id),
+                                             class: 'form-control input-sm', include_blank: 'Seleccione...' %>
+                            </div>
+                          </div>
+                          <div class="col-md-4 col-sm-6">
+                            <div class="form-group">
+                              <label class="control-label"><small>Identificación Acudiente</small></label>
+                              <%= text_field_tag "eventospersona[acudiente_identificacion]", ep.acudiente_identificacion, class: 'form-control input-sm', maxlength: 30 %>
+                            </div>
+                          </div>
+                          <div class="col-md-4 col-sm-6">
+                            <div class="form-group">
+                              <label class="control-label"><small>Nombre Acudiente</small></label>
+                              <%= text_field_tag "eventospersona[acudiente_nombre]", ep.acudiente_nombre, class: 'form-control input-sm', onchange: 'this.value=this.value.toUpperCase();' %>
+                            </div>
+                          </div>
+                          <div class="col-md-4 col-sm-6">
+                            <div class="form-group">
+                              <label class="control-label"><small>Apellido Acudiente</small></label>
+                              <%= text_field_tag "eventospersona[acudiente_apellido]", ep.acudiente_apellido, class: 'form-control input-sm', onchange: 'this.value=this.value.toUpperCase();' %>
+                            </div>
+                          </div>
+                          <div class="col-md-4 col-sm-6">
+                            <div class="form-group">
+                              <label class="control-label"><small>Celular Acudiente</small></label>
+                              <%= text_field_tag "eventospersona[acudiente_celular]", ep.acudiente_celular, class: 'form-control input-sm', maxlength: 20 %>
+                            </div>
+                          </div>
+                          <div class="col-md-4 col-sm-6">
+                            <div class="form-group">
+                              <label class="control-label"><small>Email Acudiente</small></label>
+                              <%= text_field_tag "eventospersona[acudiente_email]", ep.acudiente_email, class: 'form-control input-sm', type: 'email' %>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  <% end %>
+
+                  <div class="box box-solid box-default" style="margin-bottom:0;">
+                    <div class="box-header with-border" style="padding: 8px 12px;">
+                      <h4 class="box-title"><i class="fa fa-check-square-o"></i> Autorizaciones y Registro</h4>
+                    </div>
+                    <div class="box-body" style="padding: 12px 15px;">
+                      <div class="row">
+                        <div class="col-md-3 col-sm-6">
+                          <div class="form-group">
+                            <label class="control-label"><small>Acepta Política</small></label>
+                            <%= select_tag "eventospersona[acepta_politica]", options_for_select([['SI', 'SI'], ['NO', 'NO']], ep.acepta_politica), class: 'form-control input-sm' %>
+                          </div>
+                        </div>
+                        <div class="col-md-3 col-sm-6">
+                          <div class="form-group">
+                            <label class="control-label"><small>Acepta Cultura</small></label>
+                            <%= select_tag "eventospersona[acepta_cultura]", options_for_select([['SI', 'SI'], ['NO', 'NO']], ep.acepta_cultura), class: 'form-control input-sm' %>
+                          </div>
+                        </div>
+                        <div class="col-md-3 col-sm-6">
+                          <p class="text-muted" style="margin-bottom:2px;"><small>Fecha Inscripción</small></p>
+                          <p><i class="fa fa-calendar text-muted"></i> <strong><%= ep.created_at.strftime('%d/%m/%Y %H:%M') rescue 'N/D' %></strong></p>
+                        </div>
+                        <div class="col-md-3 col-sm-6">
+                          <p class="text-muted" style="margin-bottom:2px;"><small>Última Actualización</small></p>
+                          <p><i class="fa fa-refresh text-muted"></i> <strong><%= ep.updated_at.strftime('%d/%m/%Y %H:%M') rescue 'N/D' %></strong></p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                </div><%# fin modal-body %>
+
+                <div class="modal-footer">
+                  <small class="text-muted pull-left">
+                    ID: <strong>#<%= ep.id %></strong> &nbsp;|&nbsp;
+                    Evento: <strong>#<%= ep.evento_id %></strong>
+                  </small>
+                  <button type="button" class="btn btn-default" data-dismiss="modal">
+                    <i class="fa fa-times"></i> Cancelar
+                  </button>
+                  <button type="submit" class="btn btn-warning">
+                    <i class="fa fa-save"></i> Guardar Cambios
+                  </button>
+                </div>
+
+                <% end %><%# fin form %>
+
+            </div>
+          </div>
+        </div><%# fin modal editar %>
 
         <% end %><%# fin each %>
 
@@ -517,7 +1497,67 @@
     </div>
   </div>
 
-</div>
+</div><%# fin box %>
+
+<%# ══════════════════════════════════════════════════════════════════════
+    MODAL CÁMARA — UNA SOLA VEZ, fuera del each y fuera del box
+    ══════════════════════════════════════════════════════════════════════ %>
+<div class="modal fade" id="modalCamara" tabindex="-1" role="dialog"
+     style="padding:0 !important; overflow:hidden !important;">
+  <div class="modal-dialog modal-camara-custom" role="document">
+    <div class="modal-content modal-camara-content">
+
+      <div class="modal-camara-header">
+        <span id="modal-titulo" class="modal-camara-titulo">
+          <i class="fa fa-camera"></i> Capturar Documento
+        </span>
+        <button type="button" class="modal-camara-close" data-dismiss="modal">
+          <i class="fa fa-times"></i>
+        </button>
+      </div>
+
+      <div class="modal-camara-body">
+        <div id="camara-flash" class="camara-flash"></div>
+        <video id="camara-video" autoplay playsinline class="camara-video" style="display:block;"></video>
+        <canvas id="camara-canvas" class="camara-canvas" style="display:none;"></canvas>
+        <div id="camara-guia" class="camara-guia">
+          <div class="guia-esquina guia-tl"></div>
+          <div class="guia-esquina guia-tr"></div>
+          <div class="guia-esquina guia-bl"></div>
+          <div class="guia-esquina guia-br"></div>
+          <span class="guia-texto">Encuadra el documento</span>
+        </div>
+        <div id="camara-error" class="camara-error-overlay" style="display:none;">
+          <i class="fa fa-exclamation-triangle fa-2x"></i>
+          <p>No se pudo acceder a la cámara.<br>Verifica los permisos del navegador.</p>
+        </div>
+        <div id="footer-capturar" class="snap-flotante">
+          <button type="button" id="btn-snap" class="btn-camara-snap">
+            <span class="btn-snap-circulo"><i class="fa fa-camera"></i></span>
+            <span class="btn-snap-label">Tomar Foto</span>
+          </button>
+        </div>
+      </div>
+
+      <div class="modal-camara-footer">
+        <div class="footer-cancelar-wrap">
+          <button type="button" class="btn-camara-cancelar" data-dismiss="modal" id="btn-cancelar-camara">
+            <i class="fa fa-times"></i> Cancelar
+          </button>
+        </div>
+        <div id="footer-confirmar" class="footer-estado" style="display:none;">
+          <button type="button" id="btn-usar-foto" class="btn-camara-usar">
+            <i class="fa fa-check"></i> Usar esta foto
+          </button>
+          <button type="button" id="btn-repetir" class="btn-camara-repetir">
+            <i class="fa fa-refresh"></i> Repetir
+          </button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div><%# fin modalCamara %>
 
 <%# ── LIGHTBOX PARA AMPLIAR IMÁGENES ─────────────────────────────────── %>
 <div id="lightbox-doc"
@@ -533,41 +1573,194 @@
     </button>
     <p id="lightbox-titulo"
        style="color:#fff; text-align:center; font-size:13px; margin-bottom:8px; font-weight:600;"></p>
-    <img id="lightbox-img"
-         src=""
+    <img id="lightbox-img" src=""
          style="max-width:90vw; max-height:80vh; border-radius:8px;
            box-shadow:0 8px 40px rgba(0,0,0,0.6); display:block;">
   </div>
 </div>
 
 <script>
-    $(document).ready(function () {
-        $('[data-toggle="tooltip"]').tooltip();
+    // ── Variables globales cámara ─────────────────────────────────────────
+    var camaraStream          = null;
+    var editarCampoObjetivo   = null;
+    var editarPreviewObjetivo = null;
+    var editarEpId            = null;
 
-        $('.btn-detalle-persona').on('click', function () {
-            var id = $(this).data('id');
-            $('#modal-persona-' + id).modal('show');
-        });
+    var titulosCamaraEditar = {
+        'frente':  'Capturar Documento \u2013 Frente',
+        'reverso': 'Capturar Documento \u2013 Reverso'
+    };
+
+    $(document).on('click', '.btn-detalle-persona', function () {
+        $('#modal-persona-' + $(this).data('id')).modal('show');
     });
 
+    $(document).on('click', '.btn-editar-persona', function () {
+        $('#modal-editar-' + $(this).data('id')).modal('show');
+    });
+
+    // ── Lightbox ──────────────────────────────────────────────────────────
     function abrirImagen(url, titulo) {
         $('#lightbox-img').attr('src', url);
         $('#lightbox-titulo').text(titulo);
         $('#lightbox-doc').css('display', 'flex');
     }
-
     function cerrarLightbox() {
         $('#lightbox-doc').css('display', 'none');
         $('#lightbox-img').attr('src', '');
     }
-
-    // Cerrar con click fuera de la imagen
     document.getElementById('lightbox-doc').addEventListener('click', function (e) {
         if (e.target === this) cerrarLightbox();
     });
-
-    // Cerrar con ESC
     document.addEventListener('keydown', function (e) {
         if (e.key === 'Escape') cerrarLightbox();
+    });
+
+    // ── Abrir cámara desde modal editar ───────────────────────────────────
+    function abrirCamaraEditar(prefixPreview, campoId, epId) {
+        editarCampoObjetivo   = campoId;
+        editarPreviewObjetivo = prefixPreview;
+        editarEpId            = epId;
+
+        var $modalEditar = $('#modal-editar-' + epId);
+
+        // Esperar cierre completo del modal editar, luego abrir cámara
+        $modalEditar.one('hidden.bs.modal', function () {
+            document.getElementById('modal-titulo').innerHTML =
+                '<i class="fa fa-camera"></i> ' + (titulosCamaraEditar[prefixPreview] || 'Capturar Documento');
+            document.getElementById('camara-canvas').style.display    = 'none';
+            document.getElementById('camara-video').style.display     = 'block';
+            document.getElementById('footer-capturar').style.display  = 'flex';
+            document.getElementById('footer-confirmar').style.display = 'none';
+            document.getElementById('camara-guia').style.display      = 'flex';
+            document.getElementById('camara-error').style.display     = 'none';
+            $('#modalCamara').modal('show');
+        });
+
+        $modalEditar.modal('hide');
+    }
+
+    // ── Iniciar stream al abrir cámara ────────────────────────────────────
+    $('#modalCamara').on('show.bs.modal', function () {
+        var video = document.getElementById('camara-video');
+        if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+            navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } })
+                .then(function (stream) {
+                    camaraStream    = stream;
+                    video.srcObject = stream;
+                })
+                .catch(function () {
+                    document.getElementById('camara-error').style.display = 'flex';
+                    document.getElementById('camara-video').style.display = 'none';
+                    document.getElementById('camara-guia').style.display  = 'none';
+                });
+        } else {
+            document.getElementById('camara-error').style.display = 'flex';
+        }
+    });
+
+    // ── Detener stream + reabrir modal editar al cerrar cámara ────────────
+    $('#modalCamara').on('hidden.bs.modal', function () {
+        if (camaraStream) {
+            camaraStream.getTracks().forEach(function (t) { t.stop(); });
+            camaraStream = null;
+        }
+        if (editarEpId) {
+            var idParaReabrir = editarEpId;
+            editarEpId = null; // limpiar ANTES del timeout para evitar loops
+            setTimeout(function () {
+                $('#modal-editar-' + idParaReabrir).modal('show');
+            }, 300);
+        }
+    });
+
+    // ── Botón snap (tomar foto) ───────────────────────────────────────────
+    document.getElementById('btn-snap').addEventListener('click', function () {
+        var video  = document.getElementById('camara-video');
+        var canvas = document.getElementById('camara-canvas');
+        canvas.width  = video.videoWidth;
+        canvas.height = video.videoHeight;
+        canvas.getContext('2d').drawImage(video, 0, 0);
+
+        // Flash visual
+        var flash = document.getElementById('camara-flash');
+        flash.style.opacity = '1';
+        setTimeout(function () { flash.style.opacity = '0'; }, 150);
+
+        video.style.display                                        = 'none';
+        canvas.style.display                                       = 'block';
+        document.getElementById('camara-guia').style.display      = 'none';
+        document.getElementById('footer-capturar').style.display  = 'none';
+        document.getElementById('footer-confirmar').style.display = 'flex';
+    });
+
+    // ── Botón repetir ─────────────────────────────────────────────────────
+    document.getElementById('btn-repetir').addEventListener('click', function () {
+        document.getElementById('camara-canvas').style.display    = 'none';
+        document.getElementById('camara-video').style.display     = 'block';
+        document.getElementById('camara-guia').style.display      = 'flex';
+        document.getElementById('footer-capturar').style.display  = 'flex';
+        document.getElementById('footer-confirmar').style.display = 'none';
+    });
+
+    // ── Botón usar foto ───────────────────────────────────────────────────
+    document.getElementById('btn-usar-foto').addEventListener('click', function () {
+        var dataUrl = document.getElementById('camara-canvas').toDataURL('image/jpeg', 0.85);
+        var base64  = dataUrl.split(',')[1];
+
+        if (editarCampoObjetivo) {
+            // Contexto: modal editar
+            document.getElementById(editarCampoObjetivo).value = base64;
+
+            var epIdActual = editarCampoObjetivo
+                .replace('editar-cedula-frente-', '')
+                .replace('editar-cedula-reverso-', '');
+
+            var div = document.getElementById('editar-preview-' + editarPreviewObjetivo + '-' + epIdActual);
+            var img = document.getElementById('editar-preview-' + editarPreviewObjetivo + '-img-' + epIdActual);
+            if (div && img) { img.src = dataUrl; div.style.display = 'block'; }
+
+            editarCampoObjetivo   = null;
+            editarPreviewObjetivo = null;
+            // editarEpId NO se limpia aquí — lo usa hidden.bs.modal para reabrir el modal editar
+
+        } else if (window._camaraFieldId) {
+            // Contexto: formulario de registro original
+            document.getElementById(window._camaraFieldId).value = base64;
+            var pDiv = document.getElementById('preview-' + (window._camaraPrefixPreview || ''));
+            var pImg = document.getElementById('preview-' + (window._camaraPrefixPreview || '') + '-img');
+            if (pDiv && pImg) { pImg.src = dataUrl; pDiv.style.display = 'block'; }
+        }
+
+        $('#modalCamara').modal('hide');
+    });
+
+    // ── Envío AJAX formulario editar ──────────────────────────────────────
+    $(document).on('submit', '[id^="form-editar-"]', function (e) {
+        e.preventDefault();
+        var form = $(this);
+        var btn  = form.find('button[type="submit"]');
+        var textoOriginal = btn.html();
+
+        btn.prop('disabled', true).html('<i class="fa fa-spinner fa-spin"></i> Guardando...');
+
+        $.ajax({
+            url:  form.attr('action'),
+            type: 'PATCH',
+            data: form.serialize(),
+            success: function () {
+                form.closest('.modal').modal('hide');
+                setTimeout(function () { location.reload(); }, 400);
+            },
+            error: function (xhr) {
+                btn.prop('disabled', false).html(textoOriginal);
+                var msg = 'Error al guardar los cambios.';
+                try {
+                    var json = JSON.parse(xhr.responseText);
+                    if (json.errors) msg = json.errors.join('\n');
+                } catch (ex) {}
+                alert(msg);
+            }
+        });
     });
 </script>
