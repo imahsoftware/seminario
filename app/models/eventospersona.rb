@@ -89,6 +89,61 @@ class Eventospersona < ApplicationRecord
     edad
   end
 
+  # Al final de los callbacks existentes, agregar:
+  after_create  :crear_usuario_inscrito
+  before_destroy :auditar_eliminacion
+
+  attr_accessor :eliminado_por
+
+  # ── Crear usuario automáticamente al inscribirse ──────────────────────────
+  def crear_usuario_inscrito
+    return if identificacion.blank?
+    return if User.exists?(identificacion: identificacion)   # ya tiene cuenta
+
+    email_usuario = email.presence || "#{identificacion}@evento.local"
+
+    user = User.new(
+      email:          email_usuario,
+      username:       identificacion,
+      identificacion: identificacion,
+      nombres:        nombre,
+      apellidos:      apellido,
+      nombre:         "#{nombre} #{apellido}",
+      nombre_real:    "#{nombre} #{apellido}",
+      celular:        celular,
+      tipoconsulta:   'INSCRITO',
+      activo:         'S',
+      estado:         'A',
+      persona_id:     persona_id,
+      password:       identificacion,
+      password_confirmation: identificacion
+    )
+
+    if user.save
+      Rails.logger.info "✅ Usuario INSCRITO creado para identificacion: #{identificacion}"
+    else
+      Rails.logger.warn "⚠️ No se pudo crear usuario para #{identificacion}: #{user.errors.full_messages}"
+    end
+  end
+
+  # ── Auditar eliminación ────────────────────────────────────────────────────
+  def auditar_eliminacion
+    Eventoseliminado.create!(
+      evento_id:             evento_id,
+      eventospersona_id:     id,
+      identificacion:        identificacion,
+      nombre:                nombre,
+      apellido:              apellido,
+      email:                 email,
+      celular:               celular,
+      tipo_persona:          tipo_persona,
+      fecha_nacimiento:      fecha_nacimiento,
+      eliminado_por_user_id: eliminado_por&.id,
+      eliminado_por_nombre:  eliminado_por&.nombre,
+      datos_completos:       self.attributes.to_json
+    )
+  end
+
   private
 
   # ── Validación: documentos obligatorios del TITULAR ──────────────────────

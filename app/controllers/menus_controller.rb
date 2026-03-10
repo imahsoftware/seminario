@@ -1,11 +1,14 @@
 class MenusController < ApplicationController
   layout :set_layout
-  # before_action :verificardatos, if: :user_signed_in?
   before_action :validatesession
 
   require 'rqrcode'
 
   def index
+    # ── Si es usuario INSCRITO, redirigir a sus eventos ──────────────────
+    if current_user.tipoconsulta == 'INSCRITO'
+      redirect_to eventosperlistados_path and return
+    end
   end
 
   private

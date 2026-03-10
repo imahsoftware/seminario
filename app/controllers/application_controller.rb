@@ -18,6 +18,7 @@ class ApplicationController < ActionController::Base
 
   before_action :bloqueo_user_index
 
+
   def validatesession
     if current_user == nil
       cookies.delete(:_session_id)

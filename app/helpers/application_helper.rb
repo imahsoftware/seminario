@@ -219,8 +219,7 @@ module ApplicationHelper
       ["SUPERVISOR", "SUPERVISOR"],
       ["ADMINISTRADOR", "ADMINISTRADOR"],
       ["GESTION", "GESTION"],
-      ["PERSONA", "PERSONA"],
-      ["CONTRATO", "CONTRATO"],
+      ["INSCRITO", "INSCRITO"],
       ["CANDIDATO", "CANDIDATO"],
       ["TODO", "TODO"]
     ]

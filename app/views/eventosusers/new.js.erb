@@ -1,0 +1,17 @@
+<% if @active_record.present? %>
+	$("#eventosuser_<%= @active_record.id %>").replaceWith("<%= j render 'tr', eventosuser: @active_record %>");
+<% end %>
+$("#eventosuser_form").html("<%= j render 'form' %>");
+$(".datetimepicker").datetimepicker();
+$(".tooltip").tooltip("hide");
+$('[data-toggle="tooltip"]').tooltip();
+$("#eventosuser_form").collapse("show");
+$(".select2").select2();
+$('.datepicker').datepicker({
+    dayNamesMin: [ "Dom", "Lun", "Mar", "Mie", "Jue", "Vie", "Sáb" ],
+    monthNamesShort: [ "Ene", "Feb", "Mar", "Abr", "May", "Jun", "Jul", "Ago", "Sep", "Oct", "Nov", "Dic" ],
+    dateFormat: "yy-mm-dd",
+    yearRange: '2000:2027',
+    changeMonth: true,
+    changeYear: true,
+});

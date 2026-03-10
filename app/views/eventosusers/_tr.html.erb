@@ -1,0 +1,17 @@
+<tr id="eventosuser_<%= eventosuser.id %>">
+  <td class="text-center">
+    <%= link_to edit_evento_eventosuser_path(@evento, eventosuser), remote: true, class: 'edit_contratosmodificacion_button', data: { toggle: 'tooltip' }, title: "#{t :title_editar}" do %>
+      <button class="btn btn-xs btn-warning"><i class="fa fa-edit"></i></button>
+    <% end %>
+    <%= link_to evento_eventosuser_path(@evento, eventosuser), remote: true, method: :delete, data: { confirm: "#{t :elimina_confirma}", toggle: 'tooltip' }, title: "#{t :title_elimina}" do %>
+      <button class="btn btn-xs btn-danger"><i class="fa fa-trash"></i></button>
+    <% end %>
+
+  </td>
+  <td align="left"><%= eventosuser.created_at.strftime("%Y-%m-%d %X") rescue nil %>
+    <br/><%= eventosuser.user.nombre.html_safe rescue nil %></td>
+  <td align="justify"><%= User.find(eventosuser.user_administra).nombre rescue nil %></td>
+</tr>
+
+
+

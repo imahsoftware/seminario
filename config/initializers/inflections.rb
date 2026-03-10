@@ -298,6 +298,8 @@ ActiveSupport::Inflector.inflections(:en) do |inflect|
   inflect.irregular('formatosvariable', 'formatosvariables')
   inflect.irregular('iparametrosformato', 'iparametrosformatos')
   inflect.irregular('notificacionesplataforma','notificacionesplataformas')
+  inflect.irregular('eventosuser', 'eventosusers')
+  inflect.irregular('eventoseliminado', 'eventoseliminados')
 end
 
 

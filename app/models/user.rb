@@ -21,6 +21,8 @@ class User < ApplicationRecord
   has_many :usersvisitas
   has_many :usersparametros
   has_many :notificacionesplataformas, dependent: :destroy
+  has_many :eventospersonas, foreign_key: :persona_id, primary_key: :persona_id
+  has_many :eventos_inscritos, through: :eventospersonas, source: :evento
 
   has_attached_file :avatar, styles: { medium: "300x300>", thumb: "100x100>" }, default_url: "/assets/user_img.png"
   validates_attachment_content_type :avatar, content_type: /\Aimage\/.*\z/

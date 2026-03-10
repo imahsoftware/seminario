@@ -21,6 +21,11 @@
             <i class="fa fa-users"></i><span>Personas</span>
           <% end %>
         </li>
+        <li class="<%= active_class(edit_evento_path(etapa: "C", id: @evento.guid)) %>">
+          <%= link_to edit_evento_path(etapa: "C", guid: @evento.guid) do %>
+            <i class="fa fa-user"></i><span>Cordinadores</span>
+          <% end %>
+        </li>
       <% end %>
       </li>
     </ul>

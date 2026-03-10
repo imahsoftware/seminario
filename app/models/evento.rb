@@ -5,6 +5,7 @@ class Evento < ApplicationRecord
   belongs_to :user
   has_many :eventospersonas, dependent: :destroy
   has_many :personas, through: :eventospersonas
+  has_many :eventosusers, dependent: :destroy
 
   # ── Habeas Data desde tabla parametros ──────────────────────────
   belongs_to :habeas_data_parametro, class_name: 'Parametro',

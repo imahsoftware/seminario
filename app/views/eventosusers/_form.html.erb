@@ -1,0 +1,35 @@
+<%= simple_form_for([@evento, @eventosuser], remote: true) do |f| %>
+  <div class="bs-callout">
+    <div class="row">
+      <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+        <%
+          usuarios_excluidos = @evento.eventosusers.pluck(:user_administra)
+          usuarios_excluidos -= [@eventosuser.user_administra] unless @eventosuser.new_record?
+        %>
+
+        <%= f.input :user_administra,
+                    collection: User.where(tipoconsulta: 'SUPERVISOR', activo: 'S')
+                                    .where.not(id: usuarios_excluidos)
+                                    .order(:nombre)
+                                    .collect { |p| [p.nombrecompleto, p.id] },
+                    input_html: { class: 'select2 clean' },
+                    as: :select,
+                    include_blank: true,
+                    label: "Supervisor" %>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-md-6">
+        <% if @eventosuser.new_record? %>
+          <%= button_tag "#{t :cancelar}", type: 'button', data: {target: '#eventosuser_form'}, class: 'cancel_button btn btn-flat btn-default pull-left', aria_hidden: true %>
+        <% else %>
+          <%= link_to "#{t :cancelar}", evento_eventosuser_path(@evento, @eventosuser), class: 'btn btn-flat btn-default pull-left', aria_hidden: true, remote: true %>
+        <% end %>
+      </div>
+      <div class="col-md-6">
+        <%= f.button :submit, "#{t :guardar}", class: "btn btn-danger pull-right" %>
+      </div>
+    </div>
+  </div>
+<% end %>
+<br/>

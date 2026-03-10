@@ -31,28 +31,23 @@ class RegistroEventosController < ApplicationController
       redirect_to registro_evento_path(@evento.guid) and return
     end
 
-    # ── 1. Leer base64 de params ─────────────────────────────────────────────
     frente_b64     = params.dig(:eventospersona, :cedula_frente_base64)
     reverso_b64    = params.dig(:eventospersona, :cedula_reverso_base64)
     acu_frente_b64 = params.dig(:eventospersona, :acudiente_cedula_frente_base64)
     acu_rev_b64    = params.dig(:eventospersona, :acudiente_cedula_reverso_base64)
 
-    # ── 2. Construir el modelo ───────────────────────────────────────────────
     @eventospersona = @evento.eventospersonas.build(eventospersona_params)
 
-    # ── 3. Asignar fotos a attr_accessor ANTES del save ──────────────────────
-    base64_a_paperclip(frente_b64,     'cedula_frente')          { |f| @eventospersona.cedula_frente          = f }
-    base64_a_paperclip(reverso_b64,    'cedula_reverso')         { |f| @eventospersona.cedula_reverso         = f }
-    base64_a_paperclip(acu_frente_b64, 'acudiente_cedula_frente'){ |f| @eventospersona.acudiente_cedula_frente = f }
+    base64_a_paperclip(frente_b64,     'cedula_frente')           { |f| @eventospersona.cedula_frente           = f }
+    base64_a_paperclip(reverso_b64,    'cedula_reverso')          { |f| @eventospersona.cedula_reverso          = f }
+    base64_a_paperclip(acu_frente_b64, 'acudiente_cedula_frente') { |f| @eventospersona.acudiente_cedula_frente = f }
     base64_a_paperclip(acu_rev_b64,    'acudiente_cedula_reverso'){ |f| @eventospersona.acudiente_cedula_reverso = f }
 
-    # ── 4. Verificar si el titular ya tiene documentos ───────────────────────
     persona_existente = Persona.find_by(identificacion: @eventospersona.identificacion)
     if persona_existente && Documento.where(persona_id: persona_existente.id).exists?
       @eventospersona.ya_tiene_documentos = true
     end
 
-    # ── 5. Verificar si el acudiente ya tiene documentos ────────────────────
     acu_identificacion = params.dig(:eventospersona, :acudiente_identificacion)
     if acu_identificacion.present?
       acudiente_existente = Persona.find_by(identificacion: acu_identificacion)
@@ -61,13 +56,15 @@ class RegistroEventosController < ApplicationController
       end
     end
 
-    # ── 6. Guardar ───────────────────────────────────────────────────────────
     if @eventospersona.save
 
-      # ── 7. Documento del titular ────────────────────────────────────────
+      # ── NUEVO: Crear usuario INSCRITO automáticamente ──────────────────
+      crear_usuario_inscrito(@eventospersona)
+      # ──────────────────────────────────────────────────────────────────
+
       if @eventospersona.persona_id.present? && (frente_b64.present? || reverso_b64.present?)
         doc_titular = Documento.find_or_initialize_by(
-          persona_id:       @eventospersona.persona_id,
+          persona_id:        @eventospersona.persona_id,
           tipo_documento_id: @eventospersona.documento_tipo_id || 1
         )
         doc_titular.eventospersona_id = @eventospersona.id
@@ -78,7 +75,6 @@ class RegistroEventosController < ApplicationController
         end
       end
 
-      # ── 8. Redirección según edad ────────────────────────────────────────
       if @eventospersona.menor_de_edad?
         begin
           WssmsController.envio_sms_colombiaredenvio(@eventospersona)
@@ -97,10 +93,10 @@ class RegistroEventosController < ApplicationController
       Rails.logger.error "❌ Errores de validación:"
       errores.each { |error| Rails.logger.error "  - #{error}" }
 
-      @frente_b64    = frente_b64
-      @reverso_b64   = reverso_b64
+      @frente_b64     = frente_b64
+      @reverso_b64    = reverso_b64
       @acu_frente_b64 = acu_frente_b64
-      @acu_rev_b64   = acu_rev_b64
+      @acu_rev_b64    = acu_rev_b64
 
       flash.now[:alert] = "Por favor, corrige los siguientes errores:"
       render :show
@@ -124,23 +120,19 @@ class RegistroEventosController < ApplicationController
   def autorizacion
     @evento         = Evento.find_by_guid!(params[:guid])
     @eventospersona = @evento.eventospersonas.find(params[:id])
-    # Si ya fue respondida la vista misma muestra la guardia "no disponible"
   end
 
-  # ── Procesar decisión del acudiente ─────────────────────────────────────
   def autorizar_participacion
     @evento         = Evento.find_by_guid!(params[:guid])
     @eventospersona = @evento.eventospersonas.find(params[:id])
 
-    # Guardia: si ya fue respondida no procesar de nuevo
     if @eventospersona.acudiente_firma.present?
       redirect_to autorizacion_registro_evento_path(@evento.guid, @eventospersona.id) and return
     end
 
-    decision = params[:decision].to_s.upcase  # 'SI' o 'NO'
+    decision = params[:decision].to_s.upcase
 
     if decision == 'SI'
-      # ── Guardar documento del acudiente ──────────────────────────────────
       acu_frente_b64 = params[:acudiente_cedula_frente_base64]
       acu_rev_b64    = params[:acudiente_cedula_reverso_base64]
       acu_tipo_id    = params[:acudiente_documento_tipo_id]
@@ -157,7 +149,6 @@ class RegistroEventosController < ApplicationController
           Rails.logger.error "❌ Error guardando doc acudiente en autorización: #{doc_acu.errors.full_messages}"
         end
 
-        # Actualizar tipo de documento en la persona acudiente
         if acu_tipo_id.present? && @eventospersona.acudiente_id.present?
           Persona.find_by(id: @eventospersona.acudiente_id)&.update(documento_tipo_id: acu_tipo_id)
         end
@@ -168,7 +159,6 @@ class RegistroEventosController < ApplicationController
       redirect_to exito_registro_evento_path(@evento.guid)
 
     else
-      # NO autoriza
       @eventospersona.update(acudiente_firma: 'NO')
       redirect_to no_autorizado_registro_evento_path(@evento.guid)
     end
@@ -195,19 +185,19 @@ class RegistroEventosController < ApplicationController
       documento = Documento.where(persona_id: persona.id).order(updated_at: :desc).first
 
       render json: {
-        encontrada:          true,
-        nombre:              persona.nombre,
-        apellido:            persona.apellido,
-        fecha_nacimiento:    persona.fecha_nacimiento&.strftime("%d/%m/%Y"),
-        celular:             persona.celular,
-        email:               persona.email,
-        direccion:           persona.direccion,
-        sexo:                persona.sexo,
-        estado_civil_id:     persona.estado_civil_id,
-        documento_tipo_id:   persona.documento_tipo_id,
-        tiene_documentos:    documento.present?,
-        cedula_frente_url:   documento&.cedula_frente&.url,
-        cedula_reverso_url:  documento&.cedula_reverso&.url
+        encontrada:         true,
+        nombre:             persona.nombre,
+        apellido:           persona.apellido,
+        fecha_nacimiento:   persona.fecha_nacimiento&.strftime("%d/%m/%Y"),
+        celular:            persona.celular,
+        email:              persona.email,
+        direccion:          persona.direccion,
+        sexo:               persona.sexo,
+        estado_civil_id:    persona.estado_civil_id,
+        documento_tipo_id:  persona.documento_tipo_id,
+        tiene_documentos:   documento.present?,
+        cedula_frente_url:  documento&.cedula_frente&.url,
+        cedula_reverso_url: documento&.cedula_reverso&.url
       }
     else
       render json: { encontrada: false }
@@ -218,6 +208,49 @@ class RegistroEventosController < ApplicationController
   end
 
   private
+
+  def crear_usuario_inscrito(ep)
+    return if ep.identificacion.blank?
+    return if User.exists?(identificacion: ep.identificacion)
+
+    email_usuario = if ep.email.present? && !User.exists?(email: ep.email)
+                      ep.email
+                    else
+                      "#{ep.identificacion}@evento.local"
+                    end
+
+    password = ep.identificacion.to_s.ljust(8, '0')
+
+    user = User.new(
+      email:                 email_usuario,
+      username:              ep.identificacion,
+      identificacion:        ep.identificacion,
+      nombres:               ep.nombre,
+      apellidos:             ep.apellido,
+      nombre:                "#{ep.nombre} #{ep.apellido}",
+      nombre_real:           "#{ep.nombre} #{ep.apellido}",
+      celular:               ep.celular,
+      tipoconsulta:          'INSCRITO',
+      activo:                'S',
+      estado:                'A',
+      persona_id:            ep.persona_id,
+      password:              password,
+      password_confirmation: password
+    )
+
+    if user.save
+      # ── Enviar SMS con credenciales ──────────────────────────────────────
+      begin
+        WssmsController.envio_sms_credenciales_inscrito(ep, password)
+      rescue => e
+        Rails.logger.error "❌ Error enviando SMS credenciales: #{e.message}"
+      end
+      # ────────────────────────────────────────────────────────────────────
+    else
+      Rails.logger.warn "⚠️ No se pudo crear usuario #{ep.identificacion}: #{user.errors.full_messages}"
+    end
+  end
+  # ───────────────────────────────────────────────────────────────────────
 
   def base64_a_paperclip(base64_data, prefix)
     return if base64_data.blank?

@@ -1,7 +1,12 @@
 Rails.application.routes.draw do
 
-  resources :eventospersonas
+  resources :eventosperlistados, only: [:index] do
+    member do
+      delete :cancelar
+    end
+  end
 
+  resources :eventospersonas
 
   guid_constraint = { guid: /[A-Z0-9]{8}/ }
 
@@ -21,6 +26,7 @@ Rails.application.routes.draw do
       get :copiar_url
     end
     resources :eventospersonas
+    resources :eventosusers
   end
 
   resources :tiposeventos
