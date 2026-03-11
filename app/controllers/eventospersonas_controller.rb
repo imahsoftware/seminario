@@ -10,10 +10,7 @@ class EventospersonasController < ApplicationController
 
   # GET /eventospersonas/1
   # GET /eventospersonas/1.json
-  def show
-    respond_to { |format| format.js }
 
-  end
 
   # GET /eventospersonas/new
   def new
@@ -21,11 +18,6 @@ class EventospersonasController < ApplicationController
   end
 
   # GET /eventospersonas/1/edit
-  def edit
-    respond_to { |format| format.js }
-
-  end
-
   # POST /eventospersonas
   # POST /eventospersonas.json
   def create
@@ -44,15 +36,34 @@ class EventospersonasController < ApplicationController
 
   # PATCH/PUT /eventospersonas/1
   # PATCH/PUT /eventospersonas/1.json
+  def show
+    @ep = Eventospersona.find(params[:id])
+
+    # Buscar documento igual que el código original
+    persona    = Persona.find_by(identificacion: @ep.identificacion)
+    @documento = persona ? Documento.find_by(persona_id: persona.id) : nil
+
+    render partial: 'eventospersonas/modal_detalle', layout: false
+  end
+
+  def edit
+    @ep = Eventospersona.find(params[:id])
+
+    persona    = Persona.find_by(identificacion: @ep.identificacion)
+    @documento = persona ? Documento.find_by(persona_id: persona.id) : nil
+
+    render partial: 'eventospersonas/modal_editar', layout: false
+  end
+
+  # ── PATCH /eventospersonas/:id
+  # Igual que tenías — responde JSON para el AJAX del formulario.
   def update
-    respond_to do |format|
-      if @eventospersona.update(eventospersona_params)
-        format.html { redirect_to @eventospersona, notice: 'Eventospersona was successfully updated.' }
-        format.json { render :show, status: :ok, location: @eventospersona }
-      else
-        format.html { render :edit }
-        format.json { render json: @eventospersona.errors, status: :unprocessable_entity }
-      end
+    @ep = Eventospersona.find(params[:id])
+
+    if @ep.update(eventospersona_params)
+      render json: { ok: true }, status: :ok
+    else
+      render json: { errors: @ep.errors.full_messages }, status: :unprocessable_entity
     end
   end
 
