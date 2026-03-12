@@ -216,7 +216,7 @@ class RegistroEventosController < ApplicationController
     email_usuario = if ep.email.present? && !User.exists?(email: ep.email)
                       ep.email
                     else
-                      "#{ep.identificacion}@evento.local"
+                      "#{ep.identificacion}@srmmedellin.org"
                     end
 
     password = ep.identificacion.to_s.ljust(8, '0')
