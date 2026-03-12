@@ -1,0 +1,371 @@
+<%
+  ep        = @ep
+  edad      = ep.fecha_nacimiento.present? ? ((Date.today - ep.fecha_nacimiento.to_date).to_i / 365.25).floor : nil
+  es_menor  = edad.present? && edad < 18
+  documento = @documento
+%>
+
+<style>
+    /* ── Padding uniforme para todos los inputs del modal editar ── */
+    #modal-editar-global .form-control {
+        padding: 6px 10px;
+        margin-bottom: 4px;
+    }
+
+    #modal-editar-global .form-group {
+        margin-bottom: 12px;
+    }
+
+    /* ── Padding lateral uniforme en todas las columnas ── */
+    #modal-editar-global .col-md-3,
+    #modal-editar-global .col-md-4,
+    #modal-editar-global .col-md-6,
+    #modal-editar-global .col-sm-6,
+    #modal-editar-global .col-sm-12 {
+        padding-left: 25px;
+        padding-right: 25px;
+    }
+
+    #modal-editar-global .select2-container .select2-selection--single {
+        height: 34px;
+        padding: 4px 8px;
+        border: 1px solid #d2d6de;
+        border-radius: 3px;
+    }
+
+    #modal-editar-global .select2-container .select2-selection--single
+    .select2-selection__rendered {
+        line-height: 24px;
+        padding-left: 4px;
+    }
+
+    #modal-editar-global .select2-container .select2-selection--single
+    .select2-selection__arrow {
+        height: 32px;
+    }
+</style>
+
+<div class="modal-header <%= es_menor ? 'bg-yellow' : 'bg-warning' %>"
+     style="color:#fff; border-radius: 3px 3px 0 0;">
+  <button type="button" class="close" data-dismiss="modal" style="color:#fff; opacity:1;">
+    <span>&times;</span>
+  </button>
+  <h4 class="modal-title">
+    <i class="fa fa-pencil"></i> Editar — <%= "#{ep.nombre} #{ep.apellido}".strip %>
+    <% if es_menor %>
+      <small style="font-size:12px; margin-left:8px;">
+        <span class="label label-warning"><i class="fa fa-child"></i> MENOR DE EDAD</span>
+      </small>
+    <% end %>
+  </h4>
+</div>
+
+<%= form_tag url_for(controller: 'eventospersonas', action: 'update', id: ep.id),
+             method: :patch,
+             id: "form-editar-#{ep.id}",
+             class: 'form-horizontal' do %>
+
+  <div class="modal-body" style="padding: 20px 25px;">
+
+    <%# ── Datos Personales ── %>
+    <div class="box box-solid box-primary" style="margin-bottom:15px;">
+      <div class="box-header with-border" style="padding: 8px 12px;">
+        <h4 class="box-title"><i class="fa fa-id-card"></i> Datos Personales</h4>
+      </div>
+      <div class="box-body" style="padding: 12px 15px;">
+        <div class="row">
+
+          <div class="col-md-3 col-sm-6">
+            <div class="form-group">
+              <label class="control-label"><small>Identificación</small></label>
+              <%= text_field_tag "eventospersona[identificacion]", ep.identificacion,
+                                 class: 'form-control input-sm' %>
+            </div>
+          </div>
+
+          <div class="col-md-3 col-sm-6">
+            <div class="form-group">
+              <label class="control-label"><small>Nombre</small></label>
+              <%= text_field_tag "eventospersona[nombre]", ep.nombre,
+                                 class: 'form-control input-sm',
+                                 onchange: 'this.value=this.value.toUpperCase();' %>
+            </div>
+          </div>
+
+          <div class="col-md-3 col-sm-6">
+            <div class="form-group">
+              <label class="control-label"><small>Apellido</small></label>
+              <%= text_field_tag "eventospersona[apellido]", ep.apellido,
+                                 class: 'form-control input-sm',
+                                 onchange: 'this.value=this.value.toUpperCase();' %>
+            </div>
+          </div>
+
+          <div class="col-md-3 col-sm-6">
+            <div class="form-group">
+              <label class="control-label"><small>Fecha de Nacimiento</small></label>
+              <%# Campo visible %>
+              <%= text_field_tag "fecha_display_#{ep.id}",
+                                 ep.fecha_nacimiento.present? ? ep.fecha_nacimiento.strftime('%d/%m/%Y') : '',
+                                 class: 'form-control input-sm datepicker',
+                                 autocomplete: 'off',
+                                 readonly: true,
+                                 id: "fecha_display_#{ep.id}" %>
+              <%# Campo oculto — envía ISO al servidor %>
+              <input type="hidden"
+                     id="fecha_hidden_<%= ep.id %>"
+                     name="eventospersona[fecha_nacimiento]"
+                     value="<%= ep.fecha_nacimiento.present? ? ep.fecha_nacimiento.strftime('%Y-%m-%d') : '' %>">
+            </div>
+          </div>
+
+          <div class="col-md-4 col-sm-6">
+            <div class="form-group">
+              <label class="control-label"><small>Sexo</small></label>
+              <%= select_tag "eventospersona[sexo]",
+                             options_for_select(
+                               Iparametro.where("campo = 'GENERO'").order(:descripcion)
+                                         .collect { |p| [p.descripcion.to_s, p.valor.to_s] },
+                               ep.sexo
+                             ),
+                             class: 'form-control input-sm',
+                             include_blank: 'Seleccione...' %>
+            </div>
+          </div>
+
+          <div class="col-md-4 col-sm-6">
+            <div class="form-group">
+              <label class="control-label"><small>Estado Civil</small></label>
+              <%= select_tag "eventospersona[estado_civil_id]",
+                             options_from_collection_for_select(
+                               EstadoCivil.where(estado: 'ACTIVO').order(:nombre),
+                               :id, :nombre, ep.estado_civil_id
+                             ),
+                             class: 'form-control input-sm',
+                             include_blank: 'Seleccione...' %>
+            </div>
+          </div>
+
+          <div class="col-md-4 col-sm-6">
+            <div class="form-group">
+              <label class="control-label"><small>Tipo Persona</small></label>
+              <%= select_tag "eventospersona[tipo_persona]",
+                             options_for_select(
+                               Iparametro.where("campo = 'TIPO_PERSONA'").order(:descripcion)
+                                         .collect { |p| [p.descripcion.to_s, p.valor.to_s] },
+                               ep.tipo_persona
+                             ),
+                             class: 'form-control input-sm',
+                             include_blank: 'Seleccione...' %>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <%# ── Contacto ── %>
+    <div class="box box-solid box-info" style="margin-bottom:15px;">
+      <div class="box-header with-border" style="padding: 8px 12px;">
+        <h4 class="box-title"><i class="fa fa-phone"></i> Contacto</h4>
+      </div>
+      <div class="box-body" style="padding: 12px 15px;">
+        <div class="row">
+          <div class="col-md-4 col-sm-6">
+            <div class="form-group">
+              <label class="control-label"><small>Celular</small></label>
+              <%= text_field_tag "eventospersona[celular]", ep.celular,
+                                 class: 'form-control input-sm', maxlength: 20 %>
+            </div>
+          </div>
+          <div class="col-md-4 col-sm-6">
+            <div class="form-group">
+              <label class="control-label"><small>Email</small></label>
+              <%= text_field_tag "eventospersona[email]", ep.email,
+                                 class: 'form-control input-sm', type: 'email' %>
+            </div>
+          </div>
+          <div class="col-md-4 col-sm-6">
+            <div class="form-group">
+              <label class="control-label"><small>Dirección</small></label>
+              <%= text_field_tag "eventospersona[direccion]", ep.direccion,
+                                 class: 'form-control input-sm',
+                                 onchange: 'this.value=this.value.toUpperCase();' %>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <%# ── Documentos de Identidad (solo visualización, sin botones cámara) ── %>
+    <% if documento.present? && (documento.cedula_frente.present? || documento.cedula_reverso.present?) %>
+      <div class="box box-solid box-success" style="margin-bottom:15px;">
+        <div class="box-header with-border" style="padding: 8px 12px;">
+          <h4 class="box-title"><i class="fa fa-id-card-o"></i> Documentos de Identidad</h4>
+        </div>
+        <div class="box-body" style="padding: 16px 20px;">
+          <div class="row">
+
+            <div class="col-md-6 col-sm-12" style="margin-bottom: 10px;">
+              <p class="text-muted text-center" style="margin-bottom: 8px;">
+                <i class="fa fa-id-card text-success"></i> <small><strong>Cédula — Frente</strong></small>
+              </p>
+              <% if documento.cedula_frente.present? %>
+                <div style="border:2px solid #00a65a; border-radius:8px; overflow:hidden; text-align:center; cursor:pointer;"
+                     onclick="abrirImagen('<%= documento.cedula_frente.url %>', 'Cédula Frente')">
+                  <%= image_tag documento.cedula_frente.url,
+                                style: 'width:100%; max-height:150px; object-fit:cover; display:block;',
+                                alt: 'Frente' %>
+                  <div style="padding:4px; font-size:11px; color:#555; background:#f4f4f4;">
+                    <i class="fa fa-search-plus"></i> Click para ampliar
+                  </div>
+                </div>
+              <% else %>
+                <div class="text-center text-muted" style="padding:30px; background:#f9f9f9; border:1px dashed #ddd; border-radius:6px;">
+                  <i class="fa fa-picture-o fa-2x"></i><br><small>Sin imagen</small>
+                </div>
+              <% end %>
+            </div>
+
+            <div class="col-md-6 col-sm-12" style="margin-bottom: 10px;">
+              <p class="text-muted text-center" style="margin-bottom: 8px;">
+                <i class="fa fa-id-card-o text-success"></i> <small><strong>Cédula — Reverso</strong></small>
+              </p>
+              <% if documento.cedula_reverso.present? %>
+                <div style="border:2px solid #00a65a; border-radius:8px; overflow:hidden; text-align:center; cursor:pointer;"
+                     onclick="abrirImagen('<%= documento.cedula_reverso.url %>', 'Cédula Reverso')">
+                  <%= image_tag documento.cedula_reverso.url,
+                                style: 'width:100%; max-height:150px; object-fit:cover; display:block;',
+                                alt: 'Reverso' %>
+                  <div style="padding:4px; font-size:11px; color:#555; background:#f4f4f4;">
+                    <i class="fa fa-search-plus"></i> Click para ampliar
+                  </div>
+                </div>
+              <% else %>
+                <div class="text-center text-muted" style="padding:30px; background:#f9f9f9; border:1px dashed #ddd; border-radius:6px;">
+                  <i class="fa fa-picture-o fa-2x"></i><br><small>Sin imagen</small>
+                </div>
+              <% end %>
+            </div>
+
+          </div>
+        </div>
+      </div>
+    <% end %>
+
+    <%# ── Acudiente (solo menores) ── %>
+    <% if es_menor %>
+      <div class="box box-solid box-warning" style="margin-bottom:15px;">
+        <div class="box-header with-border" style="padding: 8px 12px;">
+          <h4 class="box-title"><i class="fa fa-user-plus"></i> Datos del Acudiente</h4>
+        </div>
+        <div class="box-body" style="padding: 12px 15px;">
+          <div class="row">
+            <div class="col-md-4 col-sm-6">
+              <div class="form-group">
+                <label class="control-label"><small>Tipo Doc. Acudiente</small></label>
+                <%= select_tag "eventospersona[acudiente_documento_tipo_id]",
+                               options_from_collection_for_select(
+                                 DocumentoTipo.where(estado: 'activo').order(:nombre),
+                                 :id, :nombre, ep.acudiente_documento_tipo_id
+                               ),
+                               class: 'form-control input-sm',
+                               include_blank: 'Seleccione...' %>
+              </div>
+            </div>
+            <div class="col-md-4 col-sm-6">
+              <div class="form-group">
+                <label class="control-label"><small>Identificación Acudiente</small></label>
+                <%= text_field_tag "eventospersona[acudiente_identificacion]",
+                                   ep.acudiente_identificacion,
+                                   class: 'form-control input-sm', maxlength: 30 %>
+              </div>
+            </div>
+            <div class="col-md-4 col-sm-6">
+              <div class="form-group">
+                <label class="control-label"><small>Nombre Acudiente</small></label>
+                <%= text_field_tag "eventospersona[acudiente_nombre]", ep.acudiente_nombre,
+                                   class: 'form-control input-sm',
+                                   onchange: 'this.value=this.value.toUpperCase();' %>
+              </div>
+            </div>
+            <div class="col-md-4 col-sm-6">
+              <div class="form-group">
+                <label class="control-label"><small>Apellido Acudiente</small></label>
+                <%= text_field_tag "eventospersona[acudiente_apellido]", ep.acudiente_apellido,
+                                   class: 'form-control input-sm',
+                                   onchange: 'this.value=this.value.toUpperCase();' %>
+              </div>
+            </div>
+            <div class="col-md-4 col-sm-6">
+              <div class="form-group">
+                <label class="control-label"><small>Celular Acudiente</small></label>
+                <%= text_field_tag "eventospersona[acudiente_celular]", ep.acudiente_celular,
+                                   class: 'form-control input-sm', maxlength: 20 %>
+              </div>
+            </div>
+            <div class="col-md-4 col-sm-6">
+              <div class="form-group">
+                <label class="control-label"><small>Email Acudiente</small></label>
+                <%= text_field_tag "eventospersona[acudiente_email]", ep.acudiente_email,
+                                   class: 'form-control input-sm', type: 'email' %>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    <% end %>
+
+    <%# ── Autorizaciones ── %>
+    <div class="box box-solid box-default" style="margin-bottom:0;">
+      <div class="box-header with-border" style="padding: 8px 12px;">
+        <h4 class="box-title"><i class="fa fa-check-square-o"></i> Autorizaciones y Registro</h4>
+      </div>
+      <div class="box-body" style="padding: 12px 15px;">
+        <div class="row">
+          <div class="col-md-3 col-sm-6">
+            <div class="form-group">
+              <label class="control-label"><small>Acepta Política</small></label>
+              <%= select_tag "eventospersona[acepta_politica]",
+                             options_for_select([['SI', 'SI'], ['NO', 'NO']], ep.acepta_politica),
+                             class: 'form-control input-sm' %>
+            </div>
+          </div>
+          <div class="col-md-3 col-sm-6">
+            <div class="form-group">
+              <label class="control-label"><small>Acepta Cultura</small></label>
+              <%= select_tag "eventospersona[acepta_cultura]",
+                             options_for_select([['SI', 'SI'], ['NO', 'NO']], ep.acepta_cultura),
+                             class: 'form-control input-sm' %>
+            </div>
+          </div>
+          <div class="col-md-3 col-sm-6">
+            <p class="text-muted" style="margin-bottom:2px;"><small>Fecha Inscripción</small></p>
+            <p><i class="fa fa-calendar text-muted"></i>
+              <strong><%= ep.created_at.strftime('%d/%m/%Y %H:%M') rescue 'N/D' %></strong></p>
+          </div>
+          <div class="col-md-3 col-sm-6">
+            <p class="text-muted" style="margin-bottom:2px;"><small>Última Actualización</small></p>
+            <p><i class="fa fa-refresh text-muted"></i>
+              <strong><%= ep.updated_at.strftime('%d/%m/%Y %H:%M') rescue 'N/D' %></strong></p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div><%# fin modal-body %>
+
+  <div class="modal-footer">
+    <small class="text-muted pull-left">
+      ID: <strong>#<%= ep.id %></strong> &nbsp;|&nbsp;
+      Evento: <strong>#<%= ep.evento_id %></strong>
+    </small>
+    <button type="button" class="btn btn-default" data-dismiss="modal">
+      <i class="fa fa-times"></i> Cancelar
+    </button>
+    <button type="submit" class="btn btn-warning">
+      <i class="fa fa-save"></i> Guardar Cambios
+    </button>
+  </div>
+
+<% end %>

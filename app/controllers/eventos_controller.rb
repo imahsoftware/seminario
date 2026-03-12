@@ -37,18 +37,13 @@ class EventosController < ApplicationController
                            .order('created_at desc')
                            .paginate(page: params[:page], per_page: 10)
 
-      # Pre-cargar documentos para evitar N+1 en la vista
-      identificaciones = @eventospersonas.map(&:identificacion).compact.uniq
-      personas_map     = Persona.where(identificacion: identificaciones).index_by(&:identificacion)
-      persona_ids      = personas_map.values.map(&:id)
-      documentos_map   = Documento.where(persona_id: persona_ids).index_by(&:persona_id)
-
-      @documentos_por_identificacion = personas_map.transform_values { |p| documentos_map[p.id] }
+      # ✅ ELIMINAR todo el bloque de pre-carga de documentos:
+      # Ya no se necesita porque los documentos se cargan en
+      # EventospersonasController#show y #edit bajo demanda (AJAX).
     end
 
     render :evento_form
   end
-
   def exportar_excel
     @evento      = Evento.find_by(guid: params[:evento_id])
     @inscritos   = Eventospersona.where(evento_id: @evento.id)

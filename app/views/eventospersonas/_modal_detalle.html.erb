@@ -1,259 +1,268 @@
-<div class="modal fade"
-     id="modal-persona-<%= ep.id %>"
-     tabindex="-1"
-     role="dialog"
-     aria-labelledby="modal-label-<%= ep.id %>">
+<%
+  # _modal_detalle.html.erb
+  # Renderizado vía AJAX desde eventospersonas#show (formato JS o HTML)
+  # Variables esperadas: @ep, @documento
+  ep        = @ep
+  edad      = ep.fecha_nacimiento.present? ? ((Date.today - ep.fecha_nacimiento.to_date).to_i / 365.25).floor : nil
+  es_menor  = edad.present? && edad < 18
+  documento = @documento
+%>
 
-  <div class="modal-dialog modal-lg" role="document">
-    <div class="modal-content">
+<div class="modal-header <%= es_menor ? 'bg-yellow' : 'bg-primary' %>"
+     style="color:#fff; border-radius: 3px 3px 0 0;">
+  <button type="button" class="close" data-dismiss="modal" style="color:#fff; opacity:1;">
+    <span>&times;</span>
+  </button>
+  <h4 class="modal-title">
+    <i class="fa fa-user"></i>
+    <%= "#{ep.nombre} #{ep.apellido}".strip %>
+    <% if es_menor %>
+      <small style="font-size:12px; margin-left:8px;">
+        <span class="label label-warning">
+          <i class="fa fa-child"></i> MENOR DE EDAD
+        </span>
+      </small>
+    <% end %>
+  </h4>
+</div>
 
-      <%# ── HEADER ──────────────────────────────────────────────── %>
-      <div class="modal-header <%= es_menor ? 'bg-yellow' : 'bg-primary' %>"
-           style="color: #fff; border-radius: 3px 3px 0 0;">
-        <button type="button" class="close" data-dismiss="modal" style="color:#fff; opacity:1;">
-          <span>&times;</span>
-        </button>
-        <h4 class="modal-title" id="modal-label-<%= ep.id %>">
-          <i class="fa fa-user"></i>
-          <%= "#{ep.nombre} #{ep.apellido}".strip %>
-          <% if es_menor %>
-            <small style="font-size:12px; margin-left:8px;">
-              <span class="label label-warning"><i class="fa fa-child"></i> MENOR DE EDAD</span>
-            </small>
+<div class="modal-body" style="padding: 20px 25px;">
+
+  <%# ── Datos Personales ── %>
+  <div class="box box-solid box-primary" style="margin-bottom:15px;">
+    <div class="box-header with-border" style="padding: 8px 12px;">
+      <h4 class="box-title"><i class="fa fa-id-card"></i> Datos Personales</h4>
+    </div>
+    <div class="box-body" style="padding: 12px 15px;">
+      <div class="row">
+        <div class="col-md-4 col-sm-6">
+          <p class="text-muted" style="margin-bottom:2px;"><small>Identificación</small></p>
+          <p><strong><%= ep.identificacion %></strong></p>
+        </div>
+        <div class="col-md-4 col-sm-6">
+          <p class="text-muted" style="margin-bottom:2px;"><small>Nombre Completo</small></p>
+          <p><strong><%= "#{ep.nombre} #{ep.apellido}".strip %></strong></p>
+        </div>
+        <div class="col-md-4 col-sm-6">
+          <p class="text-muted" style="margin-bottom:2px;"><small>Fecha de Nacimiento</small></p>
+          <p>
+            <strong><%= ep.fecha_nacimiento.present? ? ep.fecha_nacimiento.strftime('%d/%m/%Y') : 'N/D' %></strong>
+            <% if edad.present? %>
+              <span class="badge <%= es_menor ? 'bg-yellow' : 'bg-green' %>">
+                <%= edad %> años
+              </span>
+            <% end %>
+          </p>
+        </div>
+        <div class="col-md-4 col-sm-6">
+          <p class="text-muted" style="margin-bottom:2px;"><small>Sexo</small></p>
+          <p>
+            <% if ep.sexo == 'M' %>
+              <i class="fa fa-mars text-primary"></i> <strong>Masculino</strong>
+            <% elsif ep.sexo == 'F' %>
+              <i class="fa fa-venus text-danger"></i> <strong>Femenino</strong>
+            <% else %>
+              <strong><%= ep.sexo.presence || 'N/D' %></strong>
+            <% end %>
+          </p>
+        </div>
+        <div class="col-md-4 col-sm-6">
+          <p class="text-muted" style="margin-bottom:2px;"><small>Estado Civil</small></p>
+          <p><strong><%= ep.estado_civil.nombre rescue 'N/D' %></strong></p>
+        </div>
+        <div class="col-md-4 col-sm-6">
+          <p class="text-muted" style="margin-bottom:2px;"><small>Tipo Persona</small></p>
+          <p><strong><%= ep.tipo_persona.presence || 'N/D' %></strong></p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <%# ── Contacto ── %>
+  <div class="box box-solid box-info" style="margin-bottom:15px;">
+    <div class="box-header with-border" style="padding: 8px 12px;">
+      <h4 class="box-title"><i class="fa fa-phone"></i> Contacto</h4>
+    </div>
+    <div class="box-body" style="padding: 12px 15px;">
+      <div class="row">
+        <div class="col-md-4 col-sm-6">
+          <p class="text-muted" style="margin-bottom:2px;"><small>Celular</small></p>
+          <p><i class="fa fa-mobile text-info"></i> <strong><%= ep.celular.presence || 'N/D' %></strong></p>
+        </div>
+        <div class="col-md-4 col-sm-6">
+          <p class="text-muted" style="margin-bottom:2px;"><small>Email</small></p>
+          <p><i class="fa fa-envelope text-info"></i> <strong><%= ep.email.presence || 'N/D' %></strong></p>
+        </div>
+        <div class="col-md-4 col-sm-6">
+          <p class="text-muted" style="margin-bottom:2px;"><small>Dirección</small></p>
+          <p><i class="fa fa-map-marker text-info"></i> <strong><%= ep.direccion.presence || 'N/D' %></strong></p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <%# ── Documentos de Identidad ── %>
+  <% if documento.present? %>
+    <div class="box box-solid box-success" style="margin-bottom:15px;">
+      <div class="box-header with-border" style="padding: 8px 12px;">
+        <h4 class="box-title"><i class="fa fa-id-card-o"></i> Documentos de Identidad</h4>
+      </div>
+      <div class="box-body" style="padding: 16px 20px;">
+        <div class="row">
+
+          <%# Frente %>
+          <div class="col-md-6 col-sm-12" style="margin-bottom: 10px;">
+            <p class="text-muted text-center" style="margin-bottom: 8px;">
+              <i class="fa fa-id-card text-success"></i> <small><strong>Cédula — Frente</strong></small>
+            </p>
+            <% if documento.cedula_frente.present? %>
+              <% if documento.cedula_frente_content_type == 'application/pdf' %>
+                <div class="text-center" style="padding: 20px; background: #f9f9f9; border: 1px dashed #ccc; border-radius: 6px;">
+                  <i class="fa fa-file-pdf-o fa-3x text-danger"></i><br>
+                  <a href="<%= documento.cedula_frente.url %>" target="_blank" class="btn btn-sm btn-danger" style="margin-top: 10px;">
+                    <i class="fa fa-download"></i> Ver PDF
+                  </a>
+                </div>
+              <% else %>
+                <div class="doc-img-wrap"
+                     style="border: 2px solid #00a65a; border-radius: 8px; overflow: hidden; background: #f4f4f4; text-align: center; cursor: pointer;"
+                     onclick="abrirImagen('<%= documento.cedula_frente.url %>', 'Cédula Frente — <%= "#{ep.nombre} #{ep.apellido}".strip %>')">
+                  <%= image_tag documento.cedula_frente.url, style: 'width:100%; max-height:180px; object-fit:cover; display:block;', alt: 'Cédula Frente' %>
+                  <div style="padding: 6px; font-size: 11px; color: #555;"><i class="fa fa-search-plus"></i> Click para ampliar</div>
+                </div>
+              <% end %>
+            <% else %>
+              <div class="text-center text-muted" style="padding: 30px; background: #f9f9f9; border: 1px dashed #ddd; border-radius: 6px;">
+                <i class="fa fa-picture-o fa-2x"></i><br><small>Sin imagen</small>
+              </div>
+            <% end %>
+          </div>
+
+          <%# Reverso %>
+          <div class="col-md-6 col-sm-12" style="margin-bottom: 10px;">
+            <p class="text-muted text-center" style="margin-bottom: 8px;">
+              <i class="fa fa-id-card-o text-success"></i> <small><strong>Cédula — Reverso</strong></small>
+            </p>
+            <% if documento.cedula_reverso.present? %>
+              <% if documento.cedula_reverso_content_type == 'application/pdf' %>
+                <div class="text-center" style="padding: 20px; background: #f9f9f9; border: 1px dashed #ccc; border-radius: 6px;">
+                  <i class="fa fa-file-pdf-o fa-3x text-danger"></i><br>
+                  <a href="<%= documento.cedula_reverso.url %>" target="_blank" class="btn btn-sm btn-danger" style="margin-top: 10px;">
+                    <i class="fa fa-download"></i> Ver PDF
+                  </a>
+                </div>
+              <% else %>
+                <div class="doc-img-wrap"
+                     style="border: 2px solid #00a65a; border-radius: 8px; overflow: hidden; background: #f4f4f4; text-align: center; cursor: pointer;"
+                     onclick="abrirImagen('<%= documento.cedula_reverso.url %>', 'Cédula Reverso — <%= "#{ep.nombre} #{ep.apellido}".strip %>')">
+                  <%= image_tag documento.cedula_reverso.url, style: 'width:100%; max-height:180px; object-fit:cover; display:block;', alt: 'Cédula Reverso' %>
+                  <div style="padding: 6px; font-size: 11px; color: #555;"><i class="fa fa-search-plus"></i> Click para ampliar</div>
+                </div>
+              <% end %>
+            <% else %>
+              <div class="text-center text-muted" style="padding: 30px; background: #f9f9f9; border: 1px dashed #ddd; border-radius: 6px;">
+                <i class="fa fa-picture-o fa-2x"></i><br><small>Sin imagen</small>
+              </div>
+            <% end %>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  <% end %>
+
+  <%# ── Acudiente (solo menores) ── %>
+  <% if es_menor %>
+    <div class="box box-solid box-warning" style="margin-bottom:15px;">
+      <div class="box-header with-border" style="padding: 8px 12px;">
+        <h4 class="box-title"><i class="fa fa-user-plus"></i> Datos del Acudiente</h4>
+      </div>
+      <div class="box-body" style="padding: 12px 15px;">
+        <div class="row">
+          <div class="col-md-4 col-sm-6">
+            <p class="text-muted" style="margin-bottom:2px;"><small>Nombre Acudiente</small></p>
+            <p><strong><%= "#{ep.acudiente_nombre} #{ep.acudiente_apellido}".strip.presence || 'N/D' %></strong></p>
+          </div>
+          <div class="col-md-4 col-sm-6">
+            <p class="text-muted" style="margin-bottom:2px;"><small>Identificación</small></p>
+            <p><strong><%= ep.acudiente_identificacion.presence || 'N/D' %></strong></p>
+          </div>
+          <div class="col-md-4 col-sm-6">
+            <p class="text-muted" style="margin-bottom:2px;"><small>Celular</small></p>
+            <p><i class="fa fa-mobile text-warning"></i> <strong><%= ep.acudiente_celular.presence || 'N/D' %></strong></p>
+          </div>
+          <div class="col-md-4 col-sm-6">
+            <p class="text-muted" style="margin-bottom:2px;"><small>Email</small></p>
+            <p><i class="fa fa-envelope text-warning"></i> <strong><%= ep.acudiente_email.presence || 'N/D' %></strong></p>
+          </div>
+          <div class="col-md-4 col-sm-6">
+            <p class="text-muted" style="margin-bottom:2px;"><small>Código Validación</small></p>
+            <p><strong><%= ep.acudiente_codigoval.presence || 'N/D' %></strong></p>
+          </div>
+          <div class="col-md-4 col-sm-6">
+            <p class="text-muted" style="margin-bottom:2px;"><small>Código Recepción</small></p>
+            <p><strong><%= ep.acudiente_codigorec.presence || 'N/D' %></strong></p>
+          </div>
+          <% if ep.acudiente_firma.present? %>
+            <div class="col-md-12">
+              <p class="text-muted" style="margin-bottom:2px;"><small>Firma Acudiente</small></p>
+              <div style="border:1px solid #ddd; padding:5px; display:inline-block; background:#fff;">
+                <%= image_tag ep.acudiente_firma, style: 'max-height:80px;', alt: 'Firma' %>
+              </div>
+            </div>
           <% end %>
-        </h4>
+        </div>
       </div>
+    </div>
+  <% end %>
 
-      <%# ── BODY ────────────────────────────────────────────────── %>
-      <div class="modal-body" style="padding: 20px 25px;">
-
-        <%# ── SECCIÓN 1: Datos Personales ──────────────────────── %>
-        <div class="box box-solid box-primary" style="margin-bottom: 15px;">
-          <div class="box-header with-border" style="padding: 8px 12px;">
-            <h4 class="box-title">
-              <i class="fa fa-id-card"></i> Datos Personales
-            </h4>
-          </div>
-          <div class="box-body" style="padding: 12px 15px;">
-            <div class="row">
-
-              <div class="col-md-4 col-sm-6">
-                <p class="text-muted" style="margin-bottom:2px;"><small>Identificación</small></p>
-                <p><strong><%= ep.identificacion %></strong></p>
-              </div>
-
-              <div class="col-md-4 col-sm-6">
-                <p class="text-muted" style="margin-bottom:2px;"><small>Nombre Completo</small></p>
-                <p><strong><%= "#{ep.nombre} #{ep.apellido}".strip %></strong></p>
-              </div>
-
-              <div class="col-md-4 col-sm-6">
-                <p class="text-muted" style="margin-bottom:2px;"><small>Fecha de Nacimiento</small></p>
-                <p>
-                  <strong>
-                    <%= ep.fecha_nacimiento.present? ? ep.fecha_nacimiento.strftime('%d/%m/%Y') : 'N/D' %>
-                  </strong>
-                  <% if edad.present? %>
-                    <span class="badge <%= es_menor ? 'bg-yellow' : 'bg-green' %>">
-                      <%= edad %> años
-                    </span>
-                  <% end %>
-                </p>
-              </div>
-
-              <div class="col-md-4 col-sm-6">
-                <p class="text-muted" style="margin-bottom:2px;"><small>Sexo</small></p>
-                <p>
-                  <% if ep.sexo == 'M' %>
-                    <i class="fa fa-mars text-primary"></i> <strong>Masculino</strong>
-                  <% elsif ep.sexo == 'F' %>
-                    <i class="fa fa-venus text-danger"></i> <strong>Femenino</strong>
-                  <% else %>
-                    <strong><%= ep.sexo.presence || 'N/D' %></strong>
-                  <% end %>
-                </p>
-              </div>
-
-              <div class="col-md-4 col-sm-6">
-                <p class="text-muted" style="margin-bottom:2px;"><small>Estado Civil</small></p>
-                <p><strong><%= ep.estado_civil.presence || 'N/D' %></strong></p>
-              </div>
-
-              <div class="col-md-4 col-sm-6">
-                <p class="text-muted" style="margin-bottom:2px;"><small>Tipo Persona</small></p>
-                <p><strong><%= ep.tipo_persona.presence || 'N/D' %></strong></p>
-              </div>
-
-            </div>
-          </div>
+  <%# ── Autorizaciones ── %>
+  <div class="box box-solid box-default" style="margin-bottom:0;">
+    <div class="box-header with-border" style="padding: 8px 12px;">
+      <h4 class="box-title"><i class="fa fa-check-square-o"></i> Autorizaciones y Registro</h4>
+    </div>
+    <div class="box-body" style="padding: 12px 15px;">
+      <div class="row">
+        <div class="col-md-3 col-sm-6">
+          <p class="text-muted" style="margin-bottom:2px;"><small>Acepta Política</small></p>
+          <p>
+            <% if ep.acepta_politica == 'SI' %>
+              <span class="label label-success"><i class="fa fa-check"></i> SI</span>
+            <% else %>
+              <span class="label label-danger"><i class="fa fa-times"></i> NO</span>
+            <% end %>
+          </p>
         </div>
-
-        <%# ── SECCIÓN 2: Contacto ───────────────────────────────── %>
-        <div class="box box-solid box-info" style="margin-bottom: 15px;">
-          <div class="box-header with-border" style="padding: 8px 12px;">
-            <h4 class="box-title">
-              <i class="fa fa-phone"></i> Contacto
-            </h4>
-          </div>
-          <div class="box-body" style="padding: 12px 15px;">
-            <div class="row">
-
-              <div class="col-md-4 col-sm-6">
-                <p class="text-muted" style="margin-bottom:2px;"><small>Celular</small></p>
-                <p>
-                  <i class="fa fa-mobile text-info"></i>
-                  <strong><%= ep.celular.presence || 'N/D' %></strong>
-                </p>
-              </div>
-
-              <div class="col-md-4 col-sm-6">
-                <p class="text-muted" style="margin-bottom:2px;"><small>Email</small></p>
-                <p>
-                  <i class="fa fa-envelope text-info"></i>
-                  <strong><%= ep.email.presence || 'N/D' %></strong>
-                </p>
-              </div>
-
-              <div class="col-md-4 col-sm-6">
-                <p class="text-muted" style="margin-bottom:2px;"><small>Dirección</small></p>
-                <p>
-                  <i class="fa fa-map-marker text-info"></i>
-                  <strong><%= ep.direccion.presence || 'N/D' %></strong>
-                </p>
-              </div>
-
-            </div>
-          </div>
+        <div class="col-md-3 col-sm-6">
+          <p class="text-muted" style="margin-bottom:2px;"><small>Acepta Cultura</small></p>
+          <p>
+            <% if ep.acepta_cultura == 'SI' %>
+              <span class="label label-success"><i class="fa fa-check"></i> SI</span>
+            <% else %>
+              <span class="label label-danger"><i class="fa fa-times"></i> NO</span>
+            <% end %>
+          </p>
         </div>
-
-        <%# ── SECCIÓN 3: Acudiente (solo si es menor) ──────────── %>
-        <% if es_menor %>
-          <div class="box box-solid box-warning" style="margin-bottom: 15px;">
-            <div class="box-header with-border" style="padding: 8px 12px;">
-              <h4 class="box-title">
-                <i class="fa fa-user-plus"></i> Datos del Acudiente
-              </h4>
-            </div>
-            <div class="box-body" style="padding: 12px 15px;">
-              <div class="row">
-
-                <div class="col-md-4 col-sm-6">
-                  <p class="text-muted" style="margin-bottom:2px;"><small>Nombre Acudiente</small></p>
-                  <p><strong><%= "#{ep.acudiente_nombre} #{ep.acudiente_apellido}".strip.presence || 'N/D' %></strong></p>
-                </div>
-
-                <div class="col-md-4 col-sm-6">
-                  <p class="text-muted" style="margin-bottom:2px;"><small>Identificación Acudiente</small></p>
-                  <p><strong><%= ep.acudiente_identificacion.presence || 'N/D' %></strong></p>
-                </div>
-
-                <div class="col-md-4 col-sm-6">
-                  <p class="text-muted" style="margin-bottom:2px;"><small>Celular Acudiente</small></p>
-                  <p>
-                    <i class="fa fa-mobile text-warning"></i>
-                    <strong><%= ep.acudiente_celular.presence || 'N/D' %></strong>
-                  </p>
-                </div>
-
-                <div class="col-md-4 col-sm-6">
-                  <p class="text-muted" style="margin-bottom:2px;"><small>Email Acudiente</small></p>
-                  <p>
-                    <i class="fa fa-envelope text-warning"></i>
-                    <strong><%= ep.acudiente_email.presence || 'N/D' %></strong>
-                  </p>
-                </div>
-
-                <div class="col-md-4 col-sm-6">
-                  <p class="text-muted" style="margin-bottom:2px;"><small>Código Validación</small></p>
-                  <p><strong><%= ep.acudiente_codigoval.presence || 'N/D' %></strong></p>
-                </div>
-
-                <div class="col-md-4 col-sm-6">
-                  <p class="text-muted" style="margin-bottom:2px;"><small>Código Recepción</small></p>
-                  <p><strong><%= ep.acudiente_codigorec.presence || 'N/D' %></strong></p>
-                </div>
-
-                <% if ep.acudiente_firma.present? %>
-                  <div class="col-md-12">
-                    <p class="text-muted" style="margin-bottom:2px;"><small>Firma Acudiente</small></p>
-                    <div style="border: 1px solid #ddd; padding: 5px; display:inline-block; background:#fff;">
-                      <%= image_tag ep.acudiente_firma,
-                                    style: 'max-height: 80px;',
-                                    alt: 'Firma acudiente' %>
-                    </div>
-                  </div>
-                <% end %>
-
-              </div>
-            </div>
-          </div>
-        <% end %>
-
-        <%# ── SECCIÓN 4: Autorizaciones y Registro ─────────────── %>
-        <div class="box box-solid box-default" style="margin-bottom: 0;">
-          <div class="box-header with-border" style="padding: 8px 12px;">
-            <h4 class="box-title">
-              <i class="fa fa-check-square-o"></i> Autorizaciones y Registro
-            </h4>
-          </div>
-          <div class="box-body" style="padding: 12px 15px;">
-            <div class="row">
-
-              <div class="col-md-3 col-sm-6">
-                <p class="text-muted" style="margin-bottom:2px;"><small>Acepta Política</small></p>
-                <p>
-                  <% if ep.acepta_politica == 'SI' %>
-                    <span class="label label-success"><i class="fa fa-check"></i> SI</span>
-                  <% else %>
-                    <span class="label label-danger"><i class="fa fa-times"></i> NO</span>
-                  <% end %>
-                </p>
-              </div>
-
-              <div class="col-md-3 col-sm-6">
-                <p class="text-muted" style="margin-bottom:2px;"><small>Acepta Cultura</small></p>
-                <p>
-                  <% if ep.acepta_cultura == 'SI' %>
-                    <span class="label label-success"><i class="fa fa-check"></i> SI</span>
-                  <% else %>
-                    <span class="label label-danger"><i class="fa fa-times"></i> NO</span>
-                  <% end %>
-                </p>
-              </div>
-
-              <div class="col-md-3 col-sm-6">
-                <p class="text-muted" style="margin-bottom:2px;"><small>Fecha Inscripción</small></p>
-                <p>
-                  <i class="fa fa-calendar text-muted"></i>
-                  <strong><%= ep.created_at.strftime('%d/%m/%Y %H:%M') rescue 'N/D' %></strong>
-                </p>
-              </div>
-
-              <div class="col-md-3 col-sm-6">
-                <p class="text-muted" style="margin-bottom:2px;"><small>Última Actualización</small></p>
-                <p>
-                  <i class="fa fa-refresh text-muted"></i>
-                  <strong><%= ep.updated_at.strftime('%d/%m/%Y %H:%M') rescue 'N/D' %></strong>
-                </p>
-              </div>
-
-            </div>
-          </div>
+        <div class="col-md-3 col-sm-6">
+          <p class="text-muted" style="margin-bottom:2px;"><small>Fecha Inscripción</small></p>
+          <p><i class="fa fa-calendar text-muted"></i> <strong><%= ep.created_at.strftime('%d/%m/%Y %H:%M') rescue 'N/D' %></strong></p>
         </div>
-
-      </div><%# fin modal-body %>
-
-      <%# ── FOOTER ───────────────────────────────────────────────── %>
-      <div class="modal-footer">
-        <small class="text-muted pull-left">
-          ID Registro: <strong>#<%= ep.id %></strong> &nbsp;|&nbsp;
-          Evento ID: <strong>#<%= ep.evento_id %></strong>
-        </small>
-        <button type="button" class="btn btn-default" data-dismiss="modal">
-          <i class="fa fa-times"></i> Cerrar
-        </button>
+        <div class="col-md-3 col-sm-6">
+          <p class="text-muted" style="margin-bottom:2px;"><small>Última Actualización</small></p>
+          <p><i class="fa fa-refresh text-muted"></i> <strong><%= ep.updated_at.strftime('%d/%m/%Y %H:%M') rescue 'N/D' %></strong></p>
+        </div>
       </div>
+    </div>
+  </div>
 
-    </div><%# fin modal-content %>
-  </div><%# fin modal-dialog %>
-</div><%# fin modal %>
+</div><%# fin modal-body %>
+
+<div class="modal-footer">
+  <small class="text-muted pull-left">
+    ID: <strong>#<%= ep.id %></strong> &nbsp;|&nbsp;
+    Evento: <strong>#<%= ep.evento_id %></strong>
+  </small>
+  <button type="button" class="btn btn-default" data-dismiss="modal">
+    <i class="fa fa-times"></i> Cerrar
+  </button>
+</div>

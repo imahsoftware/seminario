@@ -32,7 +32,7 @@
 //= require signature-pad
 //= require_tree .
 //= require notifications
-
+//= require eventospersonas_modales
 $(function () {
     $(".select2").select2();
     $('.wysihtml5').wysihtml5();
