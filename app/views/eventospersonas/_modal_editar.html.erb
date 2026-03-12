@@ -16,10 +16,14 @@
         margin-bottom: 12px;
     }
 
-    /* ── Select2 dentro del modal — asegura que el dropdown
-         se abra dentro del modal y no en coordenadas extrañas ── */
-    #modal-editar-global .select2-container {
-        width: 100% !important;
+    /* ── Padding lateral uniforme en todas las columnas ── */
+    #modal-editar-global .col-md-3,
+    #modal-editar-global .col-md-4,
+    #modal-editar-global .col-md-6,
+    #modal-editar-global .col-sm-6,
+    #modal-editar-global .col-sm-12 {
+        padding-left: 25px;
+        padding-right: 25px;
     }
 
     #modal-editar-global .select2-container .select2-selection--single {
