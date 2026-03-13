@@ -239,13 +239,18 @@ class RegistroEventosController < ApplicationController
     )
 
     if user.save
+      Rails.logger.info "✅ Usuario INSCRITO creado para identificacion: #{ep.identificacion}"
+
       # ── Enviar SMS con credenciales ──────────────────────────────────────
       begin
+        Rails.logger.info "📱 Enviando SMS credenciales a celular: #{ep.celular} | identificacion: #{ep.identificacion}"
         WssmsController.envio_sms_credenciales_inscrito(ep, password)
+        Rails.logger.info "✅ SMS credenciales enviado exitosamente a: #{ep.celular}"
       rescue => e
-        Rails.logger.error "❌ Error enviando SMS credenciales: #{e.message}"
+        Rails.logger.error "❌ Error enviando SMS credenciales a #{ep.celular}: #{e.message}"
       end
       # ────────────────────────────────────────────────────────────────────
+
     else
       Rails.logger.warn "⚠️ No se pudo crear usuario #{ep.identificacion}: #{user.errors.full_messages}"
     end
