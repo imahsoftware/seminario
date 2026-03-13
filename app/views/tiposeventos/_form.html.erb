@@ -13,7 +13,11 @@
         <% if @tiposevento.new_record? %>
           <%= button_tag "#{t :cancelar}", type: 'button', data: { target: '#tiposevento_form' }, class: 'cancel_button btn btn-flat btn-default pull-left', aria_hidden: true %>
         <% else %>
-          <%= link_to "#{t :cancelar}", tiposevento_path(@tiposevento), class: 'btn btn-flat btn-default pull-left', aria_hidden: true, remote: true %>
+          <%= button_tag "#{t :cancelar}",
+                         type: 'button',
+                         data: { toggle: 'collapse', target: '#tiposevento_form' },
+                         class: 'cancel_button btn btn-flat btn-default pull-left',
+                         aria_hidden: true %>
         <% end %>
       </div>
       <div class="col-md-6">
