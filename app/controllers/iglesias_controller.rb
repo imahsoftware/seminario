@@ -38,6 +38,7 @@ class IglesiasController < ApplicationController
     @iglesia.user_id = is_admin
     respond_to do |format|
       if @iglesia.save
+        @iglesias = Iglesia.paginate(page: 1, per_page: 10)  # ✅ con paginación
         flash[:notice] = "#{t :notice_crea_msj}"
         format.js
       else
