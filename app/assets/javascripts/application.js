@@ -605,13 +605,4 @@ $(document).ready(function () {
         var numberItems2 = count;
         $("#filter-count2").text("Number of Filter = " + count);
     });
-    $(document).on('click', '.cancel_button', function (e) {
-        e.preventDefault();
-        var target = $(this).data('target');
-        if (target) {
-            $(target).hide();
-        }
-    });
-
-
 });
