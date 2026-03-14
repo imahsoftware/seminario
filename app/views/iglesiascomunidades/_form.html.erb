@@ -35,11 +35,10 @@
         <% if @iglesiacomunidad.new_record? %>
           <%= button_tag t(:cancelar),
                          type: 'button',
-                         data: { target: '#iglesiascomunidades_form' },
-                         class: 'cancel_button btn btn-flat btn-default pull-left' %>
-
-      <% else %>
-          <%= link_to "#{t :cancelar}",
+                         class: 'btn btn-flat btn-default pull-left',
+                         onclick: '$("#iglesiascomunidades_form").collapse("hide"); $("#iglesiascomunidades_form").empty(); return false;' %>
+        <% else %>
+          <%= link_to t(:cancelar),
                       iglesia_iglesiascomunidad_path(@iglesia, @iglesiacomunidad),
                       class: 'btn btn-flat btn-default pull-left',
                       remote: true %>
