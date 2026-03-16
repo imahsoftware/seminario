@@ -2,6 +2,7 @@
 //= require bootstrap-sprockets
 //= require jquery.remotipart
 //= require jquery_ujs
+//= require select2.min
 //= require jquery-ui/widgets/datepicker
 //= require jquery-ui/widgets/autocomplete
 //= require autocomplete-rails
@@ -454,8 +455,8 @@ $(document).ready(function () {
     if (canvas) {
         canvas.height = canvas.offsetHeight;
         canvas.width = canvas.offsetWidth;
-        window.onresize = resizeCanvas(canvas);
-        resizeCanvas(canvas);
+        //window.onresize = resizeCanvas(canvas);
+        //resizeCanvas(canvas);
         signature_pad = new SignaturePad(canvas);
         $('.signature_pad_clear').click(function () {
             signature_pad.clear()

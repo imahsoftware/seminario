@@ -211,43 +211,49 @@ class RegistroEventosController < ApplicationController
 
   def crear_usuario_inscrito(ep)
     return if ep.identificacion.blank?
-    return if User.exists?(identificacion: ep.identificacion)
-
-    email_usuario = if ep.email.present? && !User.exists?(email: ep.email)
-                      ep.email
-                    else
-                      "#{ep.identificacion}@srmmedellin.org"
-                    end
 
     password = ep.identificacion.to_s.ljust(8, '0')
 
-    user = User.new(
-      email:                 email_usuario,
-      username:              ep.identificacion,
-      identificacion:        ep.identificacion,
-      nombres:               ep.nombre,
-      apellidos:             ep.apellido,
-      nombre:                "#{ep.nombre} #{ep.apellido}",
-      nombre_real:           "#{ep.nombre} #{ep.apellido}",
-      celular:               ep.celular,
-      tipoconsulta:          'INSCRITO',
-      activo:                'S',
-      estado:                'A',
-      persona_id:            ep.persona_id,
-      password:              password,
-      password_confirmation: password
-    )
-
-    if user.save
-      # ── Enviar SMS con credenciales ──────────────────────────────────────
-      begin
-        WssmsController.envio_sms_credenciales_inscrito(ep, password)
-      rescue => e
-        Rails.logger.error "❌ Error enviando SMS credenciales: #{e.message}"
-      end
-      # ────────────────────────────────────────────────────────────────────
+    if User.exists?(identificacion: ep.identificacion)
+      Rails.logger.info "ℹ️ Usuario ya existe para: #{ep.identificacion}, enviando SMS de todas formas"
     else
-      Rails.logger.warn "⚠️ No se pudo crear usuario #{ep.identificacion}: #{user.errors.full_messages}"
+      email_usuario = if ep.email.present? && !User.exists?(email: ep.email)
+                        ep.email
+                      else
+                        "#{ep.identificacion}@srmmedellin.org"
+                      end
+
+      user = User.new(
+        email:                 email_usuario,
+        username:              ep.identificacion,
+        identificacion:        ep.identificacion,
+        nombres:               ep.nombre,
+        apellidos:             ep.apellido,
+        nombre:                "#{ep.nombre} #{ep.apellido}",
+        nombre_real:           "#{ep.nombre} #{ep.apellido}",
+        celular:               ep.celular,
+        tipoconsulta:          'INSCRITO',
+        activo:                'S',
+        estado:                'A',
+        persona_id:            ep.persona_id,
+        password:              password,
+        password_confirmation: password
+      )
+
+      if user.save
+        Rails.logger.info "✅ Usuario INSCRITO creado para identificacion: #{ep.identificacion}"
+      else
+        Rails.logger.warn "⚠️ No se pudo crear usuario #{ep.identificacion}: #{user.errors.full_messages}"
+        return
+      end
+    end
+
+    begin
+      Rails.logger.info "📱 Enviando SMS credenciales a: #{ep.celular} | identificacion: #{ep.identificacion}"
+      WssmsController.envio_sms_credenciales_inscrito(ep, password)
+      Rails.logger.info "✅ SMS credenciales enviado exitosamente a: #{ep.celular}"
+    rescue => e
+      Rails.logger.error "❌ Error enviando SMS credenciales a #{ep.celular}: #{e.message}"
     end
   end
   # ───────────────────────────────────────────────────────────────────────

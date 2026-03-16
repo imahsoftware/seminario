@@ -35,6 +35,7 @@ class TiposeventosController < ApplicationController
     @tiposevento = Tiposevento.new(tiposevento_params)
     respond_to do |format|
       if @tiposevento.save
+        @tiposeventos = Tiposevento.all  # ✅ necesario para el render 'tabla'
         flash[:notice] = "#{t :notice_crea_msj}"
         format.js
       else

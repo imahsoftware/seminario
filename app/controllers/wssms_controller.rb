@@ -68,7 +68,7 @@ class WssmsController < ApplicationController
       "Usuario: #{identificacion} " \
       "Clave: #{password}"
 
-    username = Parametro.find(31).valor
+    username     = Parametro.find(31).valor
     password_api = Parametro.find(32).valor
 
     token = Base64.strict_encode64("#{username}:#{password_api}")
@@ -101,14 +101,23 @@ class WssmsController < ApplicationController
     request      = Net::HTTP::Post.new(url.request_uri, headers)
     request.body = payload.to_json
 
+    # ✅ Log antes de enviar
+    Rails.logger.info "📱 SMS Credenciales | Enviando a: #{eventospersona.celular} | Usuario: #{identificacion}"
+
     begin
       response = http.request(request)
+
+      # ✅ Log con respuesta del servidor
+      Rails.logger.info "✅ SMS Credenciales | Enviado exitosamente a: #{eventospersona.celular} | Respuesta: #{response.body}"
+
       return response.body
+
     rescue OpenSSL::SSL::SSLError => e
-      Rails.logger.error "SMS Credenciales SSL Error: #{e.message}"
+      Rails.logger.error "❌ SMS Credenciales SSL Error | Celular: #{eventospersona.celular} | Error: #{e.message}"
       return nil
+
     rescue => e
-      Rails.logger.error "SMS Credenciales Error: #{e.message}"
+      Rails.logger.error "❌ SMS Credenciales Error | Celular: #{eventospersona.celular} | Error: #{e.message}"
       return nil
     end
   end

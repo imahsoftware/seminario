@@ -3,17 +3,16 @@ $(".alert_flash").fadeOut(1000, function() {
 });
 
 <% if Tiposevento.count == 1 %>
-	$("#tiposeventos").html("<%= j render 'tabla' %>");
+<%# ✅ Cargar @tiposeventos si no viene del controlador %>
+<% @tiposeventos ||= Tiposevento.all %>
+$("#tiposeventos").html("<%= j render 'tabla' %>");
 <% else %>
-	$("#tbody_tiposeventos").prepend("<%= j render 'tr', tiposevento: @tiposevento %>");
+$("#tbody_tiposeventos").prepend("<%= j render 'tr', tiposevento: @tiposevento %>");
 <% end %>
 
 $(".clean").val("").trigger('change');
-
 $('[data-toggle="tooltip"]').tooltip();
-
 $(".flash_messages").html("<%= j render 'layouts/flash_messages' %>");
-
 $(".form-group").removeClass("has-error");
 $(".form-group > .help-block.help-block-error").remove();
 
