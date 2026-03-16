@@ -95,8 +95,6 @@ GEM
     bootstrap3-datetimepicker-rails (4.17.47)
       momentjs-rails (>= 2.8.1)
     brakeman (4.9.1)
-    bugsnag (6.27.0)
-      concurrent-ruby (~> 1.0)
     builder (3.2.4)
     bullet (7.0.1)
       activesupport (>= 3.0.0)
@@ -411,7 +409,6 @@ DEPENDENCIES
   bootstrap-wysihtml5-rails
   bootstrap3-datetimepicker-rails (~> 4.17.47)
   brakeman
-  bugsnag
   bullet
   byebug
   chart-js-rails
