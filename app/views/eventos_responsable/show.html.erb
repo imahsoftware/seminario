@@ -1,12 +1,15 @@
 <section class="content-header">
   <h1>
-    <i class="fa fa-calendar"></i> <%= @evento.detalle %>
+    <i class="fa fa-calendar"></i>
+    <span style="font-size: 16px; word-break: break-word;">
+      <%= truncate(@evento.detalle, length: 60) %>
+    </span>
     <small>Personas Inscritas</small>
   </h1>
   <ol class="breadcrumb">
     <li><%= link_to '<i class="fa fa-home"></i> Inicio'.html_safe, root_path %></li>
     <li><%= link_to 'Mis Eventos', eventos_responsable_index_path %></li>
-    <li class="active"><%= @evento.detalle %></li>
+    <li class="active"><%= truncate(@evento.detalle, length: 50) %></li>
   </ol>
 </section>
 
