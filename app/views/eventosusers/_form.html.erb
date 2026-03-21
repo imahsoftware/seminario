@@ -8,7 +8,7 @@
         %>
 
         <%= f.input :user_administra,
-                    collection: User.where(tipoconsulta: 'SUPERVISOR', activo: 'S')
+                    collection: User.where(tipoconsulta: 'INSCRITO', activo: 'S')
                                     .where.not(id: usuarios_excluidos)
                                     .order(:nombre)
                                     .collect { |p| [p.nombrecompleto, p.id] },

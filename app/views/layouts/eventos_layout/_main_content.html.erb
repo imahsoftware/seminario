@@ -5,16 +5,21 @@
       ══════════════════════════════════════════════════════════════ %>
   <section class="content-header" style="padding-bottom: 0;">
 
-    <%# ── Breadcrumb / título ── %>
-    <h1>
-      <%= @evento.tiposevento.descripcion rescue 'Evento' %>
-      <small><%= @evento.detalle %></small>
-    </h1>
-    <ol class="breadcrumb">
-      <li><a href="/"><i class="fa fa-home"></i> Inicio</a></li>
-      <li><a href="/eventos">Eventos</a></li>
-      <li class="active"><%= @evento.tiposevento.descripcion rescue 'Detalle' %></li>
-    </ol>
+    <section class="content-header">
+      <h1>
+        <i class="fa fa-calendar"></i>
+        <span style="font-size: 16px; word-break: break-word;">
+          <%= truncate(@evento.detalle, length: 60) %>
+        </span>
+        <small>Personas Inscritas</small>
+      </h1>
+      <ol class="breadcrumb">
+        <li><%= link_to '<i class="fa fa-home"></i> Inicio'.html_safe, root_path %></li>
+        <li><%= link_to 'Mis Eventos', eventos_responsable_index_path %></li>
+        <li class="active"><%= truncate(@evento.detalle, length: 50) %></li>
+      </ol>
+    </section>
+
 
     <%# ── Panel de información del evento ── %>
     <div style="margin-top: 15px; margin-bottom: 0;">
