@@ -6,15 +6,13 @@ class MenusController < ApplicationController
 
   def index
     if current_user.tipoconsulta == 'INSCRITO'
-      redirect_to eventosperlistados_path and return
-    end
-
-    # ── NUEVO: SUPERVISOR ve solo sus eventos asignados ──────────────
-    if current_user.tipoconsulta == 'SUPERVISOR'
-      redirect_to eventos_responsable_index_path and return
+      if current_user.eventos_responsable.exists?
+        redirect_to eventos_responsable_index_path and return
+      else
+        redirect_to eventosperlistados_path and return
+      end
     end
   end
-
   private
 
   def set_layout

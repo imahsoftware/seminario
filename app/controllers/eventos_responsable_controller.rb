@@ -1,7 +1,6 @@
 # app/controllers/eventos_responsable_controller.rb
 class EventosResponsableController < ApplicationController
   before_action :authenticate_user!
-  before_action :verificar_supervisor
 
   def index
     @eventos = current_user.eventos_responsable.order(created_at: :desc)
@@ -52,10 +51,5 @@ class EventosResponsableController < ApplicationController
 
   private
 
-  def verificar_supervisor
-    unless current_user.tipoconsulta == 'SUPERVISOR'
-      flash[:alert] = "No tienes permiso para acceder a esta sección."
-      redirect_to root_path
-    end
-  end
+
 end
