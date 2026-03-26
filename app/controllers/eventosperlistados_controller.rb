@@ -5,7 +5,7 @@ class EventosperlistadosController < ApplicationController
     @inscripciones = Eventospersona.where(
       evento_id: current_user.eventos_inscritos.pluck(:id),
       persona_id: current_user.persona_id
-    ).includes(:evento).order(created_at: :desc)
+    ).includes(:evento).order(created_at: :desc) || []
   end
 
   def cancelar
