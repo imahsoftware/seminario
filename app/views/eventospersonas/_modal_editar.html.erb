@@ -1,7 +1,7 @@
 <%
-  ep        = @ep
-  edad      = ep.fecha_nacimiento.present? ? ((Date.today - ep.fecha_nacimiento.to_date).to_i / 365.25).floor : nil
-  es_menor  = edad.present? && edad < 18
+  ep = @ep
+  edad = ep.fecha_nacimiento.present? ? ((Date.today - ep.fecha_nacimiento.to_date).to_i / 365.25).floor : nil
+  es_menor = edad.present? && edad < 18
   documento = @documento
 %>
 
@@ -312,9 +312,27 @@
               </div>
             </div>
           </div>
+          <div class="row">
+            <% if ep.acudiente_celular.present? %>
+              <div class="row" style="margin-top: 8px;">
+                <div class="col-xs-12 text-center">
+                  <%= link_to reenviar_mensaje_eventospersona_path(ep),
+                              method: :post,
+                              class: 'btn btn-sm btn-success',
+                              data: { toggle: 'tooltip', placement: 'top' },
+                              title: "Reenviar SMS al acudiente" do %>
+                    <i class="fa fa-paper-plane"></i> Reenviar SMS al acudiente
+                    <strong><%= ep.acudiente_celular %></strong>
+                  <% end %>
+                </div>
+              </div>
+            <% end %>
+          </div>
         </div>
       </div>
     <% end %>
+
+    3002509353
 
     <%# ── Autorizaciones ── %>
     <div class="box box-solid box-default" style="margin-bottom:0;">

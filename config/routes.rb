@@ -30,6 +30,16 @@ Rails.application.routes.draw do
     resources :eventosusers
   end
 
+
+  resources :eventospersonas do
+    member do
+      post :reenviar_mensaje
+    end
+  end
+
+
+
+
   resources :tiposeventos
   resources :iglesias
   mount ActionCable.server => '/cable'

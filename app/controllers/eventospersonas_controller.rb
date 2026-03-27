@@ -67,6 +67,21 @@ class EventospersonasController < ApplicationController
     end
   end
 
+  def reenviar_mensaje
+    @eventospersona = Eventospersona.find_by(id: params[:id])
+
+    if @eventospersona.nil?
+      redirect_back fallback_location: root_path,
+                    alert: 'Inscripción no encontrada'
+      return
+    end
+
+    WssmsController.envio_sms_colombiaredenvio(@eventospersona)
+    redirect_back fallback_location: root_path,
+                  notice: "SMS reenviado al acudiente #{@eventospersona.acudiente_celular}"
+  end
+
+
   # DELETE /eventospersonas/1
   # DELETE /eventospersonas/1.json
   def destroy
