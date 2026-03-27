@@ -1,7 +1,7 @@
 # app/controllers/eventos_responsable_controller.rb
 class EventosResponsableController < ApplicationController
   before_action :authenticate_user!
-
+  layout :set_layout
   def index
     @eventos = current_user.eventos_responsable.order(created_at: :desc)
     @inscripciones = Eventospersona.where(
@@ -54,6 +54,12 @@ class EventosResponsableController < ApplicationController
   end
 
   private
-
+  def set_layout
+    if ['index'].include?(action_name)
+      'application_responsables'
+    else
+      "application_admin"
+    end
+  end
 
 end

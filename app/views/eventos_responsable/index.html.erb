@@ -30,402 +30,413 @@
 
   <% ins = @inscripciones || [] %>
 
-  <%# ── TABS con nav-tabs de Bootstrap/AdminLTE ── %>
-  <div class="nav-tabs-custom">
-    <ul class="nav nav-tabs">
-      <li class="active">
-        <a href="#tab-inscripciones" data-toggle="tab">
-          <i class="fa fa-ticket"></i> Mis Inscripciones
-          <span class="badge bg-red"><%= ins.count %></span>
+  <%# ══════════════════════════════════════════════════════════════ %>
+  <%# SELECTOR DE SECCIÓN                                          %>
+  <%# ══════════════════════════════════════════════════════════════ %>
+  <div class="row" style="margin-bottom:15px;">
+    <div class="col-xs-12">
+      <div class="btn-group btn-group-justified">
+
+        <a href="#"
+           class="btn btn-lg btn-default btn-seccion <%= 'active' unless @eventos.any? %>"
+           data-target="#panel-inscripciones"
+           style="padding:18px 12px; text-align:center;">
+          <i class="fa fa-ticket fa-2x"></i><br>
+          <strong>Mis Inscripciones</strong><br>
+          <span class="badge" style="background:#00c0ef; margin-top:6px;">
+            <%= ins.count %>
+          </span>
         </a>
-      </li>
-      <li>
-        <a href="#tab-coordinador" data-toggle="tab">
-          <i class="fa fa-star"></i> Eventos a mi Cargo
-          <span class="badge bg-blue"><%= @eventos.count %></span>
+
+        <a href="#"
+           class="btn btn-lg btn-default btn-seccion <%= 'active' if @eventos.any? %>"
+           data-target="#panel-coordinador"
+           style="padding:18px 12px; text-align:center;">
+          <i class="fa fa-star fa-2x"></i><br>
+          <strong>Eventos a mi Cargo</strong><br>
+          <span class="badge" style="background:#dd4b39; margin-top:6px;">
+            <%= @eventos.count %>
+          </span>
         </a>
-      </li>
-    </ul>
 
-    <div class="tab-content">
+      </div>
+    </div>
+  </div>
 
-      <%# ════════════════════════════════════════════════════════ %>
-      <%# PESTAÑA 1 — MIS INSCRIPCIONES                          %>
-      <%# ════════════════════════════════════════════════════════ %>
-      <div class="tab-pane active" id="tab-inscripciones">
+  <%# ══════════════════════════════════════════════════════════════ %>
+  <%# PANEL 1 — MIS INSCRIPCIONES                                  %>
+  <%# ══════════════════════════════════════════════════════════════ %>
+  <div id="panel-inscripciones" class="panel-seccion <%= 'hidden' if @eventos.any? %>">
 
-        <%# Indicadores %>
-        <div class="row" style="margin-bottom:10px;">
-          <div class="col-md-4 col-sm-6 col-xs-12">
-            <div class="info-box bg-aqua">
-              <span class="info-box-icon"><i class="fa fa-calendar-check-o"></i></span>
-              <div class="info-box-content">
-                <span class="info-box-text">Total</span>
-                <span class="info-box-number"><%= ins.count %></span>
-              </div>
-            </div>
-          </div>
-          <div class="col-md-4 col-sm-6 col-xs-12">
-            <div class="info-box bg-green">
-              <span class="info-box-icon"><i class="fa fa-check-circle"></i></span>
-              <div class="info-box-content">
-                <span class="info-box-text">Vigentes</span>
-                <span class="info-box-number"><%= ins.count { |i| i.evento.vigente? } %></span>
-              </div>
-            </div>
-          </div>
-          <div class="col-md-4 col-sm-6 col-xs-12">
-            <div class="info-box bg-yellow">
-              <span class="info-box-icon"><i class="fa fa-clock-o"></i></span>
-              <div class="info-box-content">
-                <span class="info-box-text">Próximos</span>
-                <span class="info-box-number"><%= ins.count { |i| i.evento.no_iniciado? } %></span>
-              </div>
-            </div>
+    <%# Indicadores %>
+    <div class="row" style="margin-bottom:10px;">
+      <div class="col-md-4 col-sm-6 col-xs-12">
+        <div class="info-box">
+          <span class="info-box-icon bg-aqua"><i class="fa fa-calendar-check-o"></i></span>
+          <div class="info-box-content">
+            <span class="info-box-text">Mis Inscripciones</span>
+            <span class="info-box-number"><%= ins.count %></span>
           </div>
         </div>
-
-        <%# Tabla inscripciones %>
-        <div class="box box-danger">
-          <div class="box-header with-border">
-            <h3 class="box-title"><i class="fa fa-ticket"></i> Eventos Inscritos</h3>
+      </div>
+      <div class="col-md-4 col-sm-6 col-xs-12">
+        <div class="info-box">
+          <span class="info-box-icon bg-green"><i class="fa fa-check-circle"></i></span>
+          <div class="info-box-content">
+            <span class="info-box-text">Vigentes</span>
+            <span class="info-box-number"><%= ins.count { |i| i.evento.vigente? } %></span>
           </div>
-          <div class="box-body table-responsive no-padding">
-            <table class="table table-bordered table-hover table-striped">
-              <thead>
-              <tr class="thcolor">
-                <th class="text-center" style="width:40px;">Ver</th>
-                <th>Evento</th>
-                <th class="text-center">Fechas del Evento</th>
-                <th class="text-center">Inscrito el</th>
-                <th class="text-center">Cupos</th>
-                <th class="text-center">Estado</th>
-                <th class="text-center" style="width:110px;">Acción</th>
+        </div>
+      </div>
+      <div class="col-md-4 col-sm-6 col-xs-12">
+        <div class="info-box">
+          <span class="info-box-icon bg-yellow"><i class="fa fa-clock-o"></i></span>
+          <div class="info-box-content">
+            <span class="info-box-text">Próximos</span>
+            <span class="info-box-number"><%= ins.count { |i| i.evento.no_iniciado? } %></span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <%# Tabla inscripciones %>
+    <div class="box box-danger">
+      <div class="box-header with-border">
+        <h3 class="box-title"><i class="fa fa-ticket"></i> Eventos Inscritos</h3>
+      </div>
+      <div class="box-body table-responsive no-padding">
+        <table class="table table-bordered table-hover table-striped">
+          <thead>
+          <tr class="thcolor">
+            <th class="text-center" style="width:40px;">Ver</th>
+            <th>Evento</th>
+            <th class="text-center">Fechas del Evento</th>
+            <th class="text-center">Inscrito el</th>
+            <th class="text-center">Cupos</th>
+            <th class="text-center">Estado</th>
+            <th class="text-center" style="width:110px;">Acción</th>
+          </tr>
+          </thead>
+          <tbody>
+          <% if ins.empty? %>
+            <tr>
+              <td colspan="7" class="text-center text-muted" style="padding:40px;">
+                <i class="fa fa-calendar-o fa-3x"></i><br><br>
+                No tienes eventos registrados aún.
+              </td>
+            </tr>
+          <% else %>
+            <% ins.each do |inscripcion| %>
+              <% evento = inscripcion.evento %>
+              <tr>
+                <td class="text-center">
+                  <button class="btn btn-xs btn-primary btn-ver-evento"
+                          data-id="<%= evento.id %>"
+                          data-toggle="tooltip"
+                          title="Ver detalle">
+                    <i class="fa fa-eye"></i>
+                  </button>
+                </td>
+                <td>
+                  <strong><%= evento.detalle %></strong><br>
+                  <small class="text-muted">
+                    <i class="fa fa-map-marker"></i>
+                    <%= evento.iglesia&.descripcion rescue '—' %>
+                  </small>
+                </td>
+                <td class="text-center">
+                  <i class="fa fa-play-circle text-green"></i>
+                  <%= evento.fecha_inicio_e&.strftime('%d/%m/%Y') %><br>
+                  <i class="fa fa-stop-circle text-red"></i>
+                  <%= evento.fecha_fin_e&.strftime('%d/%m/%Y') %>
+                </td>
+                <td class="text-center">
+                  <%= inscripcion.created_at.strftime('%d/%m/%Y') %><br>
+                  <small class="text-muted"><%= inscripcion.created_at.strftime('%H:%M') %></small>
+                </td>
+                <td class="text-center">
+                  <% inscritos = evento.eventospersonas.count %>
+                  <% cupos     = evento.cantidad_persona.to_i %>
+                  <% pct       = cupos > 0 ? [(inscritos * 100 / cupos), 100].min : 0 %>
+                  <span class="badge bg-aqua"><%= inscritos %></span>
+                  <small class="text-muted">/ <%= cupos %></small>
+                  <div class="progress progress-xs" style="margin:4px 0 0;">
+                    <div class="progress-bar progress-bar-<%= pct >= 100 ? 'danger' : pct >= 75 ? 'warning' : 'success' %>"
+                         style="width:<%= pct %>%"></div>
+                  </div>
+                </td>
+                <td class="text-center">
+                  <% if evento.vigente? %>
+                    <span class="label label-success"><i class="fa fa-check-circle"></i> Vigente</span>
+                  <% elsif evento.vencido? %>
+                    <span class="label label-danger"><i class="fa fa-times-circle"></i> Vencido</span>
+                  <% elsif evento.no_iniciado? %>
+                    <span class="label label-warning"><i class="fa fa-clock-o"></i> Próximo</span>
+                  <% end %>
+                </td>
+                <td class="text-center">
+                  <% unless evento.vencido? %>
+                    <button class="btn btn-xs btn-danger btn-cancelar-inscripcion"
+                            data-id="<%= inscripcion.id %>"
+                            data-evento="<%= evento.detalle %>"
+                            data-toggle="tooltip"
+                            title="Cancelar inscripción">
+                      <i class="fa fa-times-circle"></i> No voy
+                    </button>
+                  <% else %>
+                    <span class="text-muted"><small>—</small></span>
+                  <% end %>
+                </td>
               </tr>
-              </thead>
-              <tbody>
-              <% if ins.empty? %>
-                <tr>
-                  <td colspan="7" class="text-center text-muted" style="padding:40px;">
-                    <i class="fa fa-calendar-o fa-3x"></i><br><br>
-                    No tienes eventos registrados aún.
-                  </td>
-                </tr>
-              <% else %>
-                <% ins.each do |inscripcion| %>
-                  <% evento = inscripcion.evento %>
-                  <tr>
-                    <td class="text-center">
-                      <button class="btn btn-xs btn-primary btn-ver-evento"
-                              data-id="<%= evento.id %>"
-                              data-toggle="tooltip"
-                              title="Ver detalle">
-                        <i class="fa fa-eye"></i>
-                      </button>
-                    </td>
-                    <td>
-                      <strong><%= evento.detalle %></strong><br>
-                      <small class="text-muted">
-                        <i class="fa fa-map-marker"></i>
-                        <%= evento.iglesia&.descripcion rescue '—' %>
-                      </small>
-                    </td>
-                    <td class="text-center">
-                      <i class="fa fa-play-circle text-green"></i>
-                      <%= evento.fecha_inicio_e&.strftime('%d/%m/%Y') %><br>
-                      <i class="fa fa-stop-circle text-red"></i>
-                      <%= evento.fecha_fin_e&.strftime('%d/%m/%Y') %>
-                    </td>
-                    <td class="text-center">
-                      <%= inscripcion.created_at.strftime('%d/%m/%Y') %><br>
-                      <small class="text-muted"><%= inscripcion.created_at.strftime('%H:%M') %></small>
-                    </td>
-                    <td class="text-center">
-                      <% inscritos = evento.eventospersonas.count %>
-                      <% cupos     = evento.cantidad_persona.to_i %>
-                      <% pct       = cupos > 0 ? [(inscritos * 100 / cupos), 100].min : 0 %>
-                      <span class="badge bg-aqua"><%= inscritos %></span>
-                      <small class="text-muted">/ <%= cupos %></small>
-                      <div class="progress progress-xs" style="margin:4px 0 0;">
-                        <div class="progress-bar progress-bar-<%= pct >= 100 ? 'danger' : pct >= 75 ? 'warning' : 'success' %>"
-                             style="width:<%= pct %>%"></div>
+
+              <%# MODAL DETALLE %>
+              <div class="modal fade" id="modal-evento-<%= evento.id %>" tabindex="-1" role="dialog">
+                <div class="modal-dialog modal-lg" role="document">
+                  <div class="modal-content">
+                    <div class="modal-header bg-primary" style="color:#fff;">
+                      <button type="button" class="close" data-dismiss="modal"
+                              style="color:#fff;opacity:1;"><span>&times;</span></button>
+                      <h4 class="modal-title">
+                        <i class="fa fa-calendar"></i> <%= evento.detalle %>
+                      </h4>
+                    </div>
+                    <div class="modal-body">
+
+                      <div class="box box-solid box-primary">
+                        <div class="box-header with-border">
+                          <h4 class="box-title"><i class="fa fa-info-circle"></i> Información General</h4>
+                        </div>
+                        <div class="box-body">
+                          <div class="row">
+                            <div class="col-md-6">
+                              <small class="text-muted">Nombre</small>
+                              <p><strong><%= evento.detalle %></strong></p>
+                            </div>
+                            <div class="col-md-3">
+                              <small class="text-muted">Tipo</small>
+                              <p><strong><%= evento.tiposevento&.descripcion rescue '—' %></strong></p>
+                            </div>
+                            <div class="col-md-3">
+                              <small class="text-muted">Estado</small>
+                              <p>
+                                <% if evento.vigente? %>
+                                  <span class="label label-success"><i class="fa fa-check-circle"></i> Vigente</span>
+                                <% elsif evento.vencido? %>
+                                  <span class="label label-danger"><i class="fa fa-times-circle"></i> Vencido</span>
+                                <% else %>
+                                  <span class="label label-warning"><i class="fa fa-clock-o"></i> Próximo</span>
+                                <% end %>
+                              </p>
+                            </div>
+                            <div class="col-md-6">
+                              <small class="text-muted">Iglesia</small>
+                              <p><i class="fa fa-map-marker text-red"></i> <strong><%= evento.iglesia&.descripcion rescue '—' %></strong></p>
+                            </div>
+                            <div class="col-md-6">
+                              <small class="text-muted">Comunidad</small>
+                              <p><i class="fa fa-users text-blue"></i> <strong><%= evento.iglesiascomunidad&.descripcion rescue '—' %></strong></p>
+                            </div>
+                          </div>
+                        </div>
                       </div>
-                    </td>
-                    <td class="text-center">
-                      <% if evento.vigente? %>
-                        <span class="label label-success"><i class="fa fa-check-circle"></i> Vigente</span>
-                      <% elsif evento.vencido? %>
-                        <span class="label label-danger"><i class="fa fa-times-circle"></i> Vencido</span>
-                      <% elsif evento.no_iniciado? %>
-                        <span class="label label-warning"><i class="fa fa-clock-o"></i> Próximo</span>
-                      <% end %>
-                    </td>
-                    <td class="text-center">
+
+                      <div class="box box-solid box-info">
+                        <div class="box-header with-border">
+                          <h4 class="box-title"><i class="fa fa-calendar"></i> Fechas</h4>
+                        </div>
+                        <div class="box-body">
+                          <div class="row">
+                            <div class="col-md-3 col-sm-6">
+                              <small class="text-muted">Inicio Inscripción</small>
+                              <p><i class="fa fa-calendar-o text-aqua"></i> <strong><%= evento.fecha_inicio&.strftime('%d/%m/%Y') || '—' %></strong></p>
+                            </div>
+                            <div class="col-md-3 col-sm-6">
+                              <small class="text-muted">Fin Inscripción</small>
+                              <p><i class="fa fa-calendar-times-o text-aqua"></i> <strong><%= evento.fecha_fin&.strftime('%d/%m/%Y') || '—' %></strong></p>
+                            </div>
+                            <div class="col-md-3 col-sm-6">
+                              <small class="text-muted">Inicio Evento</small>
+                              <p><i class="fa fa-play-circle text-green"></i> <strong><%= evento.fecha_inicio_e&.strftime('%d/%m/%Y') || '—' %></strong></p>
+                            </div>
+                            <div class="col-md-3 col-sm-6">
+                              <small class="text-muted">Fin Evento</small>
+                              <p><i class="fa fa-stop-circle text-red"></i> <strong><%= evento.fecha_fin_e&.strftime('%d/%m/%Y') || '—' %></strong></p>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div class="box box-solid box-success" style="margin-bottom:0;">
+                        <div class="box-header with-border">
+                          <h4 class="box-title"><i class="fa fa-ticket"></i> Mi Inscripción</h4>
+                        </div>
+                        <div class="box-body">
+                          <div class="row">
+                            <div class="col-md-4">
+                              <small class="text-muted">Fecha de Inscripción</small>
+                              <p><i class="fa fa-calendar text-green"></i> <strong><%= inscripcion.created_at.strftime('%d/%m/%Y %H:%M') %></strong></p>
+                            </div>
+                            <div class="col-md-4">
+                              <small class="text-muted">Nombre</small>
+                              <p><strong><%= "#{inscripcion.nombre} #{inscripcion.apellido}" %></strong></p>
+                            </div>
+                            <div class="col-md-4">
+                              <small class="text-muted">Identificación</small>
+                              <p><strong><%= inscripcion.identificacion %></strong></p>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+
+                    </div>
+                    <div class="modal-footer">
                       <% unless evento.vencido? %>
-                        <button class="btn btn-xs btn-danger btn-cancelar-inscripcion"
+                        <button class="btn btn-danger btn-sm btn-cancelar-inscripcion pull-left"
                                 data-id="<%= inscripcion.id %>"
                                 data-evento="<%= evento.detalle %>"
-                                data-toggle="tooltip"
-                                title="Cancelar inscripción">
-                          <i class="fa fa-times-circle"></i> No voy
+                                data-dismiss="modal">
+                          <i class="fa fa-times-circle"></i> Cancelar inscripción
                         </button>
-                      <% else %>
-                        <span class="text-muted"><small>—</small></span>
                       <% end %>
-                    </td>
-                  </tr>
-
-                  <%# MODAL DETALLE %>
-                  <div class="modal fade" id="modal-evento-<%= evento.id %>" tabindex="-1" role="dialog">
-                    <div class="modal-dialog modal-lg" role="document">
-                      <div class="modal-content">
-                        <div class="modal-header bg-primary" style="color:#fff;">
-                          <button type="button" class="close" data-dismiss="modal"
-                                  style="color:#fff;opacity:1;"><span>&times;</span></button>
-                          <h4 class="modal-title">
-                            <i class="fa fa-calendar"></i> <%= evento.detalle %>
-                          </h4>
-                        </div>
-                        <div class="modal-body">
-
-                          <div class="box box-solid box-primary">
-                            <div class="box-header with-border">
-                              <h4 class="box-title"><i class="fa fa-info-circle"></i> Información General</h4>
-                            </div>
-                            <div class="box-body">
-                              <div class="row">
-                                <div class="col-md-6">
-                                  <small class="text-muted">Nombre</small>
-                                  <p><strong><%= evento.detalle %></strong></p>
-                                </div>
-                                <div class="col-md-3">
-                                  <small class="text-muted">Tipo</small>
-                                  <p><strong><%= evento.tiposevento&.descripcion rescue '—' %></strong></p>
-                                </div>
-                                <div class="col-md-3">
-                                  <small class="text-muted">Estado</small>
-                                  <p>
-                                    <% if evento.vigente? %>
-                                      <span class="label label-success"><i class="fa fa-check-circle"></i> Vigente</span>
-                                    <% elsif evento.vencido? %>
-                                      <span class="label label-danger"><i class="fa fa-times-circle"></i> Vencido</span>
-                                    <% else %>
-                                      <span class="label label-warning"><i class="fa fa-clock-o"></i> Próximo</span>
-                                    <% end %>
-                                  </p>
-                                </div>
-                                <div class="col-md-6">
-                                  <small class="text-muted">Iglesia</small>
-                                  <p><i class="fa fa-map-marker text-red"></i> <strong><%= evento.iglesia&.descripcion rescue '—' %></strong></p>
-                                </div>
-                                <div class="col-md-6">
-                                  <small class="text-muted">Comunidad</small>
-                                  <p><i class="fa fa-users text-blue"></i> <strong><%= evento.iglesiascomunidad&.descripcion rescue '—' %></strong></p>
-                                </div>
-                              </div>
-                            </div>
-                          </div>
-
-                          <div class="box box-solid box-info">
-                            <div class="box-header with-border">
-                              <h4 class="box-title"><i class="fa fa-calendar"></i> Fechas</h4>
-                            </div>
-                            <div class="box-body">
-                              <div class="row">
-                                <div class="col-md-3 col-sm-6">
-                                  <small class="text-muted">Inicio Inscripción</small>
-                                  <p><i class="fa fa-calendar-o text-aqua"></i> <strong><%= evento.fecha_inicio&.strftime('%d/%m/%Y') || '—' %></strong></p>
-                                </div>
-                                <div class="col-md-3 col-sm-6">
-                                  <small class="text-muted">Fin Inscripción</small>
-                                  <p><i class="fa fa-calendar-times-o text-aqua"></i> <strong><%= evento.fecha_fin&.strftime('%d/%m/%Y') || '—' %></strong></p>
-                                </div>
-                                <div class="col-md-3 col-sm-6">
-                                  <small class="text-muted">Inicio Evento</small>
-                                  <p><i class="fa fa-play-circle text-green"></i> <strong><%= evento.fecha_inicio_e&.strftime('%d/%m/%Y') || '—' %></strong></p>
-                                </div>
-                                <div class="col-md-3 col-sm-6">
-                                  <small class="text-muted">Fin Evento</small>
-                                  <p><i class="fa fa-stop-circle text-red"></i> <strong><%= evento.fecha_fin_e&.strftime('%d/%m/%Y') || '—' %></strong></p>
-                                </div>
-                              </div>
-                            </div>
-                          </div>
-
-                          <div class="box box-solid box-success" style="margin-bottom:0;">
-                            <div class="box-header with-border">
-                              <h4 class="box-title"><i class="fa fa-ticket"></i> Mi Inscripción</h4>
-                            </div>
-                            <div class="box-body">
-                              <div class="row">
-                                <div class="col-md-4">
-                                  <small class="text-muted">Fecha de Inscripción</small>
-                                  <p><i class="fa fa-calendar text-green"></i> <strong><%= inscripcion.created_at.strftime('%d/%m/%Y %H:%M') %></strong></p>
-                                </div>
-                                <div class="col-md-4">
-                                  <small class="text-muted">Nombre</small>
-                                  <p><strong><%= "#{inscripcion.nombre} #{inscripcion.apellido}" %></strong></p>
-                                </div>
-                                <div class="col-md-4">
-                                  <small class="text-muted">Identificación</small>
-                                  <p><strong><%= inscripcion.identificacion %></strong></p>
-                                </div>
-                              </div>
-                            </div>
-                          </div>
-
-                        </div>
-                        <div class="modal-footer">
-                          <% unless evento.vencido? %>
-                            <button class="btn btn-danger btn-sm btn-cancelar-inscripcion pull-left"
-                                    data-id="<%= inscripcion.id %>"
-                                    data-evento="<%= evento.detalle %>"
-                                    data-dismiss="modal">
-                              <i class="fa fa-times-circle"></i> Cancelar inscripción
-                            </button>
-                          <% end %>
-                          <button type="button" class="btn btn-default btn-sm" data-dismiss="modal">
-                            <i class="fa fa-times"></i> Cerrar
-                          </button>
-                        </div>
-                      </div>
+                      <button type="button" class="btn btn-default btn-sm" data-dismiss="modal">
+                        <i class="fa fa-times"></i> Cerrar
+                      </button>
                     </div>
-                  </div><%# fin modal %>
+                  </div>
+                </div>
+              </div><%# fin modal %>
 
-                <% end %>
-              <% end %>
-              </tbody>
-            </table>
+            <% end %>
+          <% end %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+  </div><%# fin panel-inscripciones %>
+
+  <%# ══════════════════════════════════════════════════════════════ %>
+  <%# PANEL 2 — EVENTOS A MI CARGO                                 %>
+  <%# ══════════════════════════════════════════════════════════════ %>
+  <div id="panel-coordinador" class="panel-seccion <%= 'hidden' unless @eventos.any? %>">
+
+    <%# Indicadores %>
+    <div class="row" style="margin-bottom:10px;">
+      <div class="col-md-4 col-sm-6 col-xs-12">
+        <div class="info-box">
+          <span class="info-box-icon bg-red"><i class="fa fa-star"></i></span>
+          <div class="info-box-content">
+            <span class="info-box-text">A mi Cargo</span>
+            <span class="info-box-number"><%= @eventos.count %></span>
           </div>
         </div>
-
-      </div><%# fin tab-inscripciones %>
-
-      <%# ════════════════════════════════════════════════════════ %>
-      <%# PESTAÑA 2 — EVENTOS A MI CARGO                         %>
-      <%# ════════════════════════════════════════════════════════ %>
-      <div class="tab-pane" id="tab-coordinador">
-
-        <%# Indicadores %>
-        <div class="row" style="margin-bottom:10px;">
-          <div class="col-md-4 col-sm-6 col-xs-12">
-            <div class="info-box bg-red">
-              <span class="info-box-icon"><i class="fa fa-calendar"></i></span>
-              <div class="info-box-content">
-                <span class="info-box-text">Total</span>
-                <span class="info-box-number"><%= @eventos.count %></span>
-              </div>
-            </div>
-          </div>
-          <div class="col-md-4 col-sm-6 col-xs-12">
-            <div class="info-box bg-green">
-              <span class="info-box-icon"><i class="fa fa-check-circle"></i></span>
-              <div class="info-box-content">
-                <span class="info-box-text">Vigentes</span>
-                <span class="info-box-number"><%= @eventos.count(&:vigente?) %></span>
-              </div>
-            </div>
-          </div>
-          <div class="col-md-4 col-sm-6 col-xs-12">
-            <div class="info-box bg-yellow">
-              <span class="info-box-icon"><i class="fa fa-clock-o"></i></span>
-              <div class="info-box-content">
-                <span class="info-box-text">Próximos</span>
-                <span class="info-box-number"><%= @eventos.count(&:no_iniciado?) %></span>
-              </div>
-            </div>
+      </div>
+      <div class="col-md-4 col-sm-6 col-xs-12">
+        <div class="info-box">
+          <span class="info-box-icon bg-green"><i class="fa fa-check-circle"></i></span>
+          <div class="info-box-content">
+            <span class="info-box-text">Vigentes</span>
+            <span class="info-box-number"><%= @eventos.count(&:vigente?) %></span>
           </div>
         </div>
-
-        <%# Tabla coordinador %>
-        <div class="box box-warning">
-          <div class="box-header with-border">
-            <h3 class="box-title">
-              <i class="fa fa-star"></i> Eventos donde eres Coordinador
-            </h3>
+      </div>
+      <div class="col-md-4 col-sm-6 col-xs-12">
+        <div class="info-box">
+          <span class="info-box-icon bg-yellow"><i class="fa fa-clock-o"></i></span>
+          <div class="info-box-content">
+            <span class="info-box-text">Próximos</span>
+            <span class="info-box-number"><%= @eventos.count(&:no_iniciado?) %></span>
           </div>
-          <div class="box-body table-responsive no-padding">
-            <table class="table table-bordered table-hover table-striped">
-              <thead>
-              <tr class="thcolor">
-                <th class="text-center" style="width:40px;">Ver</th>
-                <th>Evento</th>
-                <th class="text-center">Fechas del Evento</th>
-                <th class="text-center">Inscritos</th>
-                <th class="text-center">Estado</th>
+        </div>
+      </div>
+    </div>
+
+    <%# Tabla coordinador %>
+    <div class="box box-warning">
+      <div class="box-header with-border">
+        <h3 class="box-title">
+          <i class="fa fa-star"></i> Eventos donde eres Coordinador
+        </h3>
+      </div>
+      <div class="box-body table-responsive no-padding">
+        <table class="table table-bordered table-hover table-striped">
+          <thead>
+          <tr class="thcolor">
+            <th class="text-center" style="width:40px;">Ver</th>
+            <th>Evento</th>
+            <th class="text-center">Fechas del Evento</th>
+            <th class="text-center">Inscritos</th>
+            <th class="text-center">Estado</th>
+          </tr>
+          </thead>
+          <tbody>
+          <% if @eventos.empty? %>
+            <tr>
+              <td colspan="5" class="text-center text-muted" style="padding:40px;">
+                <i class="fa fa-star-o fa-3x"></i><br><br>
+                No tienes eventos asignados como coordinador.
+              </td>
+            </tr>
+          <% else %>
+            <% @eventos.each do |evento| %>
+              <% inscrito = ins.any? { |i| i.evento_id == evento.id } %>
+              <tr>
+                <td class="text-center">
+                  <%= link_to eventos_responsable_path(evento),
+                              class: 'btn btn-xs btn-primary',
+                              'data-toggle': 'tooltip',
+                              title: 'Ver inscritos' do %>
+                    <i class="fa fa-users"></i>
+                  <% end %>
+                </td>
+                <td>
+                  <strong><%= evento.detalle %></strong>
+                  <% if inscrito %>
+                    <span class="label label-info" style="margin-left:4px;">
+                      <i class="fa fa-ticket"></i> También inscrito
+                    </span>
+                  <% end %>
+                  <br>
+                  <small class="text-muted">
+                    <i class="fa fa-map-marker"></i>
+                    <%= evento.iglesia&.descripcion rescue '—' %>
+                  </small>
+                </td>
+                <td class="text-center">
+                  <i class="fa fa-play-circle text-green"></i>
+                  <%= evento.fecha_inicio_e&.strftime('%d/%m/%Y') %><br>
+                  <i class="fa fa-stop-circle text-red"></i>
+                  <%= evento.fecha_fin_e&.strftime('%d/%m/%Y') %>
+                </td>
+                <td class="text-center">
+                  <% inscritos = evento.eventospersonas.count %>
+                  <% cupos     = evento.cantidad_persona.to_i %>
+                  <% pct       = cupos > 0 ? [(inscritos * 100 / cupos), 100].min : 0 %>
+                  <span class="badge bg-aqua"><%= inscritos %></span>
+                  <small class="text-muted">/ <%= cupos %></small>
+                  <div class="progress progress-xs" style="margin:4px 0 0;">
+                    <div class="progress-bar progress-bar-<%= pct >= 100 ? 'danger' : pct >= 75 ? 'warning' : 'success' %>"
+                         style="width:<%= pct %>%"></div>
+                  </div>
+                </td>
+                <td class="text-center">
+                  <% if evento.vigente? %>
+                    <span class="label label-success"><i class="fa fa-check-circle"></i> Vigente</span>
+                  <% elsif evento.vencido? %>
+                    <span class="label label-danger"><i class="fa fa-times-circle"></i> Vencido</span>
+                  <% elsif evento.no_iniciado? %>
+                    <span class="label label-warning"><i class="fa fa-clock-o"></i> Próximo</span>
+                  <% end %>
+                </td>
               </tr>
-              </thead>
-              <tbody>
-              <% if @eventos.empty? %>
-                <tr>
-                  <td colspan="5" class="text-center text-muted" style="padding:40px;">
-                    <i class="fa fa-star-o fa-3x"></i><br><br>
-                    No tienes eventos asignados como coordinador.
-                  </td>
-                </tr>
-              <% else %>
-                <% @eventos.each do |evento| %>
-                  <% inscrito = ins.any? { |i| i.evento_id == evento.id } %>
-                  <tr>
-                    <td class="text-center">
-                      <%= link_to eventos_responsable_path(evento),
-                                  class: 'btn btn-xs btn-primary',
-                                  'data-toggle': 'tooltip',
-                                  title: 'Ver inscritos' do %>
-                        <i class="fa fa-users"></i>
-                      <% end %>
-                    </td>
-                    <td>
-                      <strong><%= evento.detalle %></strong>
-                      <% if inscrito %>
-                          <span class="label label-info" style="margin-left:4px;">
-                            <i class="fa fa-ticket"></i> También inscrito
-                          </span>
-                      <% end %>
-                      <br>
-                      <small class="text-muted">
-                        <i class="fa fa-map-marker"></i>
-                        <%= evento.iglesia&.descripcion rescue '—' %>
-                      </small>
-                    </td>
-                    <td class="text-center">
-                      <i class="fa fa-play-circle text-green"></i>
-                      <%= evento.fecha_inicio_e&.strftime('%d/%m/%Y') %><br>
-                      <i class="fa fa-stop-circle text-red"></i>
-                      <%= evento.fecha_fin_e&.strftime('%d/%m/%Y') %>
-                    </td>
-                    <td class="text-center">
-                      <% inscritos = evento.eventospersonas.count %>
-                      <% cupos     = evento.cantidad_persona.to_i %>
-                      <% pct       = cupos > 0 ? [(inscritos * 100 / cupos), 100].min : 0 %>
-                      <span class="badge bg-aqua"><%= inscritos %></span>
-                      <small class="text-muted">/ <%= cupos %></small>
-                      <div class="progress progress-xs" style="margin:4px 0 0;">
-                        <div class="progress-bar progress-bar-<%= pct >= 100 ? 'danger' : pct >= 75 ? 'warning' : 'success' %>"
-                             style="width:<%= pct %>%"></div>
-                      </div>
-                    </td>
-                    <td class="text-center">
-                      <% if evento.vigente? %>
-                        <span class="label label-success"><i class="fa fa-check-circle"></i> Vigente</span>
-                      <% elsif evento.vencido? %>
-                        <span class="label label-danger"><i class="fa fa-times-circle"></i> Vencido</span>
-                      <% elsif evento.no_iniciado? %>
-                        <span class="label label-warning"><i class="fa fa-clock-o"></i> Próximo</span>
-                      <% end %>
-                    </td>
-                  </tr>
-                <% end %>
-              <% end %>
-              </tbody>
-            </table>
-          </div>
-        </div>
+            <% end %>
+          <% end %>
+          </tbody>
+        </table>
+      </div>
+    </div>
 
-      </div><%# fin tab-coordinador %>
-
-    </div><%# fin tab-content %>
-  </div><%# fin nav-tabs-custom %>
+  </div><%# fin panel-coordinador %>
 
 </section>
 
@@ -464,13 +475,27 @@
     $(document).ready(function () {
         $('[data-toggle="tooltip"]').tooltip();
 
+        // ── Switcher de paneles ──
+        $('.btn-seccion').on('click', function (e) {
+            e.preventDefault();
+            var target = $(this).data('target');
+            $('.btn-seccion').removeClass('active');
+            $(this).addClass('active');
+            $('.panel-seccion').addClass('hidden');
+            $(target).removeClass('hidden');
+        });
+
+        // ── Modal detalle evento ──
         $('.btn-ver-evento').on('click', function () {
             $('#modal-evento-' + $(this).data('id')).modal('show');
         });
 
+        // ── Modal confirmar cancelar ──
         $(document).on('click', '.btn-cancelar-inscripcion', function () {
             $('#nombre-evento-cancelar').text($(this).data('evento'));
-            $('#form-cancelar-inscripcion').attr('action', '/eventosperlistados/' + $(this).data('id') + '/cancelar');
+            $('#form-cancelar-inscripcion').attr(
+                'action', '/eventosperlistados/' + $(this).data('id') + '/cancelar'
+            );
             $('#modal-confirmar-cancelar').modal('show');
         });
     });

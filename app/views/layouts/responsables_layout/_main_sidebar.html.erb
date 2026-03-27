@@ -1,0 +1,38 @@
+<aside class="main-sidebar">
+  <section class="sidebar">
+    <ul class="sidebar-menu" data-widget="tree">
+
+
+      <li class="header">MI ACTIVIDAD</li>
+
+      <% ins = @inscripciones || [] %>
+      <li class="<%= 'active' if @eventos&.any? %>" id="li-coordinador">
+        <a href="#" class="btn-seccion" data-target="#panel-coordinador">
+          <i class="fa fa-star"></i>
+          <span>Eventos a mi Cargo</span>
+          <span class="pull-right-container">
+            <span class="badge pull-right bg-red">
+              <%= @eventos&.count || 0 %>
+            </span>
+          </span>
+        </a>
+      </li>
+
+
+      <li class="<%= 'active' unless @eventos&.any? %>" id="li-inscripciones">
+        <a href="#" class="btn-seccion" data-target="#panel-inscripciones">
+          <i class="fa fa-ticket"></i>
+          <span>Mis Inscripciones</span>
+          <span class="pull-right-container">
+            <span class="badge pull-right bg-light-blue">
+              <%= ins.count %>
+            </span>
+          </span>
+        </a>
+      </li>
+
+
+
+    </ul>
+  </section>
+</aside>
