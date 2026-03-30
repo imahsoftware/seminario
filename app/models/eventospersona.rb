@@ -21,7 +21,7 @@ class Eventospersona < ApplicationRecord
   attr_accessor :ya_tiene_documentos, :persona_ya_tiene_documentos,
                 :acudiente_ya_tiene_documentos
 
-  TIPOS_PERSONA = ['CASADO', 'SEMINARISTA', 'SOLTERO','PLESBÍTERO'].freeze
+  TIPOS_PERSONA = ['CASADO', 'SEMINARISTA', 'SOLTERO','PRESBÍTERO'].freeze
 
   # ── Validaciones generales ────────────────────────────────────────────────
   validates :identificacion, :nombre, :apellido, :fecha_nacimiento,
