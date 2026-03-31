@@ -500,33 +500,52 @@
         var buscarTimer = null;
         $('#eventospersona_identificacion').on('blur', function () {
             var id=$(this).val().trim();
+            var documento_tipo_id = $('#eventospersona_documento_tipo_id').val();
             if (id!==ultimaCedula) { ultimaCedula=id; limpiarFormulario(); }
             if (id.length<5) return;
             clearTimeout(buscarTimer);
             buscarTimer = setTimeout(function () {
-                $.ajax({ url:'<%= buscar_persona_registro_evento_path(@evento.guid) %>', method:'GET', data:{identificacion:id},
+                $.ajax({
+                    url: '<%= buscar_persona_registro_evento_path(@evento.guid) %>',
+                    method: 'GET',
+                    data: { identificacion: id, documento_tipo_id: documento_tipo_id },
                     success: function (data) {
+                        console.log('✅ data recibida:', data);
+                        console.log('📌 tipo_persona:', data.tipo_persona);
+                        console.log('📌 #tipo_persona options:', $('#tipo_persona option').length);
+
                         if (!data.encontrada) return;
+
                         $('#eventospersona_nombre').val(data.nombre).trigger('change');
                         $('#eventospersona_apellido').val(data.apellido).trigger('change');
                         $('#eventospersona_celular').val(data.celular).trigger('change');
                         $('#eventospersona_email').val(data.email).trigger('change');
                         $('#eventospersona_direccion').val(data.direccion).trigger('change');
-                        if (data.fecha_nacimiento) { $fn.val(data.fecha_nacimiento); setTimeout(validarEdad,200); }
+
+                        if (data.tipo_persona) {
+                            $('#tipo_persona').val(data.tipo_persona).trigger('change');
+                        } else {
+                            $('#tipo_persona').val('').trigger('change');
+                        }
+
+                        if (data.fecha_nacimiento) { $fn.val(data.fecha_nacimiento); setTimeout(validarEdad, 200); }
                         if (data.sexo)             $('#eventospersona_sexo').val(data.sexo).trigger('change');
                         if (data.estado_civil_id)  $('#eventospersona_estado_civil_id').val(data.estado_civil_id).trigger('change');
                         if (data.documento_tipo_id)$('#eventospersona_documento_tipo_id').val(data.documento_tipo_id).trigger('change');
+
                         if (data.tiene_documentos && data.cedula_frente_url && data.cedula_reverso_url) {
                             document.getElementById('preview-frente-img').src  = data.cedula_frente_url;
                             document.getElementById('preview-reverso-img').src = data.cedula_reverso_url;
                             $('#preview-frente,#preview-reverso').show();
-                            $('#persona_ya_tiene_documentos').val('1'); $('#badge-docs-existentes').show();
+                            $('#persona_ya_tiene_documentos').val('1');
+                            $('#badge-docs-existentes').show();
                         } else {
                             $('#persona_ya_tiene_documentos').val('0');
                             $('#badge-docs-existentes,#preview-frente,#preview-reverso').hide();
                             $('#cedula_frente_base64,#cedula_reverso_base64').val('');
                         }
-                    }, error: function(){ console.warn('Error al buscar persona'); }
+                    },
+                    error: function () { console.warn('Error al buscar persona'); }
                 });
             }, 300);
         });
@@ -534,7 +553,7 @@
         // ── Autocompletar acudiente ────────────────────────────────────────
         $('#acudiente_identificacion').on('blur', function () {
             var id=$(this).val().trim(); if (id.length<5) return;
-            $.ajax({ url:'<%= buscar_persona_registro_evento_path(@evento.guid) %>', method:'GET', data:{identificacion:id},
+            $.ajax({ url:'<%= buscar_persona_registro_evento_path(@evento.guid) %>', method:'GET', data:{identificacion:id, documento_tipo_id: documento_tipo_id },
                 success: function (data) {
                     if (!data.encontrada) return;
                     if (data.nombre)           $('#acudiente_nombre').val(data.nombre).trigger('change');

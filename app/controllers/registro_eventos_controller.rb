@@ -179,7 +179,14 @@ class RegistroEventosController < ApplicationController
     identificacion    = params[:identificacion].to_s.strip
     documento_tipo_id = params[:documento_tipo_id].to_s.strip
 
-    persona = Persona.find_by(identificacion: identificacion, documento_tipo_id: documento_tipo_id)
+    persona = if documento_tipo_id.present?
+                Persona.find_by(identificacion: identificacion, documento_tipo_id: documento_tipo_id)
+              else
+                Persona.find_by(identificacion: identificacion)
+              end
+
+    # find_by en lugar de find, y protegido con &. para evitar nil
+    eventospersona = Eventospersona.find_by(identificacion: identificacion)
 
     if persona
       documento = Documento.where(persona_id: persona.id).order(updated_at: :desc).first
@@ -193,6 +200,7 @@ class RegistroEventosController < ApplicationController
         email:              persona.email,
         direccion:          persona.direccion,
         sexo:               persona.sexo,
+        tipo_persona:       eventospersona&.tipo_persona,  # ← &. por si no existe
         estado_civil_id:    persona.estado_civil_id,
         documento_tipo_id:  persona.documento_tipo_id,
         tiene_documentos:   documento.present?,
@@ -206,7 +214,6 @@ class RegistroEventosController < ApplicationController
   rescue ActiveRecord::RecordNotFound
     render json: { encontrada: false }
   end
-
   private
 
   def crear_usuario_inscrito(ep)
