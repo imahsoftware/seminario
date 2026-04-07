@@ -54,7 +54,7 @@
             <% end %>
           </p>
         </div>
-        <div class="col-md-4 col-sm-6">
+        <div class="col-md-6 col-sm-6">
           <p class="text-muted" style="margin-bottom:2px;"><small>Sexo</small></p>
           <p>
             <% if ep.sexo == 'M' %>
@@ -66,11 +66,7 @@
             <% end %>
           </p>
         </div>
-        <div class="col-md-4 col-sm-6">
-          <p class="text-muted" style="margin-bottom:2px;"><small>Estado Civil</small></p>
-          <p><strong><%= ep.estado_civil.nombre rescue 'N/D' %></strong></p>
-        </div>
-        <div class="col-md-4 col-sm-6">
+        <div class="col-md-6 col-sm-6">
           <p class="text-muted" style="margin-bottom:2px;"><small>Tipo Persona</small></p>
           <p><strong><%= ep.tipo_persona.presence || 'N/D' %></strong></p>
         </div>

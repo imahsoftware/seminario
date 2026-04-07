@@ -58,6 +58,24 @@ class RegistroEventosController < ApplicationController
 
     if @eventospersona.save
 
+      if @eventospersona.conyuge_id.present?
+        conyuge_anterior = @evento.eventospersonas
+                                  .where(id: @eventospersona.conyuge_id)
+                                  .where(conyuge_pendiente: 'SI')
+                                  .first
+
+        if conyuge_anterior
+          conyuge_anterior.update_columns(
+            conyuge_id:        @eventospersona.id,
+            conyuge_pendiente: 'NO'
+          )
+        end
+      end
+
+
+
+
+
       # ── NUEVO: Crear usuario INSCRITO automáticamente ──────────────────
       crear_usuario_inscrito(@eventospersona)
       # ──────────────────────────────────────────────────────────────────
@@ -173,6 +191,29 @@ class RegistroEventosController < ApplicationController
     render :no_encontrado
   end
 
+  def buscar_conyuge
+    @evento = Evento.find_by!(guid: params[:guid])
+
+    ep = @evento.eventospersonas
+                .where(tipo_persona: 'MATRIMONIO')
+                .find_by(identificacion: params[:identificacion].to_s.strip)
+
+    if ep
+      render json: {
+        encontrado:     true,
+        id:             ep.id,
+        nombre_completo: "#{ep.nombre} #{ep.apellido}".strip,
+        identificacion: ep.identificacion
+      }
+    else
+      render json: {
+        encontrado: false,
+        mensaje:    'No se encontró ninguna persona inscrita con tipo MATRIMONIO y esa identificación en este evento.'
+      }
+    end
+  end
+
+
   def buscar_persona
     @evento = Evento.find_by_guid!(params[:guid])
 
@@ -264,6 +305,11 @@ class RegistroEventosController < ApplicationController
     end
   end
   # ───────────────────────────────────────────────────────────────────────
+
+
+
+
+
 
   def base64_a_paperclip(base64_data, prefix)
     return if base64_data.blank?

@@ -25,12 +25,14 @@
             <h4><strong><%= @evento.detalle %></strong></h4>
             <p><strong>Tipo de Evento:</strong> <%= @evento.tiposevento.descripcion rescue 'N/A' %></p>
             <p><strong>Fecha del Evento:</strong> <%= @evento.fecha_inicio_e.strftime("%d/%m/%Y") rescue '' %></p>
-            <p><strong>Vigencia de Registro:</strong> Hasta el <%= @evento.fecha_fin_e.strftime("%d/%m/%Y") rescue '' %></p>
+            <p><strong>Vigencia de Registro:</strong> Hasta el <%= @evento.fecha_fin_e.strftime("%d/%m/%Y") rescue '' %>
+            </p>
           </div>
 
           <% if @eventospersona.errors.any? %>
             <div class="alert alert-danger">
-              <h4><i class="fa fa-exclamation-triangle"></i> Se encontraron <%= @eventospersona.errors.count %> errores:</h4>
+              <h4><i class="fa fa-exclamation-triangle"></i> Se encontraron <%= @eventospersona.errors.count %> errores:
+              </h4>
               <ul style="margin-bottom: 0;">
                 <% @eventospersona.errors.full_messages.each do |message| %>
                   <li><%= message %></li>
@@ -42,12 +44,12 @@
           <%= simple_form_for @eventospersona, url: registro_evento_path(@evento.guid), method: :post,
                               html: { id: 'form-registro-evento', multipart: true } do |f| %>
 
-            <input type="hidden" id="cedula_frente_base64"            name="eventospersona[cedula_frente_base64]"            value="<%= @frente_b64 %>">
-            <input type="hidden" id="cedula_reverso_base64"           name="eventospersona[cedula_reverso_base64]"           value="<%= @reverso_b64 %>">
-            <input type="hidden" id="acudiente_cedula_frente_base64"  name="eventospersona[acudiente_cedula_frente_base64]"  value="<%= @acu_frente_b64 %>">
+            <input type="hidden" id="cedula_frente_base64" name="eventospersona[cedula_frente_base64]" value="<%= @frente_b64 %>">
+            <input type="hidden" id="cedula_reverso_base64" name="eventospersona[cedula_reverso_base64]" value="<%= @reverso_b64 %>">
+            <input type="hidden" id="acudiente_cedula_frente_base64" name="eventospersona[acudiente_cedula_frente_base64]" value="<%= @acu_frente_b64 %>">
             <input type="hidden" id="acudiente_cedula_reverso_base64" name="eventospersona[acudiente_cedula_reverso_base64]" value="<%= @acu_rev_b64 %>">
-            <input type="hidden" id="persona_ya_tiene_documentos"     name="eventospersona[persona_ya_tiene_documentos]"     value="0">
-            <input type="hidden" id="acudiente_ya_tiene_documentos"   name="eventospersona[acudiente_ya_tiene_documentos]"   value="0">
+            <input type="hidden" id="persona_ya_tiene_documentos" name="eventospersona[persona_ya_tiene_documentos]" value="0">
+            <input type="hidden" id="acudiente_ya_tiene_documentos" name="eventospersona[acudiente_ya_tiene_documentos]" value="0">
 
             <h4 class="text-primary"><i class="fa fa-user"></i> Información Personal</h4>
             <hr>
@@ -71,13 +73,13 @@
             </div>
 
             <div class="row">
-              <div class="col-md-3">
+              <div class="col-md-4">
                 <%= f.input :tipo_persona, label: "Tipo",
                             collection: Iparametro.where("campo = 'TIPO_PERSONA'").order(:descripcion).collect { |p| [p.descripcion.to_s, p.valor.to_s] },
                             input_html: { class: 'select2', id: 'tipo_persona', style: "width: 100%" },
                             as: :select, include_blank: true %>
               </div>
-              <div class="col-md-3">
+              <div class="col-md-4">
                 <label>Fecha de Nacimiento <span class="text-danger">*</span></label>
                 <div class="input-group">
                   <div class="input-group-addon" style="background: #EDEDED;"><i class="fa fa-calendar"></i></div>
@@ -89,14 +91,8 @@
                   <i class="fa fa-info-circle"></i> <span id="edad-texto"></span>
                 </small>
               </div>
-              <div class="col-md-3">
+              <div class="col-md-4">
                 <%= f.input :celular, label: "Celular", required: true, input_html: { class: 'form-control', maxlength: 20 } %>
-              </div>
-              <div class="col-md-3">
-                <%= f.association :estado_civil, label: "Estado Civil",
-                                  collection: EstadoCivil.where(estado: 'ACTIVO').order(:nombre),
-                                  value_method: :id, label_method: :nombre, required: true,
-                                  input_html: { class: 'select2' }, include_blank: 'Seleccione...' %>
               </div>
             </div>
 
@@ -119,7 +115,8 @@
               <i class="fa fa-id-card"></i> Documento de Identidad
             </h4>
             <p class="text-muted">
-              <small><i class="fa fa-info-circle"></i> Usa la cámara para fotografiar el frente y reverso de tu documento</small>
+              <small><i class="fa fa-info-circle"></i> Usa la cámara para fotografiar el frente y reverso de tu
+                documento</small>
             </p>
             <hr>
 
@@ -139,7 +136,8 @@
                   </div>
                   <small class="text-muted">Parte frontal de tu documento</small>
                   <div id="preview-frente" style="display:none; margin-top: 10px;">
-                    <p class="text-success" style="margin-bottom: 5px;"><i class="fa fa-check-circle"></i> <strong>Vista previa:</strong></p>
+                    <p class="text-success" style="margin-bottom: 5px;"><i class="fa fa-check-circle"></i>
+                      <strong>Vista previa:</strong></p>
                     <img id="preview-frente-img" src="#" alt="Frente" style="max-width:100%; max-height:200px; border:2px solid #5cb85c; border-radius:4px;"/>
                   </div>
                 </div>
@@ -154,7 +152,8 @@
                   </div>
                   <small class="text-muted">Parte trasera de tu documento</small>
                   <div id="preview-reverso" style="display:none; margin-top: 10px;">
-                    <p class="text-success" style="margin-bottom: 5px;"><i class="fa fa-check-circle"></i> <strong>Vista previa:</strong></p>
+                    <p class="text-success" style="margin-bottom: 5px;"><i class="fa fa-check-circle"></i>
+                      <strong>Vista previa:</strong></p>
                     <img id="preview-reverso-img" src="#" alt="Reverso" style="max-width:100%; max-height:200px; border:2px solid #5cb85c; border-radius:4px;"/>
                   </div>
                 </div>
@@ -170,7 +169,8 @@
                 <span class="label label-danger">OBLIGATORIO - MENOR DE EDAD</span>
               </h4>
               <p class="text-danger">
-                <small><i class="fa fa-exclamation-triangle"></i> Debes completar esta sección porque eres menor de 18 años</small>
+                <small><i class="fa fa-exclamation-triangle"></i> Debes completar esta sección porque eres menor de 18
+                  años</small>
               </p>
               <hr>
 
@@ -218,28 +218,87 @@
               </div>
 
             </div><%# fin seccion-acudiente %>
+            <%# ══════════════════════════════════════════
+            SECCIÓN CÓNYUGE
+            ══════════════════════════════════════════ %>
+            <div id="seccion-conyuge" style="display: none;">
+              <h4 class="text-primary" style="margin-top: 30px;">
+                <i class="fa fa-heart"></i> Información del Cónyuge
+                <span class="label label-danger">OBLIGATORIO - MATRIMONIO</span>
+              </h4>
+              <p class="text-muted">
+                <small><i class="fa fa-info-circle"></i> Ingresa la identificación de tu cónyuge para vincularlo al
+                  evento</small>
+              </p>
+              <hr>
 
-            <h4 class="text-primary" style="margin-top: 30px;"><i class="fa fa-file-text-o"></i> Aceptación de Políticas</h4>
+              <%# ── NUEVO: Checkbox "pendiente por registrar" ── %>
+              <div class="checkbox" style="margin-bottom: 15px;">
+                <label>
+                  <input type="checkbox" id="conyuge_pendiente" name="eventospersona[conyuge_pendiente]" value="1">
+                  <strong style="color: #071B7D;">
+                    <i class="fa fa-clock-o"></i> Mi cónyuge aún no está registrado (pendiente por registrar)
+                  </strong>
+                </label>
+                <small class="text-muted" style="display:block; padding-left: 22px;">
+                  Marca esta casilla si tu pareja todavía no se ha inscrito. Podrás vincularla más adelante.
+                </small>
+              </div>
+
+              <div id="conyuge-campos-wrap">
+                <div class="row">
+                  <div class="col-md-4">
+                    <%= f.input :conyuge_id,
+                                label: "Identificación del Cónyuge *",
+                                input_html: { class: 'form-control conyuge-field',
+                                              id: 'conyuge_identificacion',
+                                              maxlength: 30,
+                                              autocomplete: 'off' } %>
+                    <span id="error-conyuge" style="display:none; color:#d9534f; font-size:13px;">
+                      <i class="fa fa-exclamation-circle"></i> <span id="error-conyuge-texto"></span>
+                    </span>
+                  </div>
+                  <div class="col-md-4" id="conyuge-nombre-wrap" style="display:none;">
+                    <label class="text-muted"><small>Nombre encontrado</small></label>
+                    <p id="conyuge-nombre-display" class="text-success" style="margin-top:6px;">
+                      <i class="fa fa-check-circle"></i> <strong></strong>
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              <%# campo oculto para enviar el conyuge_id resuelto %>
+              <input type="hidden" id="conyuge_id_hidden" name="eventospersona[conyuge_id]" value="">
+            </div>
+
+
+            <h4 class="text-primary" style="margin-top: 30px;"><i class="fa fa-file-text-o"></i> Aceptación de Políticas
+            </h4>
             <hr>
 
             <div class="checkbox-required">
               <div class="checkbox">
                 <label>
                   <%= f.check_box :acepta_politica, { required: true }, "SI", "NO" %>
-                  <strong style="color: #071B7D;"><i class="fa fa-shield"></i> Acepto las políticas de tratamiento de datos personales <span class="text-danger">*</span></strong>
+                  <strong style="color: #071B7D;"><i class="fa fa-shield"></i> Acepto las políticas de tratamiento de
+                    datos personales <span class="text-danger">*</span></strong>
                 </label>
               </div>
-              <small class="text-muted" style="display: block; margin-top: 10px; padding-left: 26px;">Al marcar esta casilla, acepto que mis datos personales sean utilizados de acuerdo con la política de privacidad.</small>
+              <small class="text-muted" style="display: block; margin-top: 10px; padding-left: 26px;">Al marcar esta
+                casilla, acepto que mis datos personales sean utilizados de acuerdo con la política de
+                privacidad.</small>
             </div>
 
             <div class="checkbox-required">
               <div class="checkbox">
                 <label>
                   <%= f.check_box :acepta_cultura, { required: true }, "SI", "NO" %>
-                  <strong style="color: #071B7D;"><i class="fa fa-heart"></i> Acepto la cultura organizacional <span class="text-danger">*</span></strong>
+                  <strong style="color: #071B7D;"><i class="fa fa-heart"></i> Acepto la cultura organizacional
+                    <span class="text-danger">*</span></strong>
                 </label>
               </div>
-              <small class="text-muted" style="display: block; margin-top: 10px; padding-left: 26px;">Me comprometo a seguir los valores y principios de la organización.</small>
+              <small class="text-muted" style="display: block; margin-top: 10px; padding-left: 26px;">Me comprometo a
+                seguir los valores y principios de la organización.</small>
             </div>
 
             <div class="form-group" style="margin-top: 30px;">
@@ -249,7 +308,8 @@
             </div>
 
             <p class="text-muted text-center">
-              <small><i class="fa fa-info-circle"></i> Los campos marcados con (<span class="text-danger">*</span>) son obligatorios</small>
+              <small><i class="fa fa-info-circle"></i> Los campos marcados con (<span class="text-danger">*</span>) son
+                obligatorios</small>
             </p>
 
           <% end %>
@@ -301,8 +361,10 @@
           </button>
         </div>
         <div id="footer-confirmar" class="footer-estado" style="display:none;">
-          <button type="button" id="btn-usar-foto" class="btn-camara-usar"><i class="fa fa-check"></i> Usar esta foto</button>
-          <button type="button" id="btn-repetir"   class="btn-camara-repetir"><i class="fa fa-refresh"></i> Repetir</button>
+          <button type="button" id="btn-usar-foto" class="btn-camara-usar"><i class="fa fa-check"></i> Usar esta foto
+          </button>
+          <button type="button" id="btn-repetir" class="btn-camara-repetir"><i class="fa fa-refresh"></i> Repetir
+          </button>
         </div>
       </div>
 
@@ -316,56 +378,80 @@
         var streamActual = null, campoObjetivo = null, previewObjetivo = null;
 
         var titulosCamara = {
-            'frente':  'Capturar Documento – Frente',
+            'frente': 'Capturar Documento – Frente',
             'reverso': 'Capturar Documento – Reverso'
         };
 
         function abrirCamara(prefixPreview, campoId) {
-            campoObjetivo = campoId; previewObjetivo = prefixPreview;
+            campoObjetivo = campoId;
+            previewObjetivo = prefixPreview;
             document.getElementById('modal-titulo').innerHTML = '<i class="fa fa-camera"></i> ' + (titulosCamara[prefixPreview] || 'Capturar Documento');
-            document.getElementById('camara-canvas').style.display        = 'none';
-            document.getElementById('camara-video').style.display         = 'block';
-            document.getElementById('footer-capturar').style.display      = 'flex';
-            document.getElementById('footer-confirmar').style.display     = 'none';
-            document.getElementById('btn-cancelar-camara').style.display  = 'block';
-            document.getElementById('camara-guia').style.display          = 'flex';
-            document.getElementById('camara-error').style.display         = 'none';
+            document.getElementById('camara-canvas').style.display = 'none';
+            document.getElementById('camara-video').style.display = 'block';
+            document.getElementById('footer-capturar').style.display = 'flex';
+            document.getElementById('footer-confirmar').style.display = 'none';
+            document.getElementById('btn-cancelar-camara').style.display = 'block';
+            document.getElementById('camara-guia').style.display = 'flex';
+            document.getElementById('camara-error').style.display = 'none';
             $('#modalCamara').modal('show');
         }
 
         $('#modalCamara').on('shown.bs.modal', function () {
-            navigator.mediaDevices.getUserMedia({ video: { facingMode: { ideal: 'environment' }, width: { ideal: 1280 }, height: { ideal: 720 } } })
-                .then(function (stream) { streamActual = stream; var v = document.getElementById('camara-video'); v.srcObject = stream; v.play(); })
-                .catch(function (err)   { console.error('Error cámara:', err); document.getElementById('camara-error').style.display = 'flex'; });
+            navigator.mediaDevices.getUserMedia({
+                video: {
+                    facingMode: {ideal: 'environment'},
+                    width: {ideal: 1280},
+                    height: {ideal: 720}
+                }
+            })
+                .then(function (stream) {
+                    streamActual = stream;
+                    var v = document.getElementById('camara-video');
+                    v.srcObject = stream;
+                    v.play();
+                })
+                .catch(function (err) {
+                    console.error('Error cámara:', err);
+                    document.getElementById('camara-error').style.display = 'flex';
+                });
         });
 
         $('#modalCamara').on('hidden.bs.modal', function () {
-            if (streamActual) { streamActual.getTracks().forEach(function (t) { t.stop(); }); streamActual = null; }
+            if (streamActual) {
+                streamActual.getTracks().forEach(function (t) {
+                    t.stop();
+                });
+                streamActual = null;
+            }
             document.getElementById('camara-video').srcObject = null;
         });
 
         document.getElementById('btn-snap').addEventListener('click', function () {
             var video = document.getElementById('camara-video'), canvas = document.getElementById('camara-canvas');
-            canvas.width = video.videoWidth || 1280; canvas.height = video.videoHeight || 720;
+            canvas.width = video.videoWidth || 1280;
+            canvas.height = video.videoHeight || 720;
             canvas.getContext('2d').drawImage(video, 0, 0, canvas.width, canvas.height);
             var flash = document.getElementById('camara-flash');
-            flash.classList.remove('disparar'); void flash.offsetWidth; flash.classList.add('disparar');
+            flash.classList.remove('disparar');
+            void flash.offsetWidth;
+            flash.classList.add('disparar');
             setTimeout(function () {
-                video.style.display = 'none'; canvas.style.display = 'block';
-                document.getElementById('camara-guia').style.display         = 'none';
-                document.getElementById('footer-capturar').style.display     = 'none';
-                document.getElementById('footer-confirmar').style.display    = 'flex';
+                video.style.display = 'none';
+                canvas.style.display = 'block';
+                document.getElementById('camara-guia').style.display = 'none';
+                document.getElementById('footer-capturar').style.display = 'none';
+                document.getElementById('footer-confirmar').style.display = 'flex';
                 document.getElementById('btn-cancelar-camara').style.display = 'none';
             }, 150);
         });
 
         document.getElementById('btn-repetir').addEventListener('click', function () {
-            document.getElementById('camara-canvas').style.display        = 'none';
-            document.getElementById('camara-video').style.display         = 'block';
-            document.getElementById('camara-guia').style.display          = 'flex';
-            document.getElementById('footer-capturar').style.display      = 'flex';
-            document.getElementById('footer-confirmar').style.display     = 'none';
-            document.getElementById('btn-cancelar-camara').style.display  = 'block';
+            document.getElementById('camara-canvas').style.display = 'none';
+            document.getElementById('camara-video').style.display = 'block';
+            document.getElementById('camara-guia').style.display = 'flex';
+            document.getElementById('footer-capturar').style.display = 'flex';
+            document.getElementById('footer-confirmar').style.display = 'none';
+            document.getElementById('btn-cancelar-camara').style.display = 'block';
         });
 
         document.getElementById('btn-usar-foto').addEventListener('click', function () {
@@ -373,7 +459,10 @@
             document.getElementById(campoObjetivo).value = dataUrl.split(',')[1];
             var div = document.getElementById('preview-' + previewObjetivo);
             var img = document.getElementById('preview-' + previewObjetivo + '-img');
-            if (div && img) { img.src = dataUrl; div.style.display = 'block'; }
+            if (div && img) {
+                img.src = dataUrl;
+                div.style.display = 'block';
+            }
             $('#modalCamara').modal('hide');
         });
 
@@ -381,25 +470,31 @@
         $('#fecha_nacimiento').datepicker({
             changeMonth: true, changeYear: true, dateFormat: 'dd/mm/yy',
             maxDate: new Date(), minDate: '-100y', yearRange: '-100:+0',
-            dayNamesMin: ['Do','Lu','Ma','Mi','Ju','Vi','Sa'],
-            monthNames: ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'],
-            monthNamesShort: ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'],
+            dayNamesMin: ['Do', 'Lu', 'Ma', 'Mi', 'Ju', 'Vi', 'Sa'],
+            monthNames: ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'],
+            monthNamesShort: ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'],
             firstDay: 1, showOtherMonths: true, selectOtherMonths: true,
-            onSelect: function (dt) { $(this).val(dt).trigger('change'); setTimeout(validarEdad, 100); }
+            onSelect: function (dt) {
+                $(this).val(dt).trigger('change');
+                setTimeout(validarEdad, 100);
+            }
         });
 
         function convertirFecha(s) {
             try {
-                var p = (s||'').split('/'); if (p.length !== 3) return null;
-                var d=parseInt(p[0],10), m=parseInt(p[1],10)-1, y=parseInt(p[2],10);
-                if (y<100) y += y<30?2000:1900;
-                return (isNaN(d)||isNaN(m)||isNaN(y)) ? null : new Date(y,m,d);
-            } catch(e) { return null; }
+                var p = (s || '').split('/');
+                if (p.length !== 3) return null;
+                var d = parseInt(p[0], 10), m = parseInt(p[1], 10) - 1, y = parseInt(p[2], 10);
+                if (y < 100) y += y < 30 ? 2000 : 1900;
+                return (isNaN(d) || isNaN(m) || isNaN(y)) ? null : new Date(y, m, d);
+            } catch (e) {
+                return null;
+            }
         }
 
         function calcularEdad(fn) {
-            var hoy=new Date(), e=hoy.getFullYear()-fn.getFullYear(), m=hoy.getMonth()-fn.getMonth();
-            if (m<0||(m===0&&hoy.getDate()<fn.getDate())) e--;
+            var hoy = new Date(), e = hoy.getFullYear() - fn.getFullYear(), m = hoy.getMonth() - fn.getMonth();
+            if (m < 0 || (m === 0 && hoy.getDate() < fn.getDate())) e--;
             return e;
         }
 
@@ -408,39 +503,58 @@
         function validarEdad() {
             try {
                 var f = convertirFecha($fn.val());
-                if (!f||isNaN(f.getTime())) { $('#seccion-acudiente').hide(); $('#edad-info').hide(); return; }
+                if (!f || isNaN(f.getTime())) {
+                    $('#seccion-acudiente').hide();
+                    $('#edad-info').hide();
+                    return;
+                }
                 var edad = calcularEdad(f);
                 if (edad < 18) {
-                    $('#edad-texto').text('Edad: '+edad+' años - Debes completar la información del acudiente');
-                    $('#edad-info').show().css('color','#d9534f');
+                    $('#edad-texto').text('Edad: ' + edad + ' años - Debes completar la información del acudiente');
+                    $('#edad-info').show().css('color', '#d9534f');
                     $('#seccion-acudiente').slideDown(400);
                     $('.acudiente-field').prop('required', true);
                 } else {
-                    $('#edad-texto').text('Edad: '+edad+' años');
-                    $('#edad-info').show().css('color','#5cb85c');
+                    $('#edad-texto').text('Edad: ' + edad + ' años');
+                    $('#edad-info').show().css('color', '#5cb85c');
                     $('#seccion-acudiente').slideUp(400);
                     $('.acudiente-field').prop('required', false).val('');
                 }
-            } catch(e) { console.error('validarEdad:', e); }
+            } catch (e) {
+                console.error('validarEdad:', e);
+            }
         }
 
-        $fn.on('changeDate change blur', function () { setTimeout(validarEdad, 100); });
-        setTimeout(function () { if ($fn.val()) validarEdad(); }, 500);
+        $fn.on('changeDate change blur', function () {
+            setTimeout(validarEdad, 100);
+        });
+        setTimeout(function () {
+            if ($fn.val()) validarEdad();
+        }, 500);
 
         // ── Validación celular acudiente ≠ menor ───────────────────────────
         $('#acudiente_celular').on('blur change', function () {
-            var cm=$('[name="eventospersona[celular]"]').val().trim(), ca=$(this).val().trim();
-            if (cm&&ca&&cm===ca) { $(this).addClass('celular-error'); $('#error-celular-acudiente').show(); }
-            else                 { $(this).removeClass('celular-error'); $('#error-celular-acudiente').hide(); }
+            var cm = $('[name="eventospersona[celular]"]').val().trim(), ca = $(this).val().trim();
+            if (cm && ca && cm === ca) {
+                $(this).addClass('celular-error');
+                $('#error-celular-acudiente').show();
+            } else {
+                $(this).removeClass('celular-error');
+                $('#error-celular-acudiente').hide();
+            }
         });
 
         // ── Restaurar previews si el form volvió con errores ──────────────
         (function () {
-            [{i:'cedula_frente_base64',d:'preview-frente',m:'preview-frente-img'},
-                {i:'cedula_reverso_base64',d:'preview-reverso',m:'preview-reverso-img'}].forEach(function(f){
-                var inp=document.getElementById(f.i); if(inp&&inp.value){
-                    var div=document.getElementById(f.d), img=document.getElementById(f.m);
-                    if(div&&img){img.src='data:image/jpeg;base64,'+inp.value; div.style.display='block';}
+            [{i: 'cedula_frente_base64', d: 'preview-frente', m: 'preview-frente-img'},
+                {i: 'cedula_reverso_base64', d: 'preview-reverso', m: 'preview-reverso-img'}].forEach(function (f) {
+                var inp = document.getElementById(f.i);
+                if (inp && inp.value) {
+                    var div = document.getElementById(f.d), img = document.getElementById(f.m);
+                    if (div && img) {
+                        img.src = 'data:image/jpeg;base64,' + inp.value;
+                        div.style.display = 'block';
+                    }
                 }
             });
         })();
@@ -449,45 +563,196 @@
         $('#form-registro-evento').on('submit', function (e) {
             try {
                 if (!$('input[name="eventospersona[acepta_politica]"]').is(':checked')) {
-                    e.preventDefault(); alert('⚠️ Debe aceptar las políticas de tratamiento de datos personales.'); return false;
+                    e.preventDefault();
+                    alert('⚠️ Debe aceptar las políticas de tratamiento de datos personales.');
+                    return false;
                 }
                 if (!$('input[name="eventospersona[acepta_cultura]"]').is(':checked')) {
-                    e.preventDefault(); alert('⚠️ Debe aceptar la cultura organizacional.'); return false;
+                    e.preventDefault();
+                    alert('⚠️ Debe aceptar la cultura organizacional.');
+                    return false;
                 }
                 if ($('#persona_ya_tiene_documentos').val() !== '1') {
-                    if (!$('#cedula_frente_base64').val())  { e.preventDefault(); alert('⚠️ Debes capturar la foto del Documento Frente.');   return false; }
-                    if (!$('#cedula_reverso_base64').val()) { e.preventDefault(); alert('⚠️ Debes capturar la foto del Documento Reverso.');  return false; }
+                    if (!$('#cedula_frente_base64').val()) {
+                        e.preventDefault();
+                        alert('⚠️ Debes capturar la foto del Documento Frente.');
+                        return false;
+                    }
+                    if (!$('#cedula_reverso_base64').val()) {
+                        e.preventDefault();
+                        alert('⚠️ Debes capturar la foto del Documento Reverso.');
+                        return false;
+                    }
+                }
+                // ── Validación cónyuge ──────────────────────────────────────
+                if ($('#tipo_persona').val() === 'MATRIMONIO' && !$('#conyuge_pendiente').is(':checked')) {
+                    var idConyuge = $('#conyuge_identificacion').val().trim();
+                    var conyugeId = $('#conyuge_id_hidden').val();
+
+                    if (!idConyuge) {
+                        e.preventDefault();
+                        alert('⚠️ Debes ingresar la identificación del cónyuge.');
+                        $('#conyuge_identificacion').focus();
+                        return false;
+                    }
+
+                    if (!conyugeId) {
+                        e.preventDefault();
+                        alert('⚠️ Debes seleccionar un cónyuge válido.');
+                        $('#conyuge_identificacion').focus();
+                        return false;
+                    }
                 }
                 var f = convertirFecha($fn.val());
                 if (f && calcularEdad(f) < 18) {
-                    var cm=$('[name="eventospersona[celular]"]').val().trim(), ca=$('#acudiente_celular').val().trim();
-                    if (cm&&ca&&cm===ca) {
-                        e.preventDefault(); alert('⚠️ El celular del Acudiente no puede ser igual al del menor.');
-                        $('#acudiente_celular').addClass('celular-error').focus(); $('#error-celular-acudiente').show();
-                        document.getElementById('seccion-acudiente').scrollIntoView({behavior:'smooth',block:'center'}); return false;
-                    }
-                    var vacios=[];
-                    if (!$('#acudiente_documento_tipo_id_select').val()) vacios.push('Tipo de Documento del Acudiente');
-                    if (!$('#acudiente_nombre').val().trim())            vacios.push('Nombre del Acudiente');
-                    if (!$('#acudiente_apellido').val().trim())          vacios.push('Apellido del Acudiente');
-                    if (!$('#acudiente_identificacion').val().trim())    vacios.push('Identificación del Acudiente');
-                    if (!$('#acudiente_email').val().trim())             vacios.push('Email del Acudiente');
-                    if (!$('#acudiente_celular').val().trim())           vacios.push('Celular del Acudiente');
-                    if (vacios.length>0) {
+                    var cm = $('[name="eventospersona[celular]"]').val().trim(),
+                        ca = $('#acudiente_celular').val().trim();
+                    if (cm && ca && cm === ca) {
                         e.preventDefault();
-                        alert('⚠️ Debes completar:\n\n• '+vacios.join('\n• '));
-                        document.getElementById('seccion-acudiente').scrollIntoView({behavior:'smooth',block:'center'}); return false;
+                        alert('⚠️ El celular del Acudiente no puede ser igual al del menor.');
+                        $('#acudiente_celular').addClass('celular-error').focus();
+                        $('#error-celular-acudiente').show();
+                        document.getElementById('seccion-acudiente').scrollIntoView({
+                            behavior: 'smooth',
+                            block: 'center'
+                        });
+                        return false;
+                    }
+                    var vacios = [];
+                    if (!$('#acudiente_documento_tipo_id_select').val()) vacios.push('Tipo de Documento del Acudiente');
+                    if (!$('#acudiente_nombre').val().trim()) vacios.push('Nombre del Acudiente');
+                    if (!$('#acudiente_apellido').val().trim()) vacios.push('Apellido del Acudiente');
+                    if (!$('#acudiente_identificacion').val().trim()) vacios.push('Identificación del Acudiente');
+                    if (!$('#acudiente_email').val().trim()) vacios.push('Email del Acudiente');
+                    if (!$('#acudiente_celular').val().trim()) vacios.push('Celular del Acudiente');
+                    if (vacios.length > 0) {
+                        e.preventDefault();
+                        alert('⚠️ Debes completar:\n\n• ' + vacios.join('\n• '));
+                        document.getElementById('seccion-acudiente').scrollIntoView({
+                            behavior: 'smooth',
+                            block: 'center'
+                        });
+                        return false;
                     }
                 }
-            } catch(err) { console.error('submit error:', err); }
+            } catch (err) {
+                console.error('submit error:', err);
+            }
         });
+
+        // ── CONTROL CÓNYUGE (edad + tipo_persona) ─────────────────────────
+        function actualizarSeccionConyuge() {
+            try {
+                var tipo = $('#tipo_persona').val();
+                var f = convertirFecha($('#fecha_nacimiento').val());
+
+                var esMayor = false;
+                if (f && !isNaN(f.getTime())) {
+                    esMayor = calcularEdad(f) >= 18;
+                }
+
+                if (tipo === 'MATRIMONIO' && esMayor) {
+                    $('#seccion-conyuge').slideDown(400);
+                    $('.conyuge-field').prop('required', true);
+                } else {
+                    $('#seccion-conyuge').slideUp(400);
+                    $('.conyuge-field').prop('required', false).val('');
+                    $('#conyuge_id_hidden').val('');
+                    $('#conyuge-nombre-wrap').hide();
+                    $('#error-conyuge').hide();
+                }
+
+            } catch (e) {
+                console.error('actualizarSeccionConyuge:', e);
+            }
+        }
+
+        // ── Toggle "pendiente por registrar cónyuge" ──────────────────────
+        $('#conyuge_pendiente').on('change', function () {
+            if ($(this).is(':checked')) {
+                $('#conyuge-campos-wrap').slideUp(200);
+                $('.conyuge-field').prop('required', false).val('');
+                $('#conyuge_id_hidden').val('');
+                $('#conyuge-nombre-wrap').hide();
+                $('#error-conyuge').hide();
+            } else {
+                $('#conyuge-campos-wrap').slideDown(200);
+                if ($('#tipo_persona').val() === 'MATRIMONIO') {
+                    $('.conyuge-field').prop('required', true);
+                }
+            }
+        });
+
+        $('#tipo_persona').on('change', actualizarSeccionConyuge);
+        $('#fecha_nacimiento').on('change blur', function () {
+            setTimeout(actualizarSeccionConyuge, 100);
+        });
+
+// ── Buscar cónyuge ────────────────────────────────────────────────
+        var buscarConyugeTimer = null;
+
+        $('#conyuge_identificacion').on('blur', function () {
+            var id = $(this).val().trim();
+
+            $('#error-conyuge').hide();
+            $('#conyuge-nombre-wrap').hide();
+            $('#conyuge_id_hidden').val('');
+
+            if (id.length < 5) return;
+
+            clearTimeout(buscarConyugeTimer);
+
+            buscarConyugeTimer = setTimeout(function () {
+                $.ajax({
+                    url: '<%= buscar_conyuge_registro_evento_path(guid: @evento.guid) %>',
+                    method: 'GET',
+                    data: {identificacion: id},
+                    success: function (data) {
+                        if (data.encontrado) {
+                            $('#conyuge_id_hidden').val(data.id);
+                            $('#conyuge-nombre-wrap').show();
+                            $('#conyuge-nombre-display strong').text(data.nombre_completo);
+                            $('#error-conyuge').hide();
+                        } else {
+                            $('#conyuge_id_hidden').val('');
+                            $('#conyuge-nombre-wrap').hide();
+                            $('#error-conyuge-texto').text(
+                                data.mensaje || 'No se encontró ningún cónyuge con esa identificación.'
+                            );
+                            $('#error-conyuge').show();
+                        }
+                    },
+                    error: function (xhr) {
+                        console.error('ERROR AJAX:', xhr.responseText);
+                        console.error('STATUS:', xhr.status);
+
+                        $('#error-conyuge-texto').text('Error al buscar el cónyuge.');
+                        $('#error-conyuge').show();
+                    }
+                });
+            }, 300);
+        });
+
+        $('#tipo_persona').on('change', actualizarSeccionConyuge);
+        $('#fecha_nacimiento').on('change blur', function () {
+            setTimeout(actualizarSeccionConyuge, 100);
+        });
+
+        // Ejecutar al cargar (IMPORTANTE)
+        setTimeout(function () {
+            actualizarSeccionConyuge();
+        }, 300);
+
 
         // ── Limpiar formulario al cambiar cédula ──────────────────────────
         var ultimaCedula = $('#eventospersona_identificacion').val();
+
         function limpiarFormulario() {
-            ['nombre','apellido','celular','email','direccion'].forEach(function(f){ $('#eventospersona_'+f).val('').trigger('change'); });
+            ['nombre', 'apellido', 'celular', 'email', 'direccion'].forEach(function (f) {
+                $('#eventospersona_' + f).val('').trigger('change');
+            });
             $fn.val('');
-            $('#eventospersona_sexo,#eventospersona_estado_civil_id').val('').trigger('change');
+            $('#eventospersona_sexo').val('').trigger('change');
             $('#cedula_frente_base64,#cedula_reverso_base64').val('');
             $('#preview-frente,#preview-reverso').hide();
             $('#persona_ya_tiene_documentos').val('0');
@@ -499,16 +764,19 @@
 
         var buscarTimer = null;
         $('#eventospersona_identificacion').on('blur', function () {
-            var id=$(this).val().trim();
+            var id = $(this).val().trim();
             var documento_tipo_id = $('#eventospersona_documento_tipo_id').val();
-            if (id!==ultimaCedula) { ultimaCedula=id; limpiarFormulario(); }
-            if (id.length<5) return;
+            if (id !== ultimaCedula) {
+                ultimaCedula = id;
+                limpiarFormulario();
+            }
+            if (id.length < 5) return;
             clearTimeout(buscarTimer);
             buscarTimer = setTimeout(function () {
                 $.ajax({
                     url: '<%= buscar_persona_registro_evento_path(@evento.guid) %>',
                     method: 'GET',
-                    data: { identificacion: id, documento_tipo_id: documento_tipo_id },
+                    data: {identificacion: id, documento_tipo_id: documento_tipo_id},
                     success: function (data) {
                         console.log('✅ data recibida:', data);
                         console.log('📌 tipo_persona:', data.tipo_persona);
@@ -528,13 +796,15 @@
                             $('#tipo_persona').val('').trigger('change');
                         }
 
-                        if (data.fecha_nacimiento) { $fn.val(data.fecha_nacimiento); setTimeout(validarEdad, 200); }
-                        if (data.sexo)             $('#eventospersona_sexo').val(data.sexo).trigger('change');
-                        if (data.estado_civil_id)  $('#eventospersona_estado_civil_id').val(data.estado_civil_id).trigger('change');
-                        if (data.documento_tipo_id)$('#eventospersona_documento_tipo_id').val(data.documento_tipo_id).trigger('change');
+                        if (data.fecha_nacimiento) {
+                            $fn.val(data.fecha_nacimiento);
+                            setTimeout(validarEdad, 200);
+                        }
+                        if (data.sexo) $('#eventospersona_sexo').val(data.sexo).trigger('change');
+                        if (data.documento_tipo_id) $('#eventospersona_documento_tipo_id').val(data.documento_tipo_id).trigger('change');
 
                         if (data.tiene_documentos && data.cedula_frente_url && data.cedula_reverso_url) {
-                            document.getElementById('preview-frente-img').src  = data.cedula_frente_url;
+                            document.getElementById('preview-frente-img').src = data.cedula_frente_url;
                             document.getElementById('preview-reverso-img').src = data.cedula_reverso_url;
                             $('#preview-frente,#preview-reverso').show();
                             $('#persona_ya_tiene_documentos').val('1');
@@ -545,37 +815,57 @@
                             $('#cedula_frente_base64,#cedula_reverso_base64').val('');
                         }
                     },
-                    error: function () { console.warn('Error al buscar persona'); }
+                    error: function () {
+                        console.warn('Error al buscar persona');
+                    }
                 });
             }, 300);
         });
 
         // ── Autocompletar acudiente ────────────────────────────────────────
         $('#acudiente_identificacion').on('blur', function () {
-            var id=$(this).val().trim(); if (id.length<5) return;
-            $.ajax({ url:'<%= buscar_persona_registro_evento_path(@evento.guid) %>', method:'GET', data:{identificacion:id, documento_tipo_id: documento_tipo_id },
+            var id = $(this).val().trim();
+            if (id.length < 5) return;
+            $.ajax({
+                url: '<%= buscar_persona_registro_evento_path(@evento.guid) %>',
+                method: 'GET',
+                data: {identificacion: id, documento_tipo_id: documento_tipo_id},
                 success: function (data) {
                     if (!data.encontrada) return;
-                    if (data.nombre)           $('#acudiente_nombre').val(data.nombre).trigger('change');
-                    if (data.apellido)         $('#acudiente_apellido').val(data.apellido).trigger('change');
-                    if (data.celular)          $('#acudiente_celular').val(data.celular).trigger('change');
-                    if (data.email)            $('#acudiente_email').val(data.email).trigger('change');
-                    if (data.documento_tipo_id)$('#acudiente_documento_tipo_id_select').val(data.documento_tipo_id).trigger('change');
-                    setTimeout(function(){ $('#acudiente_celular').trigger('change'); }, 100);
-                }, error: function(){ console.warn('Error al buscar acudiente'); }
+                    if (data.nombre) $('#acudiente_nombre').val(data.nombre).trigger('change');
+                    if (data.apellido) $('#acudiente_apellido').val(data.apellido).trigger('change');
+                    if (data.celular) $('#acudiente_celular').val(data.celular).trigger('change');
+                    if (data.email) $('#acudiente_email').val(data.email).trigger('change');
+                    if (data.documento_tipo_id) $('#acudiente_documento_tipo_id_select').val(data.documento_tipo_id).trigger('change');
+                    setTimeout(function () {
+                        $('#acudiente_celular').trigger('change');
+                    }, 100);
+                },
+                error: function () {
+                    console.warn('Error al buscar acudiente');
+                }
             });
+
+
         });
 
         console.log('✅ reEvento inicializado');
-        return { abrirCamara: abrirCamara };
+        return {abrirCamara: abrirCamara};
 
     }(jQuery));
 
     (function () {
-        function setVh() { document.documentElement.style.setProperty('--vh', (window.innerHeight*0.01)+'px'); }
+        function setVh() {
+            document.documentElement.style.setProperty('--vh', (window.innerHeight * 0.01) + 'px');
+        }
+
         setVh();
         window.addEventListener('resize', setVh);
-        window.addEventListener('orientationchange', function(){ setTimeout(setVh,200); });
-        document.getElementById('modalCamara').addEventListener('shown.bs.modal', function(){ setTimeout(setVh,100); });
+        window.addEventListener('orientationchange', function () {
+            setTimeout(setVh, 200);
+        });
+        document.getElementById('modalCamara').addEventListener('shown.bs.modal', function () {
+            setTimeout(setVh, 100);
+        });
     })();
 </script>

@@ -206,8 +206,10 @@ class Eventospersona < ApplicationRecord
       celular:           celular,
       email:             email,
       sexo:              sexo,
-      documento_tipo_id: documento_tipo_id
-    )
+      documento_tipo_id: documento_tipo_id,
+      estado_civil_id:   6,
+
+      )
 
     if persona.save
       self.persona_id = persona.id
@@ -226,8 +228,9 @@ class Eventospersona < ApplicationRecord
       email:             acudiente_email,
       # documento_tipo_id se actualizará cuando el acudiente suba su doc en autorización.
       # Se usa el valor existente si ya tiene uno, o 1 como fallback para no romper el NOT NULL.
-      documento_tipo_id: acudiente_documento_tipo_id.presence ||
-        acudiente.documento_tipo_id.presence || 1,
+      documento_tipo_id: acudiente_documento_tipo_id.presence || acudiente.documento_tipo_id.presence || 1,
+      estado_civil_id:   acudiente.estado_civil_id.presence || 1
+
     )
 
     if acudiente.save
