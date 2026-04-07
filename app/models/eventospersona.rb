@@ -21,14 +21,13 @@ class Eventospersona < ApplicationRecord
   attr_accessor :ya_tiene_documentos, :persona_ya_tiene_documentos,
                 :acudiente_ya_tiene_documentos
 
-  TIPOS_PERSONA = ['CASADO', 'SEMINARISTA', 'SOLTERO','PRESBÍTERO'].freeze
+  TIPOS_PERSONA = ['MATRIMONIO', 'SEMINARISTA', 'HOMBRE SOLO','MUJER SOLA','PRESBÍTERO'].freeze
 
   # ── Validaciones generales ────────────────────────────────────────────────
   validates :identificacion, :nombre, :apellido, :fecha_nacimiento,
             :direccion, :celular, :email, :sexo, :tipo_persona,
             presence: { message: "es obligatorio" }
 
-  validates :estado_civil_id,   presence: { message: "es obligatorio" }
   validates :documento_tipo_id, presence: { message: "es obligatorio" }
 
   validates :email, format: { with: URI::MailTo::EMAIL_REGEXP, message: "no es válido" }
@@ -37,7 +36,7 @@ class Eventospersona < ApplicationRecord
   validates :identificacion, length: { maximum: 20 }
 
   validates :tipo_persona, inclusion: { in: TIPOS_PERSONA,
-                                        message: "debe ser CASADO, SEMINARISTA o SOLTERO" }
+                                        message: "debe ser MATRIMONIO, SEMINARISTA, HOMBRE SOLO,MUJER SOLA,PRESBÍTERO" }
 
   validates :acepta_politica,
             acceptance: { accept: 'SI', message: 'Debes aceptar las políticas de tratamiento de datos personales' },
@@ -207,7 +206,6 @@ class Eventospersona < ApplicationRecord
       celular:           celular,
       email:             email,
       sexo:              sexo,
-      estado_civil_id:   estado_civil_id,
       documento_tipo_id: documento_tipo_id
     )
 
@@ -230,7 +228,6 @@ class Eventospersona < ApplicationRecord
       # Se usa el valor existente si ya tiene uno, o 1 como fallback para no romper el NOT NULL.
       documento_tipo_id: acudiente_documento_tipo_id.presence ||
         acudiente.documento_tipo_id.presence || 1,
-      estado_civil_id:   acudiente.estado_civil_id.presence || 1
     )
 
     if acudiente.save
