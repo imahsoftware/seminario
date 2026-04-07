@@ -61,7 +61,7 @@ class RegistroEventosController < ApplicationController
       if @eventospersona.conyuge_id.present?
         conyuge_anterior = @evento.eventospersonas
                                   .where(id: @eventospersona.conyuge_id)
-                                  .where(conyuge_pendiente: 'SI')
+                                  .where(conyuge_pendiente: 1)
                                   .first
 
         if conyuge_anterior
