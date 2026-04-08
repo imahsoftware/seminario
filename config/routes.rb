@@ -30,6 +30,33 @@ Rails.application.routes.draw do
     resources :eventosusers
   end
 
+  resources :datas do
+    collection do
+      get 'informe_pdf_inventarios'
+      get 'informe_pdf'
+      get 'informe_pdf_examenes'
+      get 'informe'
+      get 'informedat'
+      get 'informe_rowspan'
+      get 'headxls'
+      get 'cambioestado'
+      get 'codigos'
+      get 'generar_lote'
+      get 'generar_lote_estado'
+      get 'descargardocbyperfecha'
+      get 'descargardocbyperfechasalud'
+      get 'descargardocbycontrato'
+      get 'notificacionvacante'
+      get 'download'
+      get 'descargarfile'
+      get 'descargardocbyproceso'
+    end
+  end
+
+
+
+
+
 
   resources :eventospersonas do
     member do

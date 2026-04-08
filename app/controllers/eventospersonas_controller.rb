@@ -85,10 +85,27 @@ class EventospersonasController < ApplicationController
   # DELETE /eventospersonas/1
   # DELETE /eventospersonas/1.json
   def destroy
-    @eventospersona.destroy
-    respond_to do |format|
-      format.html { redirect_to eventospersonas_url, notice: 'Eventospersona was successfully destroyed.' }
-      format.json { head :no_content }
+    # Guardar en tabla de eliminados antes de destruir
+    @eventospersona.eliminado_por = current_user
+    
+    # El callback before_destroy del modelo se encargará de crear el registro en eventoseliminados
+    
+    if @eventospersona.destroy
+      respond_to do |format|
+        format.html { 
+          redirect_back fallback_location: eventos_path, 
+          notice: "#{@eventospersona.nombre} #{@eventospersona.apellido} fue eliminado correctamente y guardado en el historial." 
+        }
+        format.json { head :no_content }
+      end
+    else
+      respond_to do |format|
+        format.html { 
+          redirect_back fallback_location: eventos_path, 
+          alert: "No se pudo eliminar el registro: #{@eventospersona.errors.full_messages.join(', ')}" 
+        }
+        format.json { render json: @eventospersona.errors, status: :unprocessable_entity }
+      end
     end
   end
 

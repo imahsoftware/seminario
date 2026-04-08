@@ -36,7 +36,7 @@ class Eventospersona < ApplicationRecord
   validates :identificacion, length: { maximum: 20 }
 
   validates :tipo_persona, inclusion: { in: TIPOS_PERSONA,
-                                        message: "debe ser MATRIMONIO, SEMINARISTA, HOMBRE SOLO,MUJER SOLA,PRESBÍTERO" }
+                                        message: "debe ser MATRIMONIO, SEMINARISTA, HOMBRE SOLO,MUJER SOLA o PRESBÍTERO" }
 
   validates :acepta_politica,
             acceptance: { accept: 'SI', message: 'Debes aceptar las políticas de tratamiento de datos personales' },

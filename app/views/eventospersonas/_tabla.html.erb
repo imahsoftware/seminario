@@ -1,9 +1,26 @@
 <%
-    hoy       = Date.today
-    todos     = @q.result
-    menores   = todos.select { |p| p.fecha_nacimiento.present? && ((hoy - p.fecha_nacimiento.to_date).to_i / 365.25) < 18 }
-    mayores   = todos.select { |p| p.fecha_nacimiento.present? && ((hoy - p.fecha_nacimiento.to_date).to_i / 365.25) >= 18 }
-    sin_fecha = todos.select { |p| p.fecha_nacimiento.blank? }
+    hoy          = Date.today
+    todos        = @q.result
+    menores      = todos.select { |p| p.fecha_nacimiento.present? && ((hoy - p.fecha_nacimiento.to_date).to_i / 365.25) < 18 }
+    mayores      = todos.select { |p| p.fecha_nacimiento.present? && ((hoy - p.fecha_nacimiento.to_date).to_i / 365.25) >= 18 }
+    sin_fecha    = todos.select { |p| p.fecha_nacimiento.blank? }
+    presbiteros  = todos.select { |p| p.tipo_persona == 'PRESBÍTERO' }
+    
+    # Matrimonios
+    matrimonios_todos = todos.select { |p| p.tipo_persona == 'MATRIMONIO' }
+    
+    # Matrimonios completos (entrelazados): ambos tienen conyuge_id apuntando al otro
+    matrimonios_completos = matrimonios_todos.select do |p|
+      if p.conyuge_id.present? && p.conyuge_pendiente != 1
+        conyuge = todos.find { |c| c.id == p.conyuge_id }
+        conyuge.present? && conyuge.conyuge_id == p.id
+      else
+        false
+      end
+    end
+    
+    # Matrimonios pendientes: tienen conyuge_pendiente = 1
+    matrimonios_pendientes = matrimonios_todos.select { |p| p.conyuge_pendiente == 1 }
 %>
 
 <div class="box box-danger">
@@ -64,8 +81,44 @@
         </div>
       </div>
 
+      <div class="col-md-3 col-sm-6 col-xs-12">
+        <div class="info-box bg-purple">
+          <span class="info-box-icon"><i class="fa fa-cross"></i></span>
+          <div class="info-box-content">
+            <span class="info-box-text">Presbíteros</span>
+            <span class="info-box-number"><%= presbiteros.count %></span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <%# Segunda fila de indicadores - Matrimonios %>
+    <div class="row">
+
+      <div class="col-md-4 col-sm-6 col-xs-12">
+        <div class="info-box bg-teal">
+          <span class="info-box-icon"><i class="fa fa-heart"></i></span>
+          <div class="info-box-content">
+            <span class="info-box-text">Matrimonios Completos</span>
+            <span class="info-box-number"><%= matrimonios_completos.count / 2 %></span>
+            <span class="info-box-text" style="font-size: 11px;">(<%= matrimonios_completos.count %> personas)</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-md-4 col-sm-6 col-xs-12">
+        <div class="info-box bg-orange">
+          <span class="info-box-icon"><i class="fa fa-clock-o"></i></span>
+          <div class="info-box-content">
+            <span class="info-box-text">Matrimonios Pendientes</span>
+            <span class="info-box-number"><%= matrimonios_pendientes.count %></span>
+          </div>
+        </div>
+      </div>
+
       <% if sin_fecha.any? %>
-        <div class="col-md-3 col-sm-6 col-xs-12">
+        <div class="col-md-4 col-sm-6 col-xs-12">
           <div class="info-box bg-red">
             <span class="info-box-icon"><i class="fa fa-question-circle"></i></span>
             <div class="info-box-content">
@@ -84,7 +137,7 @@
     <table class="table table-bordered table-hover table-striped">
       <thead>
       <tr class="thcolor">
-        <th class="text-center" style="width: 80px;">Ver</th>
+        <th class="text-center" style="width: 120px;">Acciones</th>
         <th class="text-center">Identificación</th>
         <th>Nombre Completo</th>
         <th class="text-center">Edad</th>
@@ -98,11 +151,21 @@
       <tbody id="tbody_eventospersonas">
       <% @eventospersonas.each do |ep| %>
         <%
-            edad     = ep.fecha_nacimiento.present? ? ((Date.today - ep.fecha_nacimiento.to_date).to_i / 365.25).floor : nil
-            es_menor = edad.present? && edad < 18
+            edad          = ep.fecha_nacimiento.present? ? ((Date.today - ep.fecha_nacimiento.to_date).to_i / 365.25).floor : nil
+            es_menor      = edad.present? && edad < 18
+            es_presbitero = ep.tipo_persona == 'PRESBÍTERO'
+            
+            # Determinar clase de fila: presbítero tiene prioridad sobre menor
+            clase_fila = if es_presbitero
+                          'info'  # Color azul/celeste para presbíteros
+                        elsif es_menor
+                          'warning'  # Color amarillo para menores
+                        else
+                          ''
+                        end
         %>
 
-        <tr class="<%= es_menor ? 'warning' : '' %>">
+        <tr class="<%= clase_fila %>">
 
           <td class="text-center">
             <%# Solo guardamos el id — el contenido del modal se carga por AJAX %>
@@ -112,12 +175,22 @@
                     title="Ver detalle completo">
               <i class="fa fa-eye"></i>
             </button>
-            <button class="btn btn-xs btn-warning btn-editar-persona"
-                    data-id="<%= ep.id %>"
-                    data-toggle="tooltip"
-                    title="Editar persona">
-              <i class="fa fa-pencil"></i>
-            </button>
+            <% if is_auth_c('eventos') %>
+              <button class="btn btn-xs btn-warning btn-editar-persona"
+                      data-id="<%= ep.id %>"
+                      data-toggle="tooltip"
+                      title="Editar persona">
+                <i class="fa fa-pencil"></i>
+              </button>
+
+              <%= link_to eventospersona_path(ep),
+                          method: :delete,
+                          data: { confirm: "¿Estás seguro de eliminar a #{ep.nombre} #{ep.apellido}?\n\nEsta acción guardará el registro en el historial de eliminados." },
+                          class: 'btn btn-xs btn-danger',
+                          title: 'Eliminar persona' do %>
+                <i class="fa fa-trash"></i>
+              <% end %>
+            <% end %>
           </td>
 
           <td class="text-center"><%= ep.identificacion %></td>

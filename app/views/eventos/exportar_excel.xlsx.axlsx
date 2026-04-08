@@ -1,19 +1,37 @@
 wd = xlsx_package.workbook
-wd.styles do |style|
-  header1   = wd.styles.add_style(b: true, bg_color: "FF071B7D", fg_color: 'F5F6CE', sz: 11, font_name: "Calibri",
-                                  :alignment => { :horizontal => :center, :vertical => :center })
-  header2   = wd.styles.add_style(b: true, bg_color: "FFE87F07", fg_color: 'F5F6CE', sz: 11, font_name: "Calibri",
-                                  :alignment => { :horizontal => :center, :vertical => :center })
-  titulo    = wd.styles.add_style(b: true, bg_color: "FF1a2eaa", fg_color: 'FFFFFF', sz: 13, font_name: "Calibri",
-                                  :alignment => { :horizontal => :center, :vertical => :center })
-  datosiz   = wd.styles.add_style(sz: 11, font_name: "Calibri", :alignment => { :horizontal => :left,   :vertical => :center })
-  datoscent = wd.styles.add_style(sz: 11, font_name: "Calibri", :alignment => { :horizontal => :center, :vertical => :center })
-  fecha     = wd.styles.add_style(sz: 11, font_name: "Calibri", :format_code => 'dd-mm-yyyy',
-                                  :alignment => { :horizontal => :center, :vertical => :center })
+
+headers = [
+  'Identificación', 'Tipo Documento', 'Nombre', 'Apellido', 'Celular',
+  'Dirección', 'Email', 'Género', 'Estado Civil', 'Tipo Persona', 'Nombre Cónyuge','Identificación Cónyuge',
+  'Identificación Acudiente', 'Nombre Acudiente', 'Apellido Acudiente',
+  'Email Acudiente', 'Celular Acudiente', 'Tipo Doc. Acudiente',
+  'Firma Acudiente', 'Fecha Registro'
+].freeze
+
+wd.styles do |s|
+  borde = { style: :thin, color: "FF000000", edges: [:left, :right, :top, :bottom] }
+
+  header1   = s.add_style(b: true, bg_color: "FF071B7D", fg_color: 'F5F6CE', sz: 11, font_name: "Calibri",
+                          border: borde,
+                          :alignment => { :horizontal => :center, :vertical => :center })
+  header2   = s.add_style(b: true, bg_color: "FFE87F07", fg_color: 'F5F6CE', sz: 11, font_name: "Calibri",
+                          border: borde,
+                          :alignment => { :horizontal => :center, :vertical => :center })
+  titulo    = s.add_style(b: true, bg_color: "FF1a2eaa", fg_color: 'FFFFFF', sz: 13, font_name: "Calibri",
+                          border: borde,
+                          :alignment => { :horizontal => :center, :vertical => :center })
+  datosiz   = s.add_style(sz: 11, font_name: "Calibri", border: borde,
+                          :alignment => { :horizontal => :left,   :vertical => :center })
+  datoscent = s.add_style(sz: 11, font_name: "Calibri", border: borde,
+                          :alignment => { :horizontal => :center, :vertical => :center })
+  fecha     = s.add_style(sz: 11, font_name: "Calibri", :format_code => 'dd-mm-yyyy',
+                          border: borde,
+                          :alignment => { :horizontal => :center, :vertical => :center })
 
   # ── Hoja 1: Info del Evento ──
   wd.add_worksheet(:name => "Evento") do |sheet|
-    sheet.add_row ["Detalle del Evento"],                                      :style => [titulo]
+    sheet.add_row ["Detalle del Evento", ""],                                  :style => [header1, header1]
+    sheet.merge_cells "A1:B1"
     sheet.add_row ["Campo",                        "Valor"],                   :style => [header1, header1]
     sheet.add_row ["Evento",                       @evento.detalle],           :style => [datosiz, datoscent]
     sheet.add_row ["Tipo",                         @evento.tiposevento&.descripcion.to_s], :style => [datosiz, datoscent]
@@ -22,55 +40,128 @@ wd.styles do |style|
     sheet.add_row ["Fecha Inicio Evento",          @evento.fecha_inicio_e],    :style => [datosiz, fecha]
     sheet.add_row ["Fecha Fin Evento",             @evento.fecha_fin_e],       :style => [datosiz, fecha]
     sheet.add_row ["Total Inscritos",              @inscritos.count],          :style => [datosiz, datoscent]
-    sheet.column_widths 30, 40
+    sheet.column_widths 30, 60
   end
 
   # ── Hoja 2: Inscritos ──
   wd.add_worksheet(:name => "Inscritos") do |sheet|
 
-    # Columna:            1          2                  3          4            5
-    sheet.add_row [     'Identificación',"Tipo Documento", "Nombre",  "Apellido",       "Celular",  "Dirección",
-                         # Columna:            6          7                  8                 9
-                         "Email",   "Género",          "Estado Civil",   "Tipo Persona",
-                         # Columna:            10                         11                  12
-                         "Identificación Acudiente", "Nombre Acudiente", "Apellido Acudiente",
-                         # Columna:            13                  14                       15                    16              17
-                         "Email Acudiente",  "Celular Acudiente",     "Tipo Doc. Acudiente", "Firma Acudiente", "Fecha Registro"],
-                  :style => Array.new(17, header2)
+    # Encabezados
+    sheet.add_row headers, :style => Array.new(headers.size, header2)
 
-    for ep in @inscritos
+    # Estilos por columna (20 columnas, alineado con headers)
+    estilos_fila = [
+      datosiz,   # 1  Identificación
+      datosiz,   # 2  Tipo Documento
+      datosiz,   # 3  Nombre
+      datosiz,   # 4  Apellido
+      datoscent, # 5  Celular
+      datosiz,   # 6  Dirección
+      datosiz,   # 7  Email
+      datoscent, # 8  Género
+      datosiz,   # 9  Estado Civil
+      datoscent, # 10 Tipo Persona
+      datosiz,   # 11 Nombre Cónyuge
+      datoscent, # 12 Identificación Cónyuge
+      datoscent, # 13 Identificación Acudiente
+      datosiz,   # 14 Nombre Acudiente
+      datosiz,   # 15 Apellido Acudiente
+      datosiz,   # 16 Email Acudiente
+      datoscent, # 17 Celular Acudiente
+      datoscent, # 18 Tipo Doc. Acudiente
+      datoscent, # 19 Firma Acudiente
+      fecha      # 20 Fecha Registro
+    ]
+
+    # Tipos por columna (string para forzar texto en identificaciones y celulares)
+    tipos_fila = [
+      :string, # 1  Identificación
+      nil,     # 2  Tipo Documento
+      nil,     # 3  Nombre
+      nil,     # 4  Apellido
+      :string, # 5  Celular
+      nil,     # 6  Dirección
+      nil,     # 7  Email
+      nil,     # 8  Género
+      nil,     # 9  Estado Civil
+      nil,     # 10 Tipo Persona
+      nil,     # 11 Nombre Cónyuge
+      :string, # 12 Identificación Cónyuge
+      :string, # 13 Identificación Acudiente
+      nil,     # 14 Nombre Acudiente
+      nil,     # 15 Apellido Acudiente
+      nil,     # 16 Email Acudiente
+      :string, # 17 Celular Acudiente
+      nil,     # 18 Tipo Doc. Acudiente
+      nil,     # 19 Firma Acudiente
+      nil      # 20 Fecha Registro
+    ]
+
+    @inscritos.each do |ep|
+      # Obtener datos del cónyuge
+      conyuge_nombre = ''
+      conyuge_identificacion = ''
+      
+      if ep.tipo_persona == 'MATRIMONIO'
+        if ep.conyuge_pendiente == 1
+          # Si está pendiente, mostrar "PENDIENTE"
+          conyuge_nombre = 'PENDIENTE'
+          conyuge_identificacion = 'PENDIENTE'
+        elsif ep.conyuge_id.present?
+          # Si no está pendiente y tiene conyuge_id, buscar los datos
+          conyuge = Eventospersona.find_by(id: ep.conyuge_id)
+          if conyuge
+            conyuge_nombre = "#{conyuge.nombre} #{conyuge.apellido}"
+            conyuge_identificacion = conyuge.identificacion
+          end
+        end
+      end
+
       sheet.add_row [
-                      ep.identificacion,
-                      ep.documento_tipo&.descripcion.to_s,   # 3  Tipo Documento
-                      ep.nombre,                              # 1  Nombre
-                      ep.apellido,                            # 2  Apellido
-                      ep.celular,                            # 4  Celular
-                      ep.direccion,                          # 5  Dirección
-                      ep.email,                              # 6  Email
-                      (ep.sexo == 'M' ? 'Masculino' : 'Femenino'), # 7 Género
-                      ep.estado_civil&.nombre.to_s,          # 8  Estado Civil
-                      ep.tipo_persona,                       # 9  Tipo Persona
-                      ep.acudiente_identificacion,           # 10 Identificación Acudiente
-                      ep.acudiente_nombre,                   # 11 Nombre Acudiente
-                      ep.acudiente_apellido,                 # 12 Apellido Acudiente
-                      ep.acudiente_email,                    # 13 Email Acudiente
-                      ep.acudiente_celular,                  # 14 Celular Acudiente
-                      ep.acudiente_documento_tipo&.descripcion.to_s,        # 15 Tipo Doc. Acudiente
-                      ep.acudiente_firma,                    # 16 Firma Acudiente
-                      ep.created_at],                        # 17 Fecha Registro
-                    :style => [datosiz, datosiz,   datosiz,   datoscent, datoscent, datosiz,
-                               datosiz,   datoscent, datosiz,   datoscent, datoscent,
-                               datosiz,   datosiz,   datosiz,   datoscent, datoscent,
-                               datoscent, fecha],
-                    :types => [:string, nil, nil, :string, :string,   # identificacion y celular como string
-                               nil, nil, nil, nil,      nil,
-                               :string, nil, nil,       nil,
-                               :string, nil,            nil,      nil]
+                      ep.identificacion,                              # 1
+                      ep.documento_tipo&.descripcion.to_s,            # 2
+                      ep.nombre,                                      # 3
+                      ep.apellido,                                    # 4
+                      ep.celular,                                     # 5
+                      ep.direccion,                                   # 6
+                      ep.email,                                       # 7
+                      (ep.sexo == 'M' ? 'Masculino' : 'Femenino'),    # 8
+                      ep.estado_civil&.nombre.to_s,                   # 9
+                      ep.tipo_persona,                                # 10
+                      conyuge_nombre,                                 # 11
+                      conyuge_identificacion,                         # 12
+                      ep.acudiente_identificacion,                    # 13
+                      ep.acudiente_nombre,                            # 14
+                      ep.acudiente_apellido,                          # 15
+                      ep.acudiente_email,                             # 16
+                      ep.acudiente_celular,                           # 17
+                      ep.acudiente_documento_tipo&.descripcion.to_s,  # 18
+                      ep.acudiente_firma,                             # 19
+                      ep.created_at                                   # 20
+                    ],
+                    :style => estilos_fila,
+                    :types => tipos_fila
     end
 
+    # Fila de total al final
+    sheet.add_row []
+    sheet.add_row ["Total Inscritos:", @inscritos.count],
+                  :style => [header1, datoscent]
+
+    # Anchos de columna (20 columnas)
     sheet.column_widths 30, 30, 30, 16, 25,
-                        28, 12, 18, 15, 22,
-                        22, 22, 28, 18, 18,
-                        15, 18
+                        28, 25, 12, 18, 15,
+                        30, 22, 22, 22, 22,
+                        28, 18, 18, 15, 18
+
+    # Congelar la primera fila (encabezados visibles al hacer scroll)
+    sheet.sheet_view.pane do |pane|
+      pane.state        = :frozen
+      pane.y_split      = 1
+      pane.active_pane  = :bottom_right
+    end
+
+    # Autofiltro sobre los encabezados (columnas A hasta T = 20)
+    sheet.auto_filter = "A1:T1"
   end
 end
