@@ -318,6 +318,63 @@
       </div>
     <% end %>
 
+    <%# ── Cónyuge (solo matrimonios) ── %>
+    <div id="seccion-conyuge-editar-<%= ep.id %>" class="box box-solid" 
+         style="margin-bottom:15px; border-color:#9C27B0; <%= ep.tipo_persona == 'MATRIMONIO' ? '' : 'display:none;' %>">
+      <div class="box-header with-border" style="padding: 8px 12px; background-color:#9C27B0; color:#fff;">
+        <h4 class="box-title"><i class="fa fa-heart"></i> Datos del Cónyuge</h4>
+      </div>
+      <div class="box-body" style="padding: 12px 15px;">
+        
+        <div class="checkbox" style="margin-bottom: 15px;">
+          <label>
+            <%= check_box_tag "eventospersona[conyuge_pendiente]", 1, 
+                              ep.conyuge_pendiente == 1,
+                              id: "conyuge_pendiente_editar_#{ep.id}" %>
+            <strong style="color: #9C27B0;">
+              <i class="fa fa-clock-o"></i> Mi cónyuge aún no está registrado (pendiente por registrar)
+            </strong>
+          </label>
+        </div>
+
+        <div id="conyuge-campos-editar-<%= ep.id %>" style="<%= ep.conyuge_pendiente == 1 ? 'display:none;' : '' %>">
+          <div class="row">
+            <div class="col-md-6">
+              <div class="form-group">
+                <label class="control-label"><small>Identificación del Cónyuge *</small></label>
+                <%= text_field_tag "conyuge_identificacion_editar_#{ep.id}",
+                                   (ep.conyuge_id.present? ? Eventospersona.find_by(id: ep.conyuge_id)&.identificacion : ''),
+                                   class: 'form-control input-sm',
+                                   id: "conyuge_identificacion_editar_#{ep.id}",
+                                   maxlength: 30,
+                                   autocomplete: 'off' %>
+                <%= hidden_field_tag "eventospersona[conyuge_id]", ep.conyuge_id,
+                                     id: "conyuge_id_hidden_editar_#{ep.id}" %>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div id="conyuge-nombre-editar-<%= ep.id %>" 
+                   style="margin-top: 24px; <%= ep.conyuge_id.present? ? '' : 'display:none;' %>">
+                <p class="text-success">
+                  <i class="fa fa-check-circle"></i>
+                  <strong id="conyuge-nombre-display-editar-<%= ep.id %>">
+                    <%= ep.conyuge_id.present? ? Eventospersona.find_by(id: ep.conyuge_id)&.then { |c| "#{c.nombre} #{c.apellido}" } : '' %>
+                  </strong>
+                </p>
+              </div>
+              <div id="error-conyuge-editar-<%= ep.id %>" style="display:none; margin-top: 24px;">
+                <p class="text-danger">
+                  <i class="fa fa-exclamation-triangle"></i>
+                  <span id="error-conyuge-texto-editar-<%= ep.id %>">No se encontró persona con esa identificación</span>
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
 
     <%# ── Autorizaciones ── %>
     <div class="box box-solid box-default" style="margin-bottom:0;">
@@ -372,3 +429,72 @@
   </div>
 
 <% end %>
+
+<script>
+$(document).ready(function() {
+  var epId = <%= ep.id %>;
+  
+  // ── Toggle sección cónyuge según tipo persona ──
+  $('select[name="eventospersona[tipo_persona]"]').on('change', function() {
+    if ($(this).val() === 'MATRIMONIO') {
+      $('#seccion-conyuge-editar-' + epId).slideDown(300);
+    } else {
+      $('#seccion-conyuge-editar-' + epId).slideUp(300);
+      $('#conyuge_id_hidden_editar_' + epId).val('');
+      $('#conyuge_identificacion_editar_' + epId).val('');
+    }
+  });
+
+  // ── Toggle campos cónyuge según checkbox pendiente ──
+  $('#conyuge_pendiente_editar_' + epId).on('change', function() {
+    if ($(this).is(':checked')) {
+      $('#conyuge-campos-editar-' + epId).slideUp(200);
+      $('#conyuge_id_hidden_editar_' + epId).val('');
+      $('#conyuge_identificacion_editar_' + epId).val('');
+      $('#conyuge-nombre-editar-' + epId).hide();
+      $('#error-conyuge-editar-' + epId).hide();
+    } else {
+      $('#conyuge-campos-editar-' + epId).slideDown(200);
+    }
+  });
+
+  // ── Buscar cónyuge por identificación ──
+  $('#conyuge_identificacion_editar_' + epId).on('blur', function() {
+    var id = $(this).val().trim();
+    
+    $('#error-conyuge-editar-' + epId).hide();
+    $('#conyuge-nombre-editar-' + epId).hide();
+    $('#conyuge_id_hidden_editar_' + epId).val('');
+    
+    if (id.length < 5) return;
+    
+    $.ajax({
+      url: '/registro_eventos/buscar_persona',
+      method: 'GET',
+      data: { 
+        identificacion: id,
+        evento_id: <%= ep.evento_id %>
+      },
+      dataType: 'json',
+      success: function(data) {
+        if (data.encontrado) {
+          $('#conyuge_id_hidden_editar_' + epId).val(data.id);
+          $('#conyuge-nombre-editar-' + epId).show();
+          $('#conyuge-nombre-display-editar-' + epId).text(data.nombre_completo);
+          $('#error-conyuge-editar-' + epId).hide();
+        } else {
+          $('#conyuge_id_hidden_editar_' + epId).val('');
+          $('#conyuge-nombre-editar-' + epId).hide();
+          $('#error-conyuge-texto-editar-' + epId).text(data.mensaje || 'No se encontró persona con esa identificación en este evento');
+          $('#error-conyuge-editar-' + epId).show();
+        }
+      },
+      error: function() {
+        $('#conyuge_id_hidden_editar_' + epId).val('');
+        $('#error-conyuge-texto-editar-' + epId).text('Error al buscar el cónyuge');
+        $('#error-conyuge-editar-' + epId).show();
+      }
+    });
+  });
+});
+</script>

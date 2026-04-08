@@ -97,6 +97,65 @@
     </div>
   </div>
 
+  <%# ── Cónyuge (solo matrimonios) ── %>
+  <% if ep.tipo_persona == 'MATRIMONIO' %>
+    <%
+      conyuge = nil
+      conyuge_nombre = 'N/D'
+      conyuge_identificacion = 'N/D'
+      conyuge_celular = 'N/D'
+      conyuge_email = 'N/D'
+      
+      if ep.conyuge_pendiente == 1
+        conyuge_nombre = 'PENDIENTE POR REGISTRAR'
+      elsif ep.conyuge_id.present?
+        conyuge = Eventospersona.find_by(id: ep.conyuge_id)
+        if conyuge
+          conyuge_nombre = "#{conyuge.nombre} #{conyuge.apellido}".strip
+          conyuge_identificacion = conyuge.identificacion
+          conyuge_celular = conyuge.celular.presence || 'N/D'
+          conyuge_email = conyuge.email.presence || 'N/D'
+        end
+      end
+    %>
+    
+    <div class="box box-solid" style="margin-bottom:15px; border-color:#9C27B0;">
+      <div class="box-header with-border" style="padding: 8px 12px; background-color:#9C27B0; color:#fff;">
+        <h4 class="box-title"><i class="fa fa-heart"></i> Datos del Cónyuge</h4>
+      </div>
+      <div class="box-body" style="padding: 12px 15px;">
+        <div class="row">
+          <div class="col-md-6 col-sm-6">
+            <p class="text-muted" style="margin-bottom:2px;"><small>Nombre Completo</small></p>
+            <p>
+              <% if ep.conyuge_pendiente == 1 %>
+                <span class="label label-warning">
+                  <i class="fa fa-clock-o"></i> <%= conyuge_nombre %>
+                </span>
+              <% else %>
+                <strong><%= conyuge_nombre %></strong>
+              <% end %>
+            </p>
+          </div>
+          <% if ep.conyuge_pendiente != 1 %>
+            <div class="col-md-6 col-sm-6">
+              <p class="text-muted" style="margin-bottom:2px;"><small>Identificación</small></p>
+              <p><strong><%= conyuge_identificacion %></strong></p>
+            </div>
+            <div class="col-md-6 col-sm-6">
+              <p class="text-muted" style="margin-bottom:2px;"><small>Celular</small></p>
+              <p><i class="fa fa-mobile" style="color:#9C27B0;"></i> <strong><%= conyuge_celular %></strong></p>
+            </div>
+            <div class="col-md-6 col-sm-6">
+              <p class="text-muted" style="margin-bottom:2px;"><small>Email</small></p>
+              <p><i class="fa fa-envelope" style="color:#9C27B0;"></i> <strong><%= conyuge_email %></strong></p>
+            </div>
+          <% end %>
+        </div>
+      </div>
+    </div>
+  <% end %>
+
   <%# ── Documentos de Identidad ── %>
   <% if documento.present? %>
     <div class="box box-solid box-success" style="margin-bottom:15px;">
