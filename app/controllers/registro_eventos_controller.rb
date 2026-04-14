@@ -1,6 +1,6 @@
 # app/controllers/registro_eventos_controller.rb
 class RegistroEventosController < ApplicationController
-  skip_before_action :authenticate_user!, only: [:show, :create, :exito, :pendiente, :autorizacion, :vencido, :no_encontrado, :no_iniciado, :vigente, :sin_cupos, :autorizar_participacion, :buscar_persona, :no_autorizado]
+  skip_before_action :authenticate_user!, only: [:show, :create, :exito, :pendiente, :autorizacion, :vencido, :no_encontrado, :no_iniciado, :vigente, :sin_cupos, :autorizar_participacion, :buscar_persona, :no_autorizado, :buscar_conyuge]
   skip_before_action :verify_authenticity_token, only: [:create, :autorizar_participacion]
   layout 'registro_publico'
 
