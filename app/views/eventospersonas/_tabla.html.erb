@@ -149,17 +149,59 @@
       </thead>
 
       <tbody id="tbody_eventospersonas">
-      <% @eventospersonas.each do |ep| %>
+      <%
+        # Ordenar: primero menores sin firma, luego matrimonios pendientes, luego el resto
+        eventospersonas_ordenadas = @eventospersonas.sort do |a, b|
+          edad_a = a.fecha_nacimiento.present? ? ((Date.today - a.fecha_nacimiento.to_date).to_i / 365.25).floor : nil
+          edad_b = b.fecha_nacimiento.present? ? ((Date.today - b.fecha_nacimiento.to_date).to_i / 365.25).floor : nil
+          
+          es_menor_a = edad_a.present? && edad_a < 18
+          es_menor_b = edad_b.present? && edad_b < 18
+          
+          sin_firma_a = a.acudiente_firma.blank?
+          sin_firma_b = b.acudiente_firma.blank?
+          
+          matrimonio_pendiente_a = a.tipo_persona == 'MATRIMONIO' && a.conyuge_pendiente == 1
+          matrimonio_pendiente_b = b.tipo_persona == 'MATRIMONIO' && b.conyuge_pendiente == 1
+          
+          # Prioridad: menores sin firma primero, luego matrimonios pendientes
+          menor_sin_firma_a = es_menor_a && sin_firma_a
+          menor_sin_firma_b = es_menor_b && sin_firma_b
+          
+          if menor_sin_firma_a && !menor_sin_firma_b
+            -1  # a va primero
+          elsif !menor_sin_firma_a && menor_sin_firma_b
+            1   # b va primero
+          elsif menor_sin_firma_a && menor_sin_firma_b
+            a.nombre <=> b.nombre  # Ambos sin firma, ordenar por nombre
+          elsif matrimonio_pendiente_a && !matrimonio_pendiente_b
+            -1  # a va primero
+          elsif !matrimonio_pendiente_a && matrimonio_pendiente_b
+            1   # b va primero
+          elsif matrimonio_pendiente_a && matrimonio_pendiente_b
+            a.nombre <=> b.nombre  # Ambos matrimonios pendientes, ordenar por nombre
+          else
+            a.nombre <=> b.nombre  # Ordenar por nombre
+          end
+        end
+      %>
+      <% eventospersonas_ordenadas.each do |ep| %>
         <%
             edad          = ep.fecha_nacimiento.present? ? ((Date.today - ep.fecha_nacimiento.to_date).to_i / 365.25).floor : nil
             es_menor      = edad.present? && edad < 18
             es_presbitero = ep.tipo_persona == 'PRESBÍTERO'
+            sin_firma     = ep.acudiente_firma.blank?
+            matrimonio_pendiente = ep.tipo_persona == 'MATRIMONIO' && ep.conyuge_pendiente == 1
             
-            # Determinar clase de fila: presbítero tiene prioridad sobre menor
-            clase_fila = if es_presbitero
+            # Determinar clase de fila: prioridad de colores
+            clase_fila = if es_menor && sin_firma
+                          'danger'  # Color rojo para menores sin firma
+                        elsif matrimonio_pendiente
+                          'warning'  # Color naranja/amarillo para matrimonios pendientes
+                        elsif es_presbitero
                           'info'  # Color azul/celeste para presbíteros
                         elsif es_menor
-                          'warning'  # Color amarillo para menores
+                          'warning'  # Color amarillo para menores con firma
                         else
                           ''
                         end

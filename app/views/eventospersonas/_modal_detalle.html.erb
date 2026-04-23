@@ -258,6 +258,16 @@
             <p class="text-muted" style="margin-bottom:2px;"><small>Código Recepción</small></p>
             <p><strong><%= ep.acudiente_codigorec.presence || 'N/D' %></strong></p>
           </div>
+          <div class="col-md-4 col-sm-6">
+            <p class="text-muted" style="margin-bottom:2px;"><small>Estado de Firma</small></p>
+            <p>
+              <% if ep.acudiente_firma.present? %>
+                <span class="label label-success"><i class="fa fa-check-circle"></i> FIRMADO</span>
+              <% else %>
+                <span class="label label-danger"><i class="fa fa-times-circle"></i> PENDIENTE</span>
+              <% end %>
+            </p>
+          </div>
           <% if ep.acudiente_firma.present? %>
             <div class="col-md-12">
               <p class="text-muted" style="margin-bottom:2px;"><small>Firma Acudiente</small></p>

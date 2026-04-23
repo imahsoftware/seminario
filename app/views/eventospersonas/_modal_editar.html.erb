@@ -297,6 +297,18 @@
                                    class: 'form-control input-sm', type: 'email' %>
               </div>
             </div>
+            <div class="col-md-4 col-sm-6">
+              <div class="form-group">
+                <label class="control-label"><small>Estado de Firma</small></label>
+                <div class="form-control input-sm" style="background-color: #f5f5f5; border: 1px solid #ddd; padding: 6px 10px; cursor: not-allowed; height: 34px; display: flex; align-items: center;">
+                  <% if ep.acudiente_firma.present? %>
+                    <span class="label label-success"><i class="fa fa-check-circle"></i> FIRMADO</span>
+                  <% else %>
+                    <span class="label label-danger"><i class="fa fa-times-circle"></i> PENDIENTE</span>
+                  <% end %>
+                </div>
+              </div>
+            </div>
           </div>
           <div class="row">
             <% if ep.acudiente_celular.present? %>
