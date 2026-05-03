@@ -1,7 +1,7 @@
 wd = xlsx_package.workbook
 
 headers = [
-  'Identificación', 'Tipo Documento', 'Nombre', 'Apellido', 'Celular',
+  'Identificación', 'Tipo Documento', 'Nombre', 'Apellido', 'Edad', 'Celular',
   'Dirección', 'Email', 'Género', 'Estado Civil', 'Tipo Persona', 'Nombre Cónyuge','Identificación Cónyuge',
   'Identificación Acudiente', 'Nombre Acudiente', 'Apellido Acudiente',
   'Email Acudiente', 'Celular Acudiente', 'Tipo Doc. Acudiente',
@@ -49,28 +49,29 @@ wd.styles do |s|
     # Encabezados
     sheet.add_row headers, :style => Array.new(headers.size, header2)
 
-    # Estilos por columna (20 columnas, alineado con headers)
+    # Estilos por columna (21 columnas, alineado con headers)
     estilos_fila = [
       datosiz,   # 1  Identificación
       datosiz,   # 2  Tipo Documento
       datosiz,   # 3  Nombre
       datosiz,   # 4  Apellido
-      datoscent, # 5  Celular
-      datosiz,   # 6  Dirección
-      datosiz,   # 7  Email
-      datoscent, # 8  Género
-      datosiz,   # 9  Estado Civil
-      datoscent, # 10 Tipo Persona
-      datosiz,   # 11 Nombre Cónyuge
-      datoscent, # 12 Identificación Cónyuge
-      datoscent, # 13 Identificación Acudiente
-      datosiz,   # 14 Nombre Acudiente
-      datosiz,   # 15 Apellido Acudiente
-      datosiz,   # 16 Email Acudiente
-      datoscent, # 17 Celular Acudiente
-      datoscent, # 18 Tipo Doc. Acudiente
-      datoscent, # 19 Firma Acudiente
-      fecha      # 20 Fecha Registro
+      datoscent, # 5  Edad
+      datoscent, # 6  Celular
+      datosiz,   # 7  Dirección
+      datosiz,   # 8  Email
+      datoscent, # 9  Género
+      datosiz,   # 10 Estado Civil
+      datoscent, # 11 Tipo Persona
+      datosiz,   # 12 Nombre Cónyuge
+      datoscent, # 13 Identificación Cónyuge
+      datoscent, # 14 Identificación Acudiente
+      datosiz,   # 15 Nombre Acudiente
+      datosiz,   # 16 Apellido Acudiente
+      datosiz,   # 17 Email Acudiente
+      datoscent, # 18 Celular Acudiente
+      datoscent, # 19 Tipo Doc. Acudiente
+      datoscent, # 20 Firma Acudiente
+      fecha      # 21 Fecha Registro
     ]
 
     # Tipos por columna (string para forzar texto en identificaciones y celulares)
@@ -79,25 +80,34 @@ wd.styles do |s|
       nil,     # 2  Tipo Documento
       nil,     # 3  Nombre
       nil,     # 4  Apellido
-      :string, # 5  Celular
-      nil,     # 6  Dirección
-      nil,     # 7  Email
-      nil,     # 8  Género
-      nil,     # 9  Estado Civil
-      nil,     # 10 Tipo Persona
-      nil,     # 11 Nombre Cónyuge
-      :string, # 12 Identificación Cónyuge
-      :string, # 13 Identificación Acudiente
-      nil,     # 14 Nombre Acudiente
-      nil,     # 15 Apellido Acudiente
-      nil,     # 16 Email Acudiente
-      :string, # 17 Celular Acudiente
-      nil,     # 18 Tipo Doc. Acudiente
-      nil,     # 19 Firma Acudiente
-      nil      # 20 Fecha Registro
+      nil,     # 5  Edad
+      :string, # 6  Celular
+      nil,     # 7  Dirección
+      nil,     # 8  Email
+      nil,     # 9  Género
+      nil,     # 10 Estado Civil
+      nil,     # 11 Tipo Persona
+      nil,     # 12 Nombre Cónyuge
+      :string, # 13 Identificación Cónyuge
+      :string, # 14 Identificación Acudiente
+      nil,     # 15 Nombre Acudiente
+      nil,     # 16 Apellido Acudiente
+      nil,     # 17 Email Acudiente
+      :string, # 18 Celular Acudiente
+      nil,     # 19 Tipo Doc. Acudiente
+      nil,     # 20 Firma Acudiente
+      nil      # 21 Fecha Registro
     ]
 
     @inscritos.each do |ep|
+      # Calcular edad
+      edad = ''
+      if ep.fecha_nacimiento.present?
+        hoy = Date.today
+        edad = hoy.year - ep.fecha_nacimiento.year
+        edad -= 1 if hoy < ep.fecha_nacimiento + edad.years
+      end
+
       # Obtener datos del cónyuge
       conyuge_nombre = ''
       conyuge_identificacion = ''
@@ -122,22 +132,23 @@ wd.styles do |s|
                       ep.documento_tipo&.descripcion.to_s,            # 2
                       ep.nombre,                                      # 3
                       ep.apellido,                                    # 4
-                      ep.celular,                                     # 5
-                      ep.direccion,                                   # 6
-                      ep.email,                                       # 7
-                      (ep.sexo == 'M' ? 'Masculino' : 'Femenino'),    # 8
-                      ep.estado_civil&.nombre.to_s,                   # 9
-                      ep.tipo_persona,                                # 10
-                      conyuge_nombre,                                 # 11
-                      conyuge_identificacion,                         # 12
-                      ep.acudiente_identificacion,                    # 13
-                      ep.acudiente_nombre,                            # 14
-                      ep.acudiente_apellido,                          # 15
-                      ep.acudiente_email,                             # 16
-                      ep.acudiente_celular,                           # 17
-                      ep.acudiente_documento_tipo&.descripcion.to_s,  # 18
-                      ep.acudiente_firma,                             # 19
-                      ep.created_at                                   # 20
+                      edad,                                           # 5
+                      ep.celular,                                     # 6
+                      ep.direccion,                                   # 7
+                      ep.email,                                       # 8
+                      (ep.sexo == 'M' ? 'Masculino' : 'Femenino'),    # 9
+                      ep.estado_civil&.nombre.to_s,                   # 10
+                      ep.tipo_persona,                                # 11
+                      conyuge_nombre,                                 # 12
+                      conyuge_identificacion,                         # 13
+                      ep.acudiente_identificacion,                    # 14
+                      ep.acudiente_nombre,                            # 15
+                      ep.acudiente_apellido,                          # 16
+                      ep.acudiente_email,                             # 17
+                      ep.acudiente_celular,                           # 18
+                      ep.acudiente_documento_tipo&.descripcion.to_s,  # 19
+                      ep.acudiente_firma,                             # 20
+                      ep.created_at                                   # 21
                     ],
                     :style => estilos_fila,
                     :types => tipos_fila
@@ -148,8 +159,8 @@ wd.styles do |s|
     sheet.add_row ["Total Inscritos:", @inscritos.count],
                   :style => [header1, datoscent]
 
-    # Anchos de columna (20 columnas)
-    sheet.column_widths 30, 30, 30, 16, 25,
+    # Anchos de columna (21 columnas)
+    sheet.column_widths 30, 30, 30, 16, 8, 25,
                         28, 25, 12, 18, 15,
                         30, 22, 22, 22, 22,
                         28, 18, 18, 15, 18
@@ -161,7 +172,7 @@ wd.styles do |s|
       pane.active_pane  = :bottom_right
     end
 
-    # Autofiltro sobre los encabezados (columnas A hasta T = 20)
-    sheet.auto_filter = "A1:T1"
+    # Autofiltro sobre los encabezados (columnas A hasta U = 21)
+    sheet.auto_filter = "A1:U1"
   end
 end
