@@ -9,6 +9,13 @@ class Eventospersona < ApplicationRecord
              foreign_key: 'acudiente_documento_tipo_id',
              optional: true
 
+  belongs_to :iglesiascomunidad_apoyo, class_name: 'Iglesiascomunidad',
+             foreign_key: 'iglesiascomunidad_apoyo_id',
+             optional: true
+
+  has_many :eventospersona_checks, dependent: :destroy
+  has_many :evento_check_documentos, through: :eventospersona_checks
+
   # ── Adjuntos Paperclip (se asignan en el controller) ─────────────────────
   attr_accessor :cedula_frente, :cedula_reverso,
                 :acudiente_cedula_frente, :acudiente_cedula_reverso
@@ -50,6 +57,11 @@ class Eventospersona < ApplicationRecord
     scope: :evento_id,
     message: "ya está registrado para este evento"
   }
+
+  # ── Validaciones condicionales (voluntario) ───────────────────────────────
+  validates :iglesiascomunidad_apoyo_id,
+            presence: { message: "debe seleccionar la parroquia de apoyo" },
+            if: :es_voluntario?
 
   # ── Validaciones condicionales (menores de edad) ──────────────────────────
   # Nota: acudiente_documento_tipo_id ya NO se valida aquí.

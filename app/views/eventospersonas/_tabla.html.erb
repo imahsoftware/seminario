@@ -21,6 +21,9 @@
     
     # Matrimonios pendientes: tienen conyuge_pendiente = 1
     matrimonios_pendientes = matrimonios_todos.select { |p| p.conyuge_pendiente == 1 }
+
+    # Colaboradores / Voluntarios (solo eventos especiales)
+    voluntarios = todos.select { |p| p.es_voluntario? }
 %>
 
 <div class="box box-danger">
@@ -93,7 +96,7 @@
 
     </div>
 
-    <%# Segunda fila de indicadores - Matrimonios %>
+    <%# Segunda fila: Matrimonios + Colaboradores (si aplica) %>
     <div class="row">
 
       <div class="col-md-4 col-sm-6 col-xs-12">
@@ -117,7 +120,19 @@
         </div>
       </div>
 
-      <% if sin_fecha.any? %>
+      <% if @evento.evento_especial? %>
+        <div class="col-md-4 col-sm-6 col-xs-12">
+          <div class="info-box" style="background-color: #071B7D; color: #fff;">
+            <span class="info-box-icon" style="background: rgba(0,0,0,0.2);">
+              <i class="fa fa-star"></i>
+            </span>
+            <div class="info-box-content">
+              <span class="info-box-text" style="color: #fff;">Colaboradores</span>
+              <span class="info-box-number" style="color: #fff;"><%= voluntarios.count %></span>
+            </div>
+          </div>
+        </div>
+      <% elsif sin_fecha.any? %>
         <div class="col-md-4 col-sm-6 col-xs-12">
           <div class="info-box bg-red">
             <span class="info-box-icon"><i class="fa fa-question-circle"></i></span>
@@ -130,6 +145,7 @@
       <% end %>
 
     </div>
+
   </div>
 
   <%# ── TABLA ───────────────────────────────────────────────────────── %>

@@ -1,0 +1,5 @@
+$("#check_documento_form").collapse('hide').empty();
+$("#check_documento_<%= @check_documento.id %>").replaceWith("<%= escape_javascript(render @check_documento) %>");
+<% if flash[:notice] %>
+  toastr.success("<%= flash[:notice] %>");
+<% end %>

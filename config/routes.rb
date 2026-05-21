@@ -1,5 +1,11 @@
 Rails.application.routes.draw do
 
+  # Biblioteca de documentos
+  resources :check_documentos
+
+  # Asignación de documentos a eventos (anidado)
+  resources :evento_check_documentos, only: [:create, :destroy, :update]
+
   resources :eventos_responsable, only: [:index, :show]
   resources :eventosperlistados, only: [:index] do
     member do

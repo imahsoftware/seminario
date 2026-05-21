@@ -281,6 +281,63 @@
     </div>
   <% end %>
 
+  <%# ── Colaborador / Voluntario ── %>
+  <% checks = ep.eventospersona_checks.includes(evento_check_documento: :check_documento) %>
+  <% if ep.es_voluntario? || checks.any? %>
+    <div class="box box-solid" style="margin-bottom:15px; border-color:#071B7D;">
+      <div class="box-header with-border" style="padding: 8px 12px; background-color:#071B7D; color:#fff;">
+        <h4 class="box-title">
+          <i class="fa fa-star"></i> Colaborador / Voluntario
+          <% if ep.es_voluntario? %>
+            <span class="label label-success" style="margin-left:8px; font-size:11px;">
+              <i class="fa fa-check"></i> Voluntario
+            </span>
+          <% end %>
+        </h4>
+      </div>
+      <div class="box-body" style="padding: 12px 15px;">
+        <% if ep.iglesiascomunidad_apoyo.present? %>
+          <p style="margin-bottom:10px;">
+            <span class="text-muted"><small>Parroquia de Apoyo</small></span><br>
+            <i class="fa fa-map-marker" style="color:#071B7D;"></i>
+            <strong><%= ep.iglesiascomunidad_apoyo.nombre rescue 'N/D' %></strong>
+          </p>
+        <% end %>
+        <% if checks.any? %>
+          <p class="text-muted" style="margin-bottom:8px;"><small><strong>Documentos aceptados:</strong></small></p>
+          <% checks.each do |ch| %>
+            <% doc = ch.evento_check_documento&.check_documento %>
+            <% next unless doc %>
+            <div style="background:#f8f9ff; border:1px solid #dce3f7; border-radius:5px; padding:8px 12px; margin-bottom:6px;">
+              <div class="row">
+                <div class="col-md-7">
+                  <i class="fa fa-check-circle" style="color:#071B7D;"></i>
+                  <strong style="color:#071B7D;"><%= doc.titulo %></strong>
+                  <% if ch.fecha_aceptacion.present? %>
+                    <br><small class="text-muted">
+                      <i class="fa fa-clock-o"></i>
+                      Aceptado: <%= ch.fecha_aceptacion.strftime('%d/%m/%Y %H:%M') %>
+                    </small>
+                  <% end %>
+                </div>
+                <div class="col-md-5 text-right">
+                  <% if ch.fecha_1.present? %>
+                    <span class="label label-primary" style="font-size:11px; padding:4px 7px;">
+                      <i class="fa fa-calendar"></i>
+                      Fecha elegida: <%= ch.fecha_1.strftime('%d/%m/%Y') %>
+                    </span>
+                  <% end %>
+                </div>
+              </div>
+            </div>
+          <% end %>
+        <% else %>
+          <p class="text-muted"><small><i class="fa fa-info-circle"></i> No hay documentos aceptados.</small></p>
+        <% end %>
+      </div>
+    </div>
+  <% end %>
+
   <%# ── Autorizaciones ── %>
   <div class="box box-solid box-default" style="margin-bottom:0;">
     <div class="box-header with-border" style="padding: 8px 12px;">

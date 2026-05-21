@@ -272,6 +272,145 @@
             </div>
 
 
+            <%# ══════════════════════════════════════════
+                SECCIÓN VOLUNTARIO (solo eventos especiales)
+                ══════════════════════════════════════════ %>
+            <% if @evento.evento_especial? %>
+              <div style="margin-top: 30px;">
+                <div class="panel panel-default" id="panel-voluntario-toggle" style="border: 2px dashed #071B7D; cursor: pointer; transition: all 0.3s;">
+                  <div class="panel-body text-center" style="padding: 20px;">
+                    <h4 style="color: #071B7D; margin: 0;">
+                      <i class="fa fa-hand-paper-o"></i> ¿Quieres ser <strong>Voluntario</strong> en este evento?
+                    </h4>
+                    <p class="text-muted" style="margin: 8px 0 0;">Haz clic aquí para registrarte como voluntario</p>
+                  </div>
+                </div>
+
+                <div id="seccion-voluntario" style="display: none;">
+                  <div class="alert alert-warning" style="border-left: 5px solid #f0ad4e;">
+                    <i class="fa fa-star"></i> <strong>Registro como Voluntario</strong> — Todos los campos de esta sección son obligatorios.
+                    <button type="button" id="btn-cancelar-voluntario" class="btn btn-xs btn-default pull-right" style="margin-top:2px;">
+                      <i class="fa fa-times"></i> No quiero ser voluntario
+                    </button>
+                  </div>
+
+                  <input type="hidden" name="eventospersona[es_voluntario]" id="es_voluntario_hidden" value="0">
+
+                  <h5 class="text-primary"><i class="fa fa-check-square-o"></i> Documentos requeridos</h5>
+                  <hr>
+
+                  <%# ── Documentos dinámicos de la biblioteca ── %>
+                  <% if @evento.evento_check_documentos.any? %>
+                    <div style="margin-bottom: 20px;">
+                      <p class="text-muted"><small><i class="fa fa-info-circle"></i> Debes abrir y leer cada documento antes de poder marcarlo.</small></p>
+                      <% @evento.evento_check_documentos.includes(:check_documento).order(:orden).each do |ecd| %>
+                        <% doc = ecd.check_documento %>
+                        <div class="panel panel-default" style="margin-bottom: 8px;" id="panel_doc_<%= ecd.id %>">
+                          <div class="panel-body" style="padding: 10px 15px;">
+                            <div class="row">
+                              <div class="col-md-7">
+                                <div class="checkbox" style="margin: 0;">
+                                  <label id="label_check_doc_<%= ecd.id %>" style="opacity: 0.4; cursor: not-allowed;" title="Primero debes abrir el documento">
+                                    <input type="checkbox"
+                                           name="eventospersona[checks][<%= ecd.id %>]"
+                                           id="check_doc_<%= ecd.id %>"
+                                           value="1"
+                                           class="voluntario-doc-check"
+                                           data-ecd-id="<%= ecd.id %>"
+                                           disabled>
+                                    <strong style="color: #071B7D;">
+                                      <i class="fa fa-file-pdf-o"></i> <%= doc.titulo %>
+                                    </strong>
+                                    <span class="text-danger"> *</span>
+                                  </label>
+                                </div>
+                                <small class="text-muted" style="padding-left: 22px;"><%= doc.descripcion %></small>
+                              </div>
+                              <div class="col-md-5 text-right">
+                                <button type="button"
+                                        class="btn btn-info btn-sm btn-abrir-doc"
+                                        data-ecd-id="<%= ecd.id %>"
+                                        data-url="<%= doc.documento.url %>"
+                                        data-titulo="<%= doc.titulo %>">
+                                  <i class="fa fa-eye"></i> Leer documento
+                                </button>
+                                <span id="leido_badge_<%= ecd.id %>" class="label label-success" style="display:none; margin-left: 5px;">
+                                  <i class="fa fa-check"></i> Leído
+                                </span>
+                              </div>
+                            </div>
+
+                            <%# ── Selección de fecha (el voluntario elige una) ── %>
+                            <% tiene_fechas = (doc.requiere_fecha_1? && doc.fecha_actividad_1.present?) || (doc.requiere_fecha_2? && doc.fecha_actividad_2.present?) %>
+                            <% if tiene_fechas %>
+                              <div id="fechas_doc_<%= ecd.id %>"
+                                   data-ecd-id="<%= ecd.id %>"
+                                   data-tiene-fechas="true"
+                                   style="display:none; margin-top: 10px; padding: 10px 15px; background: #f0f4ff; border-left: 3px solid #071B7D; border-radius: 3px;">
+                                <small style="color: #333; display: block; margin-bottom: 8px; font-size: 13px;">
+                                  <i class="fa fa-calendar text-primary"></i>
+                                  <strong>¿En qué fecha puedes participar?</strong>
+                                  <span class="text-danger"> *</span>
+                                </small>
+                                <% if doc.requiere_fecha_1? && doc.fecha_actividad_1.present? %>
+                                  <div class="radio" style="margin: 4px 0 4px 5px;">
+                                    <label style="font-size: 14px; cursor: pointer;">
+                                      <input type="radio"
+                                             name="eventospersona[checks_fecha][<%= ecd.id %>]"
+                                             value="<%= doc.fecha_actividad_1.strftime('%d/%m/%Y') %>"
+                                             class="doc-fecha-radio"
+                                             data-ecd-id="<%= ecd.id %>">
+                                      <i class="fa fa-calendar-o" style="color: #071B7D;"></i>
+                                      <strong><%= doc.fecha_actividad_1.strftime("%d/%m/%Y") %></strong>
+                                    </label>
+                                  </div>
+                                <% end %>
+                                <% if doc.requiere_fecha_2? && doc.fecha_actividad_2.present? %>
+                                  <div class="radio" style="margin: 4px 0 4px 5px;">
+                                    <label style="font-size: 14px; cursor: pointer;">
+                                      <input type="radio"
+                                             name="eventospersona[checks_fecha][<%= ecd.id %>]"
+                                             value="<%= doc.fecha_actividad_2.strftime('%d/%m/%Y') %>"
+                                             class="doc-fecha-radio"
+                                             data-ecd-id="<%= ecd.id %>">
+                                      <i class="fa fa-calendar-o" style="color: #071B7D;"></i>
+                                      <strong><%= doc.fecha_actividad_2.strftime("%d/%m/%Y") %></strong>
+                                    </label>
+                                  </div>
+                                <% end %>
+                              </div>
+                            <% end %>
+
+                          </div>
+                        </div>
+                      <% end %>
+                    </div>
+                  <% end %>
+
+                  <%# Select: Apoyo Parroquia %>
+                  <div class="form-group" style="margin-top: 15px;">
+                    <label>
+                      <i class="fa fa-map-marker"></i> <strong style="color: #071B7D;">Apoyo Parroquia</strong>
+                      <span class="text-danger"> *</span>
+                    </label>
+                    <%= select_tag "eventospersona[iglesiascomunidad_apoyo_id]",
+                                   options_from_collection_for_select(
+                                     Iglesiascomunidad.joins(:iglesia).order('iglesias.nombre, iglesiascomunidades.nombre'),
+                                     :id,
+                                     ->(ic) { "#{ic.iglesia.nombre rescue ''} – #{ic.nombre}" }
+                                   ),
+                                   include_blank: "Seleccione la parroquia...",
+                                   class: "form-control select2 voluntario-select",
+                                   id: "iglesiascomunidad_apoyo_id",
+                                   style: "width: 100%" %>
+                    <small class="text-muted">Selecciona la comunidad/parroquia donde prestarás apoyo.</small>
+                  </div>
+
+
+                </div><%# fin seccion-voluntario %>
+              </div>
+            <% end %>
+
             <h4 class="text-primary" style="margin-top: 30px;"><i class="fa fa-file-text-o"></i> Aceptación de Políticas
             </h4>
             <hr>
@@ -314,6 +453,39 @@
 
           <% end %>
         </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<%# ════════════════════════════════════════════════════════════════
+    MODAL VISOR DE DOCUMENTO
+    ════════════════════════════════════════════════════════════════ %>
+<div class="modal fade" id="modalDocumento" tabindex="-1" role="dialog">
+  <div class="modal-dialog modal-lg" role="document" style="width: 90%; max-width: 1000px;">
+    <div class="modal-content">
+      <div class="modal-header" style="background: #071B7D; color: white; padding: 12px 20px;">
+        <button type="button" class="close" data-dismiss="modal" style="color: white; opacity: 1;">
+          <span>&times;</span>
+        </button>
+        <h4 class="modal-title" id="modal-doc-titulo" style="color: white;">
+          <i class="fa fa-file-pdf-o"></i> Documento
+        </h4>
+      </div>
+      <div class="modal-body" style="padding: 0; height: 70vh;">
+        <iframe id="modal-doc-iframe" src="" width="100%" height="100%"
+                style="border: none; display: block;"></iframe>
+      </div>
+      <div class="modal-footer" style="text-align: center;">
+        <p class="text-muted" style="margin-bottom: 10px;">
+          <small><i class="fa fa-info-circle"></i> Una vez leído el documento, haz clic en "He leído el documento" para habilitarlo.</small>
+        </p>
+        <button type="button" class="btn btn-default" data-dismiss="modal">
+          <i class="fa fa-times"></i> Cerrar
+        </button>
+        <button type="button" class="btn btn-success" id="btn-doc-leido">
+          <i class="fa fa-check"></i> He leído el documento
+        </button>
       </div>
     </div>
   </div>
@@ -514,11 +686,19 @@
                     $('#edad-info').show().css('color', '#d9534f');
                     $('#seccion-acudiente').slideDown(400);
                     $('.acudiente-field').prop('required', true);
+                    // ── Menores NO pueden ser voluntarios ─────────────────
+                    $('#panel-voluntario-toggle').hide();
+                    $('#seccion-voluntario').slideUp(300);
+                    $('#es_voluntario_hidden').val('0');
+                    $('.voluntario-check').prop('checked', false);
+                    $('.voluntario-select').val('').trigger('change');
                 } else {
                     $('#edad-texto').text('Edad: ' + edad + ' años');
                     $('#edad-info').show().css('color', '#5cb85c');
                     $('#seccion-acudiente').slideUp(400);
                     $('.acudiente-field').prop('required', false).val('');
+                    // ── Mayores sí pueden ver la opción de voluntario ─────
+                    $('#panel-voluntario-toggle').show();
                 }
             } catch (e) {
                 console.error('validarEdad:', e);
@@ -600,6 +780,49 @@
                         e.preventDefault();
                         alert('⚠️ Debes seleccionar un cónyuge válido.');
                         $('#conyuge_identificacion').focus();
+                        return false;
+                    }
+                }
+                // ── Validación documentos dinámicos ───────────────────────
+                if ($('#es_voluntario_hidden').val() === '1') {
+                    var docsNoLeidos = [];
+                    $('.voluntario-doc-check').each(function () {
+                        if (!$(this).is(':checked')) {
+                            docsNoLeidos.push($(this).closest('.panel').find('strong').first().text().trim());
+                        }
+                    });
+                    if (docsNoLeidos.length > 0) {
+                        e.preventDefault();
+                        alert('⚠️ Debes leer y aceptar los siguientes documentos:\n\n• ' + docsNoLeidos.join('\n• '));
+                        return false;
+                    }
+                    // ── Validación fechas de documentos ──────────────────────
+                    var docsSinFecha = [];
+                    $('[data-tiene-fechas="true"]').each(function () {
+                        var ecdId = $(this).data('ecd-id');
+                        // Solo validar si el documento fue marcado como leído
+                        if ($('#check_doc_' + ecdId).is(':checked')) {
+                            var radioSeleccionado = $('input[name="eventospersona[checks_fecha][' + ecdId + ']"]:checked').val();
+                            if (!radioSeleccionado) {
+                                var titulo = $('#label_check_doc_' + ecdId + ' strong').text().trim();
+                                docsSinFecha.push(titulo);
+                            }
+                        }
+                    });
+                    if (docsSinFecha.length > 0) {
+                        e.preventDefault();
+                        alert('⚠️ Debes seleccionar una fecha para:\n\n• ' + docsSinFecha.join('\n• '));
+                        return false;
+                    }
+                }
+                // ── Validación voluntario ──────────────────────────────────
+                if ($('#es_voluntario_hidden').val() === '1') {
+                    var vaciosVol = [];
+                    if (!$('#iglesiascomunidad_apoyo_id').val()) vaciosVol.push('Parroquia de Apoyo');
+                    if (vaciosVol.length > 0) {
+                        e.preventDefault();
+                        alert('⚠️ Como voluntario debes completar:\n\n• ' + vaciosVol.join('\n• '));
+                        document.getElementById('seccion-voluntario').scrollIntoView({ behavior: 'smooth', block: 'center' });
                         return false;
                     }
                 }
@@ -847,6 +1070,65 @@
             });
 
 
+        });
+
+        // ── MODAL DOCUMENTOS ──────────────────────────────────────────────────
+        $('.btn-abrir-doc').on('click', function () {
+            var ecdId  = $(this).data('ecd-id');
+            var url    = $(this).data('url');
+            var titulo = $(this).data('titulo');
+
+            $('#modal-doc-titulo').text(titulo);
+            $('#modal-doc-iframe').attr('src', url);
+            $('#modalDocumento').modal('show');
+            $('#modalDocumento').data('ecd-id', ecdId);
+        });
+
+        $('#btn-doc-leido').on('click', function () {
+            var ecdId = $('#modalDocumento').data('ecd-id');
+            // Habilitar el checkbox
+            var $check = $('#check_doc_' + ecdId);
+            var $label = $('#label_check_doc_' + ecdId);
+            $check.prop('disabled', false).prop('checked', true);
+            $label.css({ opacity: 1, cursor: 'pointer' }).attr('title', '');
+            $('#leido_badge_' + ecdId).show();
+            // Mostrar fechas informativas del documento si las tiene
+            var $fechasDiv = $('#fechas_doc_' + ecdId);
+            if ($fechasDiv.length) {
+                $fechasDiv.slideDown(200);
+            }
+            // Marcar el panel en verde
+            $('#panel_doc_' + ecdId).addClass('panel-success').removeClass('panel-default');
+            $('#modalDocumento').modal('hide');
+            $('#modal-doc-iframe').attr('src', '');
+        });
+
+        // Limpiar iframe al cerrar
+        $('#modalDocumento').on('hidden.bs.modal', function () {
+            $('#modal-doc-iframe').attr('src', '');
+        });
+
+        // Toggle apertura sección voluntario
+        $('#panel-voluntario-toggle').on('click', function () {
+            $('#seccion-voluntario').slideDown(400);
+            $(this).hide();
+            $('#es_voluntario_hidden').val('1');
+            // Inicializar select2 dentro de la sección
+            if ($.fn.select2) {
+                $('#iglesiascomunidad_apoyo_id').select2({ placeholder: 'Seleccione la parroquia...' });
+            }
+        });
+
+        // Botón cancelar voluntario
+        $('#btn-cancelar-voluntario').on('click', function (e) {
+            e.stopPropagation();
+            $('#seccion-voluntario').slideUp(400);
+            $('#panel-voluntario-toggle').show();
+            $('#es_voluntario_hidden').val('0');
+            // Limpiar campos
+            $('.voluntario-check').prop('checked', false);
+            $('.voluntario-select').val('').trigger('change');
+            $('.voluntario-date').val('');
         });
 
         console.log('✅ reEvento inicializado');

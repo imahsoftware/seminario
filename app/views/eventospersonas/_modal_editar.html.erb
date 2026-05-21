@@ -388,6 +388,100 @@
     </div>
 
 
+    <%# ── Colaborador / Voluntario ── %>
+    <%
+      checks_existentes = ep.eventospersona_checks.includes(evento_check_documento: :check_documento)
+      checks_ids_aceptados = checks_existentes.map(&:evento_check_documento_id)
+      evento_check_docs = ep.evento.evento_check_documentos.includes(:check_documento).order(:orden) rescue []
+    %>
+    <% if ep.es_voluntario? || checks_existentes.any? || evento_check_docs.any? %>
+      <div class="box box-solid" style="margin-bottom:15px; border-color:#071B7D;">
+        <div class="box-header with-border" style="padding: 8px 12px; background-color:#071B7D; color:#fff;">
+          <h4 class="box-title"><i class="fa fa-star"></i> Colaborador / Voluntario</h4>
+        </div>
+        <div class="box-body" style="padding: 12px 15px;">
+
+          <%# Voluntario toggle %>
+          <div class="form-group" style="margin-bottom:12px;">
+            <div class="checkbox">
+              <label>
+                <%= check_box_tag "eventospersona[es_voluntario]", "1", ep.es_voluntario?,
+                                  id: "es_voluntario_editar_#{ep.id}" %>
+                <strong style="color:#071B7D;"><i class="fa fa-star"></i> Es Voluntario</strong>
+              </label>
+            </div>
+          </div>
+
+          <%# Parroquia de Apoyo %>
+          <div class="form-group">
+            <label class="control-label"><small><i class="fa fa-map-marker"></i> Parroquia de Apoyo</small></label>
+            <%= select_tag "eventospersona[iglesiascomunidad_apoyo_id]",
+                           options_from_collection_for_select(
+                             Iglesiascomunidad.joins(:iglesia).order('iglesias.nombre, iglesiascomunidades.nombre'),
+                             :id,
+                             ->(ic) { "#{ic.iglesia.nombre rescue ''} – #{ic.nombre}" },
+                             ep.iglesiascomunidad_apoyo_id
+                           ),
+                           include_blank: "Sin asignar...",
+                           class: "form-control input-sm" %>
+          </div>
+
+          <%# Checks de documentos %>
+          <% if evento_check_docs.any? %>
+            <p class="text-muted" style="margin-bottom:8px;"><small><strong>Documentos:</strong></small></p>
+            <% evento_check_docs.each do |ecd| %>
+              <% doc = ecd.check_documento %>
+              <% next unless doc %>
+              <% ch_existente = checks_existentes.find { |c| c.evento_check_documento_id == ecd.id } %>
+              <div style="background:#f8f9ff; border:1px solid #dce3f7; border-radius:5px; padding:8px 12px; margin-bottom:6px;">
+                <div class="row">
+                  <div class="col-md-8">
+                    <div class="checkbox" style="margin:0;">
+                      <label>
+                        <%= check_box_tag "eventospersona[checks][#{ecd.id}]", "1",
+                                          checks_ids_aceptados.include?(ecd.id),
+                                          class: "check-editar-doc",
+                                          data: { ecd_id: ecd.id } %>
+                        <strong style="color:#071B7D;"><i class="fa fa-file-pdf-o"></i> <%= doc.titulo %></strong>
+                      </label>
+                    </div>
+                    <% if ch_existente&.fecha_aceptacion.present? %>
+                      <small class="text-muted" style="padding-left:20px;">
+                        <i class="fa fa-clock-o"></i>
+                        Aceptado: <%= ch_existente.fecha_aceptacion.strftime('%d/%m/%Y %H:%M') %>
+                      </small>
+                    <% end %>
+                  </div>
+                  <div class="col-md-4 text-right">
+                    <% tiene_fechas_doc = (doc.requiere_fecha_1? && doc.fecha_actividad_1.present?) ||
+                                         (doc.requiere_fecha_2? && doc.fecha_actividad_2.present?) %>
+                    <% if tiene_fechas_doc %>
+                      <% fecha_val = ch_existente&.fecha_1&.strftime('%d/%m/%Y') %>
+                      <%= select_tag "eventospersona[checks_fecha][#{ecd.id}]",
+                                     options_for_select(
+                                       [['Sin fecha', ''],
+                                        *([doc.fecha_actividad_1&.strftime('%d/%m/%Y')].compact.map { |f| [f, f] }),
+                                        *([doc.fecha_actividad_2&.strftime('%d/%m/%Y')].compact.map { |f| [f, f] })
+                                       ],
+                                       fecha_val.presence || ''
+                                     ),
+                                     class: "form-control input-sm",
+                                     style: "width:auto; display:inline-block;" %>
+                    <% elsif ch_existente&.fecha_1.present? %>
+                      <span class="label label-primary" style="font-size:11px;">
+                        <i class="fa fa-calendar"></i> <%= ch_existente.fecha_1.strftime('%d/%m/%Y') %>
+                      </span>
+                    <% end %>
+                  </div>
+                </div>
+              </div>
+            <% end %>
+          <% end %>
+
+        </div>
+      </div>
+    <% end %>
+
     <%# ── Autorizaciones ── %>
     <div class="box box-solid box-default" style="margin-bottom:0;">
       <div class="box-header with-border" style="padding: 8px 12px;">

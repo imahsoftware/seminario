@@ -1,0 +1,4 @@
+$("#check_documento_<%= @check_documento.id %>").fadeOut(300, function(){ $(this).remove(); });
+<% if flash[:success] %>
+  toastr.success("<%= flash[:success] %>");
+<% end %>

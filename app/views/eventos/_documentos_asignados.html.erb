@@ -1,0 +1,109 @@
+<%# Partial: documentos asignados al evento especial %>
+<% asignados = evento.evento_check_documentos.includes(:check_documento).order(:orden) %>
+<% disponibles = CheckDocumento.activos.where.not(id: asignados.map(&:check_documento_id)) %>
+
+<div style="margin-top: 20px;">
+  <h5 class="text-primary"><i class="fa fa-file-text-o"></i> Documentos requeridos para voluntarios</h5>
+  <p class="text-muted"><small>Las personas que quieran ser voluntarias deberán leer y aceptar cada documento.</small></p>
+
+  <%# Lista de documentos ya asignados %>
+  <% if asignados.any? %>
+    <table class="table table-condensed table-bordered" style="margin-bottom: 10px;">
+      <thead>
+        <tr style="background: #f5f5f5;">
+          <th style="width: 50px;">Orden</th>
+          <th>Documento</th>
+          <th>Descripción</th>
+          <th style="width: 80px;">Acción</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% asignados.each do |ecd| %>
+          <tr id="ecd_row_<%= ecd.id %>">
+            <td class="text-center">
+              <input type="number" value="<%= ecd.orden %>" min="1"
+                     style="width: 50px; text-align: center; border: 1px solid #ddd; border-radius: 3px;"
+                     onchange="actualizarOrden(<%= ecd.id %>, this.value)">
+            </td>
+            <td>
+              <strong><%= ecd.check_documento.titulo %></strong>
+              <% if ecd.check_documento.documento_file_name.present? %>
+                &nbsp;
+                <%= link_to ecd.check_documento.documento.url, target: '_blank', class: 'btn btn-xs btn-default' do %>
+                  <i class="fa fa-eye"></i> Ver
+                <% end %>
+              <% end %>
+            </td>
+            <td><small class="text-muted"><%= ecd.check_documento.descripcion %></small></td>
+            <td>
+              <%= link_to evento_check_documento_path(ecd), method: :delete, remote: true,
+                          data: { confirm: '¿Quitar este documento del evento?' },
+                          class: 'btn btn-xs btn-danger' do %>
+                <i class="fa fa-times"></i> Quitar
+              <% end %>
+            </td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  <% else %>
+    <div class="alert alert-warning" style="padding: 8px 12px; margin-bottom: 10px;">
+      <i class="fa fa-info-circle"></i> No hay documentos asignados aún.
+    </div>
+  <% end %>
+
+  <%# Agregar documento desde la biblioteca %>
+  <% if disponibles.any? %>
+    <div class="row">
+      <div class="col-md-8">
+        <div class="input-group input-group-sm">
+          <select id="select_check_documento" class="form-control select2" style="width: 100%;">
+            <option value="">-- Selecciona un documento de la biblioteca --</option>
+            <% disponibles.each do |doc| %>
+              <option value="<%= doc.id %>"><%= doc.titulo %></option>
+            <% end %>
+          </select>
+          <span class="input-group-btn">
+            <button type="button" class="btn btn-info btn-sm" onclick="asignarDocumento(<%= evento.id %>)">
+              <i class="fa fa-plus"></i> Agregar
+            </button>
+          </span>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <%= link_to new_check_documento_path, target: '_blank', class: 'btn btn-sm btn-default' do %>
+          <i class="fa fa-upload"></i> Subir nuevo documento
+        <% end %>
+      </div>
+    </div>
+  <% else %>
+    <div class="alert alert-info" style="padding: 8px 12px;">
+      <i class="fa fa-check-circle"></i> Todos los documentos de la biblioteca están asignados.
+      <%= link_to 'Subir nuevo documento', new_check_documento_path, target: '_blank', class: 'btn btn-xs btn-info' %>
+    </div>
+  <% end %>
+</div>
+
+<script>
+  function asignarDocumento(eventoId) {
+    var checkId = $('#select_check_documento').val();
+    if (!checkId) { toastr.warning('Selecciona un documento primero.'); return; }
+    $.ajax({
+      url: '/evento_check_documentos',
+      method: 'POST',
+      data: { evento_id: eventoId, check_documento_id: checkId, authenticity_token: $('meta[name=csrf-token]').attr('content') },
+      dataType: 'script'
+    });
+  }
+
+  function actualizarOrden(ecdId, orden) {
+    $.ajax({
+      url: '/evento_check_documentos/' + ecdId,
+      method: 'PATCH',
+      data: { orden: orden, authenticity_token: $('meta[name=csrf-token]').attr('content') },
+      dataType: 'script'
+    });
+  }
+
+  setTimeout(function(){ if($.fn.select2) $('#select_check_documento').select2(); }, 200);
+</script>

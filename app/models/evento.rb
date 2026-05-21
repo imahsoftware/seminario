@@ -6,6 +6,8 @@ class Evento < ApplicationRecord
   has_many :eventospersonas, dependent: :destroy
   has_many :personas, through: :eventospersonas
   has_many :eventosusers, dependent: :destroy
+  has_many :evento_check_documentos, dependent: :destroy
+  has_many :check_documentos, through: :evento_check_documentos
 
   # ── Habeas Data desde tabla parametros ──────────────────────────
   belongs_to :habeas_data_parametro, class_name: 'Parametro',
@@ -23,6 +25,9 @@ class Evento < ApplicationRecord
   def responsables
     User.where(id: eventosusers.pluck(:user_administra))
   end
+
+  scope :especiales, -> { where(evento_especial: true) }
+  scope :normales,   -> { where(evento_especial: false) }
 
   def actualizar_url_si_necesario
     return if guid.blank?

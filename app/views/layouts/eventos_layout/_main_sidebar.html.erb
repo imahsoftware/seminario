@@ -7,23 +7,26 @@
         <% end %>
       </li>
       <li class="header"><%= t :menu %></li>
-      <!-- Optionally, you can add icons to the links -->
-      <% unless @evento.new_record? %>
+      <li class="<%= active_class(check_documentos_path) %>">
+        <%= link_to check_documentos_path(evento_guid: @evento&.guid) do %>
+          <i class="fa fa-file-text-o text-info"></i><span>Biblioteca de Documentos</span>
+        <% end %>
+      </li>
+      <% unless @evento.nil? || @evento.new_record? %>
         <li class="treeview">
-        <li class="<%= active_class(edit_evento_path(etapa: "A", guid: @evento.guid)) %>">
-          <%= link_to edit_evento_path(etapa: "A", guid: @evento.guid) do %>
+        <li class="<%= active_class(edit_evento_path(@evento, etapa: "A")) %>">
+          <%= link_to edit_evento_path(@evento, etapa: "A") do %>
             <i class="fa fa-info-circle"></i><span>Evento</span>
           <% end %>
         </li>
-
-        <li class="<%= active_class(edit_evento_path(etapa: "B", id: @evento.guid)) %>">
-          <%= link_to edit_evento_path(etapa: "B", guid: @evento.guid) do %>
+        <li class="<%= active_class(edit_evento_path(@evento, etapa: "B")) %>">
+          <%= link_to edit_evento_path(@evento, etapa: "B") do %>
             <i class="fa fa-users"></i><span>Personas</span>
           <% end %>
         </li>
-        <li class="<%= active_class(edit_evento_path(etapa: "C", id: @evento.guid)) %>">
-          <%= link_to edit_evento_path(etapa: "C", guid: @evento.guid) do %>
-            <i class="fa fa-user"></i><span>Cordinadores</span>
+        <li class="<%= active_class(edit_evento_path(@evento, etapa: "C")) %>">
+          <%= link_to edit_evento_path(@evento, etapa: "C") do %>
+            <i class="fa fa-user"></i><span>Coordinadores</span>
           <% end %>
         </li>
       <% end %>

@@ -56,7 +56,71 @@ class RegistroEventosController < ApplicationController
       end
     end
 
+    # ── Validar que voluntario sea mayor de edad ──────────────────────────────
+    es_voluntario = params.dig(:eventospersona, :es_voluntario).to_s == "1"
+    if es_voluntario
+      fecha_nac_str = params.dig(:eventospersona, :fecha_nacimiento)
+      if fecha_nac_str.present?
+        fecha_nac = Date.parse(fecha_nac_str) rescue nil
+        if fecha_nac && ((Date.today - fecha_nac).to_i / 365.25) < 18
+          @eventospersona.errors.add(:base, "Los menores de edad no pueden registrarse como colaboradores/voluntarios.")
+          @frente_b64     = frente_b64
+          @reverso_b64    = reverso_b64
+          @acu_frente_b64 = acu_frente_b64
+          @acu_rev_b64    = acu_rev_b64
+          flash.now[:alert] = "Por favor, corrige los siguientes errores:"
+          render :show and return
+        end
+      end
+    end
+    # ──────────────────────────────────────────────────────────────────────────
+
+    # ── Validar documentos si quiere ser voluntario ───────────────────────────
+    if es_voluntario && @evento.evento_check_documentos.any?
+      checks_recibidos  = params.dig(:eventospersona, :checks) || {}
+      ids_requeridos    = @evento.evento_check_documentos.pluck(:id).map(&:to_s)
+      faltantes         = ids_requeridos.reject { |id| checks_recibidos[id].to_s == "1" }
+
+      if faltantes.any?
+        @eventospersona.errors.add(:base, "Debes leer y aceptar todos los documentos requeridos para ser voluntario")
+
+        @frente_b64     = frente_b64
+        @reverso_b64    = reverso_b64
+        @acu_frente_b64 = acu_frente_b64
+        @acu_rev_b64    = acu_rev_b64
+
+        flash.now[:alert] = "Por favor, corrige los siguientes errores:"
+        render :show and return
+      end
+    end
+    # ──────────────────────────────────────────────────────────────────────────
+
     if @eventospersona.save
+
+      # ── Guardar evidencia de documentos aceptados ─────────────────────────
+      checks_params       = params.dig(:eventospersona, :checks)       || {}
+      checks_fecha_params = params.dig(:eventospersona, :checks_fecha) || {}
+
+      checks_params.each do |ecd_id, valor|
+        next unless valor.to_s == "1"
+        ch = EventospersonaCheck.find_or_create_by(
+          eventospersona_id:         @eventospersona.id,
+          evento_check_documento_id: ecd_id.to_i
+        ) do |c|
+          c.aceptado = true
+        end
+        # Guardar la fecha elegida por el voluntario si aplica
+        fecha_str = checks_fecha_params[ecd_id.to_s]
+        if fecha_str.present?
+          fecha_parsed = begin
+            Date.strptime(fecha_str, '%d/%m/%Y')
+          rescue ArgumentError, TypeError
+            nil
+          end
+          ch.update_column(:fecha_1, fecha_parsed) if fecha_parsed
+        end
+      end
+      # ──────────────────────────────────────────────────────────────────────
 
       if @eventospersona.conyuge_id.present?
         conyuge_anterior = @evento.eventospersonas
@@ -334,6 +398,14 @@ class RegistroEventosController < ApplicationController
   end
 
   def eventospersona_params
-    params.require(:eventospersona).permit!
+    params.require(:eventospersona).except(:checks, :checks_fecha).permit!
+  end
+
+  def parsear_fecha_ddmmyyyy(str)
+    return nil if str.blank?
+    str = str.strip.gsub('-', '/')
+    return nil unless str =~ /\A(\d{1,2})\/(\d{1,2})\/(\d{4})\z/
+    d, m, y = $1.to_i, $2.to_i, $3.to_i
+    Date.new(y, m, d) rescue nil
   end
 end

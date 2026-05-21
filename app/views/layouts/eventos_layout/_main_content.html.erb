@@ -1,151 +1,155 @@
 <div class="content-wrapper">
-    <%# ══════════════════════════════════════════════════════════════
-      CONTENT HEADER — Información detallada del evento
-      ══════════════════════════════════════════════════════════════ %>
     <section class="content-header" style="padding-bottom: 0;">
 
-      <section class="content-header">
+      <% if @evento.present? && !@evento.new_record? %>
+        <%# ── Header con datos del evento ── %>
+        <section class="content-header">
+          <h1>
+            <i class="fa fa-calendar"></i>
+            <span style="font-size: 16px; word-break: break-word;">
+              <%= truncate(@evento.detalle, length: 60) %>
+            </span>
+            <small>Personas Inscritas</small>
+          </h1>
+          <ol class="breadcrumb">
+            <li><%= link_to '<i class="fa fa-home"></i> Inicio'.html_safe, root_path %></li>
+            <li><%= link_to 'Mis Eventos', eventos_responsable_index_path %></li>
+            <li class="active"><%= truncate(@evento.detalle, length: 50) %></li>
+          </ol>
+        </section>
+
+        <%# ── Panel de información del evento ── %>
+        <div style="margin-top: 15px; margin-bottom: 0;">
+          <div class="box box-solid"
+               style="border-top: 3px solid #d9534f; margin-bottom: 0; border-radius: 6px;">
+            <div class="box-body" style="padding: 14px 20px;">
+              <div class="row">
+
+                <%# ── Nombre / tipo ── %>
+                <div class="col-md-4 col-sm-6 col-xs-12"
+                     style="border-right: 1px solid #eee; padding-right: 20px; margin-bottom: 8px;">
+                  <p class="text-muted" style="margin:0 0 2px; font-size:11px; text-transform:uppercase; letter-spacing:.5px;">
+                    <i class="fa fa-calendar"></i> Evento
+                  </p>
+                  <p style="margin:0; font-size:15px; font-weight:700; color:#333;">
+                    <%= @evento.detalle %>
+                  </p>
+                  <p style="margin:2px 0 0; font-size:12px; color:#888;">
+                    <i class="fa fa-tag"></i>
+                    <%= @evento.tiposevento.descripcion rescue 'N/D' %>
+                    <% if @evento.iglesiascomunidad.present? %>
+                      &nbsp;·&nbsp;
+                      <i class="fa fa-map-marker"></i>
+                      <%= @evento.iglesiascomunidad.nombre rescue '' %>
+                    <% end %>
+                  </p>
+                </div>
+
+                <%# ── Fechas inscripción ── %>
+                <div class="col-md-2 col-sm-6 col-xs-6"
+                     style="border-right: 1px solid #eee; padding-right: 20px; margin-bottom: 8px;">
+                  <p class="text-muted" style="margin:0 0 2px; font-size:11px; text-transform:uppercase; letter-spacing:.5px;">
+                    <i class="fa fa-pencil-square-o"></i> Inscripción
+                  </p>
+                  <p style="margin:0; font-size:13px; font-weight:600; color:#333;">
+                    <%= @evento.fecha_inicio.strftime('%d/%m/%Y') rescue 'N/D' %>
+                  </p>
+                  <p style="margin:0; font-size:12px; color:#888;">
+                    al <%= @evento.fecha_fin.strftime('%d/%m/%Y') rescue 'N/D' %>
+                  </p>
+                </div>
+
+                <%# ── Fechas evento ── %>
+                <div class="col-md-2 col-sm-6 col-xs-6"
+                     style="border-right: 1px solid #eee; padding-right: 20px; margin-bottom: 8px;">
+                  <p class="text-muted" style="margin:0 0 2px; font-size:11px; text-transform:uppercase; letter-spacing:.5px;">
+                    <i class="fa fa-calendar-check-o"></i> Evento
+                  </p>
+                  <p style="margin:0; font-size:13px; font-weight:600; color:#333;">
+                    <%= @evento.fecha_inicio_e.strftime('%d/%m/%Y') rescue 'N/D' %>
+                  </p>
+                  <p style="margin:0; font-size:12px; color:#888;">
+                    al <%= @evento.fecha_fin_e.strftime('%d/%m/%Y') rescue 'N/D' %>
+                  </p>
+                </div>
+
+                <%# ── Cupos ── %>
+                <div class="col-md-2 col-sm-6 col-xs-6"
+                     style="border-right: 1px solid #eee; padding-right: 20px; margin-bottom: 8px;">
+                  <p class="text-muted" style="margin:0 0 2px; font-size:11px; text-transform:uppercase; letter-spacing:.5px;">
+                    <i class="fa fa-users"></i> Cupos
+                  </p>
+                  <%
+                    registrados = @evento.eventospersonas.size
+                    permitidos  = @evento.cantidad_persona.to_i
+                    disponibles = [permitidos - registrados, 0].max
+                    pct         = permitidos > 0 ? [(registrados * 100.0 / permitidos).round, 100].min : 0
+                    color_barra = pct >= 90 ? '#d9534f' : pct >= 70 ? '#f0ad4e' : '#00a65a'
+                  %>
+                  <p style="margin:0; font-size:15px; font-weight:700; color:#333;">
+                    <%= registrados %>
+                    <span style="font-size:12px; color:#888;">/ <%= permitidos > 0 ? permitidos : '∞' %></span>
+                  </p>
+                  <% if permitidos > 0 %>
+                    <div style="background:#eee; border-radius:3px; height:5px; margin-top:4px; overflow:hidden;">
+                      <div style="width:<%= pct %>%; background:<%= color_barra %>; height:100%; border-radius:3px; transition:width .3s;"></div>
+                    </div>
+                    <p style="margin:2px 0 0; font-size:11px; color:#888;"><%= disponibles %> disponibles</p>
+                  <% end %>
+                </div>
+
+                <%# ── Estado + URL ── %>
+                <div class="col-md-2 col-sm-6 col-xs-6" style="margin-bottom: 8px;">
+                  <p class="text-muted" style="margin:0 0 4px; font-size:11px; text-transform:uppercase; letter-spacing:.5px;">
+                    <i class="fa fa-info-circle"></i> Estado
+                  </p>
+                  <% if @evento.vigente? %>
+                    <span class="label label-success" style="font-size:12px; padding:4px 8px;">
+                      <i class="fa fa-check-circle"></i> Vigente
+                    </span>
+                  <% elsif @evento.vencido? %>
+                    <span class="label label-danger" style="font-size:12px; padding:4px 8px;">
+                      <i class="fa fa-times-circle"></i> Vencido
+                    </span>
+                  <% else %>
+                    <span class="label label-warning" style="font-size:12px; padding:4px 8px;">
+                      <i class="fa fa-clock-o"></i> No Iniciado
+                    </span>
+                  <% end %>
+                  <% if @evento.persisted? && @evento.url_publica.present? %>
+                    <div style="margin-top:6px;">
+                      <a href="<%= @evento.url_publica %>" target="_blank"
+                         class="btn btn-xs btn-default" title="Ver formulario público">
+                        <i class="fa fa-external-link"></i> URL pública
+                      </a>
+                      <button class="btn btn-xs btn-default" id="btn-copiar-header"
+                              data-clipboard-text="<%= @evento.url_publica %>"
+                              title="Copiar URL" style="margin-top:3px;">
+                        <i class="fa fa-copy"></i>
+                      </button>
+                    </div>
+                  <% end %>
+                </div>
+
+              </div><%# fin row %>
+            </div>
+          </div>
+        </div>
+
+      <% else %>
+        <%# ── Header genérico cuando no hay evento (ej: Biblioteca de Documentos) ── %>
         <h1>
-          <i class="fa fa-calendar"></i>
-          <span style="font-size: 16px; word-break: break-word;">
-            <%= truncate(@evento.detalle, length: 60) %>
-          </span>
-          <small>Personas Inscritas</small>
+          <i class="fa fa-file-text-o"></i> Biblioteca de Documentos
         </h1>
         <ol class="breadcrumb">
           <li><%= link_to '<i class="fa fa-home"></i> Inicio'.html_safe, root_path %></li>
-          <li><%= link_to 'Mis Eventos', eventos_responsable_index_path %></li>
-          <li class="active"><%= truncate(@evento.detalle, length: 50) %></li>
+          <li><%= link_to 'Eventos', eventos_path %></li>
+          <li class="active">Biblioteca de Documentos</li>
         </ol>
-      </section>
-
-
-      <%# ── Panel de información del evento ── %>
-      <div style="margin-top: 15px; margin-bottom: 0;">
-        <div class="box box-solid"
-             style="border-top: 3px solid #d9534f; margin-bottom: 0; border-radius: 6px;">
-          <div class="box-body" style="padding: 14px 20px;">
-
-            <div class="row">
-
-              <%# ── Nombre / tipo ── %>
-              <div class="col-md-4 col-sm-6 col-xs-12"
-                   style="border-right: 1px solid #eee; padding-right: 20px; margin-bottom: 8px;">
-                <p class="text-muted" style="margin:0 0 2px; font-size:11px; text-transform:uppercase; letter-spacing:.5px;">
-                  <i class="fa fa-calendar"></i> Evento
-                </p>
-                <p style="margin:0; font-size:15px; font-weight:700; color:#333;">
-                  <%= @evento.detalle %>
-                </p>
-                <p style="margin:2px 0 0; font-size:12px; color:#888;">
-                  <i class="fa fa-tag"></i>
-                  <%= @evento.tiposevento.descripcion rescue 'N/D' %>
-                  <% if @evento.iglesiascomunidad.present? %>
-                    &nbsp;·&nbsp;
-                    <i class="fa fa-map-marker"></i>
-                    <%= @evento.iglesiascomunidad.nombre rescue '' %>
-                  <% end %>
-                </p>
-              </div>
-
-              <%# ── Fechas inscripción ── %>
-              <div class="col-md-2 col-sm-6 col-xs-6"
-                   style="border-right: 1px solid #eee; padding-right: 20px; margin-bottom: 8px;">
-                <p class="text-muted" style="margin:0 0 2px; font-size:11px; text-transform:uppercase; letter-spacing:.5px;">
-                  <i class="fa fa-pencil-square-o"></i> Inscripción
-                </p>
-                <p style="margin:0; font-size:13px; font-weight:600; color:#333;">
-                  <%= @evento.fecha_inicio.strftime('%d/%m/%Y') rescue 'N/D' %>
-                </p>
-                <p style="margin:0; font-size:12px; color:#888;">
-                  al <%= @evento.fecha_fin.strftime('%d/%m/%Y') rescue 'N/D' %>
-                </p>
-              </div>
-
-              <%# ── Fechas evento ── %>
-              <div class="col-md-2 col-sm-6 col-xs-6"
-                   style="border-right: 1px solid #eee; padding-right: 20px; margin-bottom: 8px;">
-                <p class="text-muted" style="margin:0 0 2px; font-size:11px; text-transform:uppercase; letter-spacing:.5px;">
-                  <i class="fa fa-calendar-check-o"></i> Evento
-                </p>
-                <p style="margin:0; font-size:13px; font-weight:600; color:#333;">
-                  <%= @evento.fecha_inicio_e.strftime('%d/%m/%Y') rescue 'N/D' %>
-                </p>
-                <p style="margin:0; font-size:12px; color:#888;">
-                  al <%= @evento.fecha_fin_e.strftime('%d/%m/%Y') rescue 'N/D' %>
-                </p>
-              </div>
-
-              <%# ── Cupos ── %>
-              <div class="col-md-2 col-sm-6 col-xs-6"
-                   style="border-right: 1px solid #eee; padding-right: 20px; margin-bottom: 8px;">
-                <p class="text-muted" style="margin:0 0 2px; font-size:11px; text-transform:uppercase; letter-spacing:.5px;">
-                  <i class="fa fa-users"></i> Cupos
-                </p>
-                <%
-                  registrados = @evento.eventospersonas.size
-                  permitidos = @evento.cantidad_persona.to_i
-                  disponibles = [permitidos - registrados, 0].max
-                  pct = permitidos > 0 ? [(registrados * 100.0 / permitidos).round, 100].min : 0
-                  color_barra = pct >= 90 ? '#d9534f' : pct >= 70 ? '#f0ad4e' : '#00a65a'
-                %>
-                <p style="margin:0; font-size:15px; font-weight:700; color:#333;">
-                  <%= registrados %>
-                  <span style="font-size:12px; color:#888;">/ <%= permitidos > 0 ? permitidos : '∞' %></span>
-                </p>
-                <% if permitidos > 0 %>
-                  <div style="background:#eee; border-radius:3px; height:5px; margin-top:4px; overflow:hidden;">
-                    <div style="width:<%= pct %>%; background:<%= color_barra %>; height:100%; border-radius:3px; transition:width .3s;"></div>
-                  </div>
-                  <p style="margin:2px 0 0; font-size:11px; color:#888;"><%= disponibles %> disponibles</p>
-                <% end %>
-              </div>
-
-              <%# ── Estado + URL ── %>
-              <div class="col-md-2 col-sm-6 col-xs-6" style="margin-bottom: 8px;">
-                <p class="text-muted" style="margin:0 0 4px; font-size:11px; text-transform:uppercase; letter-spacing:.5px;">
-                  <i class="fa fa-info-circle"></i> Estado
-                </p>
-                <% if @evento.vigente? %>
-                <span class="label label-success" style="font-size:12px; padding:4px 8px;">
-                  <i class="fa fa-check-circle"></i> Vigente
-                </span>
-                <% elsif @evento.vencido? %>
-                <span class="label label-danger" style="font-size:12px; padding:4px 8px;">
-                  <i class="fa fa-times-circle"></i> Vencido
-                </span>
-                <% else %>
-                <span class="label label-warning" style="font-size:12px; padding:4px 8px;">
-                  <i class="fa fa-clock-o"></i> No Iniciado
-                </span>
-                <% end %>
-
-                <% if @evento.persisted? && @evento.url_publica.present? %>
-                  <div style="margin-top:6px;">
-                    <a href="<%= @evento.url_publica %>"
-                       target="_blank"
-                       class="btn btn-xs btn-default"
-                       title="Ver formulario público">
-                      <i class="fa fa-external-link"></i> URL pública
-                    </a>
-                    <button class="btn btn-xs btn-default"
-                            id="btn-copiar-header"
-                            data-clipboard-text="<%= @evento.url_publica %>"
-                            title="Copiar URL"
-                            style="margin-top:3px;">
-                      <i class="fa fa-copy"></i>
-                    </button>
-                  </div>
-                <% end %>
-              </div>
-
-            </div><%# fin row %>
-
-          </div>
-        </div>
-      </div>
+      <% end %>
 
     </section>
+
   <section class="content">
     <%= yield %>
   </section>
@@ -153,7 +157,7 @@
 </div>
 
 <%# ── Clipboard para el botón de la cabecera ── %>
-<% if @evento.persisted? && @evento.url_publica.present? %>
+<% if @evento.present? && @evento.persisted? && @evento.url_publica.present? %>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.11/clipboard.min.js"></script>
   <script>
       $(document).ready(function () {

@@ -61,6 +61,39 @@ class EventospersonasController < ApplicationController
     @ep = Eventospersona.find(params[:id])
 
     if @ep.update(eventospersona_params)
+      # ── Sincronizar checks de documentos ──────────────────────────────
+      checks_params       = params.dig(:eventospersona, :checks)       || {}
+      checks_fecha_params = params.dig(:eventospersona, :checks_fecha) || {}
+
+      # Obtener IDs de checks disponibles para este evento
+      ids_disponibles = @ep.evento.evento_check_documentos.pluck(:id).map(&:to_s)
+
+      # Eliminar checks que fueron desmarcados
+      ids_desmarcados = ids_disponibles.reject { |id| checks_params[id].to_s == "1" }
+      @ep.eventospersona_checks
+         .where(evento_check_documento_id: ids_desmarcados)
+         .destroy_all
+
+      # Crear/actualizar checks marcados
+      checks_params.each do |ecd_id, valor|
+        next unless valor.to_s == "1"
+        ch = EventospersonaCheck.find_or_create_by(
+          eventospersona_id:         @ep.id,
+          evento_check_documento_id: ecd_id.to_i
+        ) do |c|
+          c.aceptado = true
+        end
+        # Guardar fecha elegida si aplica
+        fecha_str = checks_fecha_params[ecd_id.to_s]
+        if fecha_str.present?
+          fecha_parsed = Date.strptime(fecha_str, '%d/%m/%Y') rescue nil
+          ch.update_column(:fecha_1, fecha_parsed) if fecha_parsed
+        elsif fecha_str == ''
+          ch.update_column(:fecha_1, nil)
+        end
+      end
+      # ──────────────────────────────────────────────────────────────────
+
       render json: { ok: true }, status: :ok
     else
       render json: { errors: @ep.errors.full_messages }, status: :unprocessable_entity
@@ -117,6 +150,6 @@ class EventospersonasController < ApplicationController
 
     # Only allow a list of trusted parameters through.
     def eventospersona_params
-      params.require(:eventospersona).permit!
+      params.require(:eventospersona).except(:checks, :checks_fecha).permit!
     end
 end

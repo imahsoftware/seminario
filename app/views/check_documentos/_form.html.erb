@@ -1,0 +1,111 @@
+<%= simple_form_for @check_documento, remote: true, html: { multipart: true } do |f| %>
+  <div class="bs-callout">
+    <div class="row">
+      <div class="col-md-8">
+        <%= f.input :titulo, label: "Título del Documento *",
+                    input_html: { class: 'form-control', onchange: 'this.value=this.value.toUpperCase();' } %>
+      </div>
+      <div class="col-md-4">
+        <%= f.input :estado, collection: [['ACTIVO','ACTIVO'],['INACTIVO','INACTIVO']],
+                    as: :select, input_html: { class: 'select2', data: { width: '100%' } } %>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-md-12">
+        <%= f.input :descripcion, label: "Descripción (texto que verá la persona al marcar el check)",
+                    as: :text, input_html: { class: 'form-control', rows: 2 } %>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-md-6">
+        <div class="form-group">
+          <label><i class="fa fa-paperclip"></i> Archivo (PDF o Word) *</label>
+          <%= f.file_field :documento, class: 'form-control', accept: '.pdf,.doc,.docx' %>
+          <% if @check_documento.documento_file_name.present? %>
+            <small class="text-muted">
+              Archivo actual: <%= link_to @check_documento.documento_file_name, @check_documento.documento.url, target: '_blank' %>
+            </small>
+          <% end %>
+        </div>
+      </div>
+    </div>
+
+    <%# ── Fechas de actividad del documento ── %>
+    <div class="row" style="margin-top: 5px;">
+      <div class="col-md-12">
+        <div class="panel panel-default" style="margin-bottom: 0; border-color: #071B7D;">
+          <div class="panel-heading" style="background: #071B7D; color: #fff; padding: 8px 15px;">
+            <strong><i class="fa fa-calendar"></i> Fechas de actividad</strong>
+            <small style="margin-left: 8px; color: #ccc;">— Si el documento tiene fechas específicas (ej: curso de alimentos), actívalas aquí. El voluntario las verá al leer el documento.</small>
+          </div>
+          <div class="panel-body" style="padding: 12px 15px;">
+            <div class="row">
+              <%# Fecha 1 %>
+              <div class="col-md-6">
+                <div class="checkbox" style="margin: 0 0 8px 0;">
+                  <label style="font-weight: 600;">
+                    <%= f.check_box :requiere_fecha_1, { class: 'minimal', id: 'chk_requiere_fecha_1' }, "1", "0" %>
+                    Activar fecha 1
+                  </label>
+                </div>
+                <div class="input-group">
+                  <div class="input-group-addon" style="background:#EDEDED;"><i class="fa fa-calendar"></i></div>
+                  <%= f.text_field :fecha_actividad_1,
+                                   class: 'form-control datepicker-admin',
+                                   placeholder: 'dd/mm/aaaa',
+                                   autocomplete: 'off',
+                                   value: @check_documento.fecha_actividad_1&.strftime('%d/%m/%Y') %>
+                </div>
+              </div>
+              <%# Fecha 2 %>
+              <div class="col-md-6">
+                <div class="checkbox" style="margin: 0 0 8px 0;">
+                  <label style="font-weight: 600;">
+                    <%= f.check_box :requiere_fecha_2, { class: 'minimal', id: 'chk_requiere_fecha_2' }, "1", "0" %>
+                    Activar fecha 2
+                  </label>
+                </div>
+                <div class="input-group">
+                  <div class="input-group-addon" style="background:#EDEDED;"><i class="fa fa-calendar"></i></div>
+                  <%= f.text_field :fecha_actividad_2,
+                                   class: 'form-control datepicker-admin',
+                                   placeholder: 'dd/mm/aaaa',
+                                   autocomplete: 'off',
+                                   value: @check_documento.fecha_actividad_2&.strftime('%d/%m/%Y') %>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      $(function() {
+        $('.datepicker-admin').datepicker({
+          dayNamesMin: ["Dom","Lun","Mar","Mie","Jue","Vie","Sáb"],
+          monthNamesShort: ["Ene","Feb","Mar","Abr","May","Jun","Jul","Ago","Sep","Oct","Nov","Dic"],
+          dateFormat: "dd/mm/yy",
+          yearRange: '2025:2035',
+          changeMonth: true,
+          changeYear: true
+        });
+      });
+    </script>
+
+    <div class="row">
+      <div class="col-md-6">
+        <% if @check_documento.new_record? %>
+          <%= button_tag 'Cancelar', type: 'button', class: 'btn btn-flat btn-default pull-left',
+                         onclick: '$("#check_documento_form").collapse("hide"); $("#check_documento_form").empty(); return false;' %>
+        <% else %>
+          <%= link_to 'Cancelar', check_documento_path(@check_documento), remote: true,
+                      class: 'btn btn-flat btn-default pull-left' %>
+        <% end %>
+      </div>
+      <div class="col-md-6">
+        <%= f.button :submit, "Guardar Documento", class: "btn btn-danger pull-right" %>
+      </div>
+    </div>
+  </div>
+<% end %>

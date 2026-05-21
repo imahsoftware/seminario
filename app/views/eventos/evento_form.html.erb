@@ -105,6 +105,26 @@
           </div>
         </div>
 
+        <%# ── Evento Especial ── %>
+        <div class="row" style="margin-top: 15px;">
+          <div class="col-md-12">
+            <div class="callout callout-warning" style="border-left-color: #071B7D; padding: 12px 15px;">
+              <div class="checkbox" style="margin: 0;">
+                <label>
+                  <%= f.check_box :evento_especial, { class: 'minimal' }, "1", "0" %>
+                  <strong style="color: #071B7D; font-size: 14px;">
+                    <i class="fa fa-star"></i> Evento Especial
+                  </strong>
+                  <small class="text-muted" style="font-weight: normal; margin-left: 8px;">
+                    — Habilita el registro de voluntarios en el formulario público
+                    (Día del Seminario, Día de la Alcancía, Cena Concierto, Encuentro Navideño, Cena Colaboradores)
+                  </small>
+                </label>
+              </div>
+            </div>
+          </div>
+        </div>
+
         <%# ── Selector Habeas Data + botón descarga ── %>
         <div class="row" style="margin-top: 10px;">
           <div class="col-md-4">
@@ -158,6 +178,26 @@
                 <% end %>
               </small>
             </div>
+          </div>
+        <% end %>
+
+        <%# ── Documentos para voluntarios (solo eventos especiales ya guardados) ── %>
+        <% if @evento.persisted? && @evento.evento_especial? %>
+          <div class="row" style="margin-top: 20px;">
+            <div class="col-md-12">
+              <div class="box box-info" style="margin-bottom: 0;">
+                <div class="box-header with-border">
+                  <h4 class="box-title"><i class="fa fa-file-text-o"></i> Documentos para Voluntarios</h4>
+                </div>
+                <div class="box-body" id="seccion-documentos-evento">
+                  <%= render 'documentos_asignados', evento: @evento %>
+                </div>
+              </div>
+            </div>
+          </div>
+        <% elsif @evento.new_record? && @evento.evento_especial? %>
+          <div class="alert alert-info" style="margin-top: 15px;">
+            <i class="fa fa-info-circle"></i> Guarda el evento primero para poder asignar documentos.
           </div>
         <% end %>
 
