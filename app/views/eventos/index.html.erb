@@ -60,7 +60,7 @@
             porcentaje = permitidos > 0 ? [(inscritos * 100.0 / permitidos).round, 100].min : 0
             color_barra = porcentaje >= 100 ? 'danger' : porcentaje >= 75 ? 'warning' : 'success'
           %>
-          <tr>
+          <tr <%= evento.evento_especial? ? 'style="border-left: 4px solid #f39c12; background-color: #fffdf4;"'.html_safe : '' %>>
             <td class="text-center">
               <%= link_to edit_evento_path(evento.guid, etapa: 'A'),
                           class: 'btn btn-xs btn-warning',
@@ -82,7 +82,14 @@
                 <i class="fa fa-file-excel-o"></i>
               <% end %>
             </td>
-            <td><%= evento.detalle rescue nil %></td>
+            <td>
+              <% if evento.evento_especial? %>
+                <span class="label" style="background-color: #f39c12; color: #fff; font-size: 10px; padding: 2px 6px; margin-right: 5px; vertical-align: middle;">
+                  <i class="fa fa-star"></i> Especial
+                </span>
+              <% end %>
+              <%= evento.detalle rescue nil %>
+            </td>
             <td><%= evento.tiposevento.descripcion rescue '—' %></td>
             <td class="text-center">
               <small>
