@@ -1,6 +1,14 @@
+<% tiene_eventos = check_documento.evento_check_documentos.exists? %>
 <tr id="check_documento_<%= check_documento.id %>">
   <td><%= check_documento.id %></td>
-  <td><strong><%= check_documento.titulo %></strong></td>
+  <td>
+    <strong><%= check_documento.titulo %></strong>
+    <% if tiene_eventos %>
+      <br><span class="label label-info" style="font-size:10px;">
+        <i class="fa fa-link"></i> <%= check_documento.eventos.count %> evento(s)
+      </span>
+    <% end %>
+  </td>
   <td><small class="text-muted"><%= check_documento.descripcion %></small></td>
   <td>
     <% if check_documento.documento_file_name.present? %>
@@ -18,15 +26,36 @@
       <span class="label label-danger">INACTIVO</span>
     <% end %>
   </td>
-  <td><small><%= check_documento.created_at.strftime('%d/%m/%Y') %></small></td>
   <td>
-    <%= link_to edit_check_documento_path(check_documento), remote: true, class: 'btn btn-xs btn-warning', title: 'Editar' do %>
+    <small>
+      <i class="fa fa-plus-circle text-success"></i>
+      <%= check_documento.user&.nombre_real.presence || check_documento.user&.email || '—' %>
+    </small>
+    <% if check_documento.updated_by.present? && check_documento.updated_by_id != check_documento.user_id %>
+      <br><small class="text-muted">
+        <i class="fa fa-pencil text-warning"></i>
+        <%= check_documento.updated_by&.nombre_real.presence || check_documento.updated_by&.email %>
+      </small>
+    <% end %>
+    <br><small class="text-muted"><%= check_documento.created_at.strftime('%d/%m/%Y') %></small>
+  </td>
+  <td>
+    <%= link_to edit_check_documento_path(check_documento), remote: true,
+                class: 'btn btn-xs btn-warning', title: 'Editar' do %>
       <i class="fa fa-pencil"></i>
     <% end %>
-    <%= link_to check_documento_path(check_documento), method: :delete, remote: true,
-                data: { confirm: '¿Eliminar este documento?' },
-                class: 'btn btn-xs btn-danger', title: 'Eliminar' do %>
-      <i class="fa fa-trash"></i>
+    <% if tiene_eventos %>
+      <button class="btn btn-xs btn-default" disabled
+              title="No se puede eliminar: está asignado a <%= check_documento.eventos.count %> evento(s)"
+              data-toggle="tooltip">
+        <i class="fa fa-lock"></i>
+      </button>
+    <% else %>
+      <%= link_to check_documento_path(check_documento), method: :delete, remote: true,
+                  data: { confirm: '¿Eliminar este documento?' },
+                  class: 'btn btn-xs btn-danger', title: 'Eliminar' do %>
+        <i class="fa fa-trash"></i>
+      <% end %>
     <% end %>
   </td>
 </tr>

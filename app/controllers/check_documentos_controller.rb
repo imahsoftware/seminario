@@ -24,7 +24,8 @@ class CheckDocumentosController < ApplicationController
 
   def create
     @check_documento = CheckDocumento.new(check_documento_params)
-    @check_documento.user_id = current_user.id
+    @check_documento.user_id       = current_user.id
+    @check_documento.updated_by_id = current_user.id
     respond_to do |format|
       if @check_documento.save
         @check_documentos = CheckDocumento.order(created_at: :desc)
@@ -37,6 +38,7 @@ class CheckDocumentosController < ApplicationController
   end
 
   def update
+    @check_documento.updated_by_id = current_user.id
     respond_to do |format|
       if @check_documento.update(check_documento_params)
         flash[:notice] = "Documento actualizado exitosamente."
@@ -48,8 +50,11 @@ class CheckDocumentosController < ApplicationController
   end
 
   def destroy
-    @check_documento.destroy
-    flash[:success] = 'Documento eliminado exitosamente.'
+    if @check_documento.destroy
+      flash[:success] = 'Documento eliminado exitosamente.'
+    else
+      flash[:alert] = @check_documento.errors[:base].first
+    end
     respond_to { |format| format.js }
   end
 
