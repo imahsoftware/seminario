@@ -1,16 +1,17 @@
 <div class="table-responsive">
   <table class="table table-bordered table-condensed table-striped">
-	  <thead class="thcolor">
+    <thead class="thcolor">
       <tr>
         <td width="5%"></td>
-        <th class="text-left">Fecha</th>
-        <th width="80%" class="text-justify">Usuario Administra</th>
+        <th width="20%" class="text-left">Fecha</th>
+        <th width="37%" class="text-left">Usuario Supervisor</th>
+        <th width="38%" class="text-left">Agregado por</th>
       </tr>
     </thead>
-	  <tbody id="tbody_eventosusers">
-	    <% @evento.eventosusers.order(id: :desc).each do |eventosuser| %>
-	      <%= render 'eventosusers/tr', eventosuser: eventosuser %>
-	    <% end %>
-	  </tbody>
-	</table>
+    <tbody id="tbody_eventosusers">
+      <% @evento.eventosusers.order(id: :desc).each do |eventosuser| %>
+        <%= render 'eventosusers/tr', eventosuser: eventosuser %>
+      <% end %>
+    </tbody>
+  </table>
 </div>

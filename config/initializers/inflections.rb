@@ -300,6 +300,9 @@ ActiveSupport::Inflector.inflections(:en) do |inflect|
   inflect.irregular('notificacionesplataforma','notificacionesplataformas')
   inflect.irregular('eventosuser', 'eventosusers')
   inflect.irregular('eventoseliminado', 'eventoseliminados')
+
+  # FIX Rails 7: login_activity → login_activities (evita login_activityes)
+  inflect.irregular 'login_activity', 'login_activities'
 end
 
 

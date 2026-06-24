@@ -23,7 +23,9 @@ body * {
   background-color: #071B7D !important;
 }
 
-thead .thcolor {
+thead .thcolor,
+thead.thcolor th,
+thead.thcolor td {
   background: #071B7D !important;
   color: #fff !important;
 }
@@ -58,8 +60,10 @@ b {
   font-family: "-apple-system", BlinkMacSystemFont, Roboto, Arial, Helvetica, "sans-serif";
 }
 
-.thcolor {
-  background: #071B7D !important;
+.thcolor,
+.thcolor th,
+.thcolor td {
+  background-color: #071B7D !important;
   color: #fff !important;
 }
 

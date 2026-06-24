@@ -1,7 +1,10 @@
 //= require jquery
 //= require bootstrap-sprockets
-//= require jquery.remotipart
-//= require jquery_ujs
+// MIGRADO Rails 7: rails-ujs reemplaza jquery_ujs — maneja CSRF correctamente para
+// formularios remote + multipart sin necesitar remotipart
+//= require rails-ujs
+// DISABLED: //= require jquery.remotipart  (gem remotipart no compatible con Ruby 3.3)
+// DISABLED: //= require jquery_ujs  (reemplazado por rails-ujs para Rails 7)
 //= require select2.min
 //= require jquery-ui/widgets/datepicker
 //= require jquery-ui/widgets/autocomplete
@@ -26,11 +29,11 @@
 //= require highcharts/modules/offline-exporting
 //= require Chart.min
 //= require dist/js/app.min
-//= require bootstrap-wysihtml5
+// DISABLED: //= require bootstrap-wysihtml5  (gem bootstrap-wysihtml5-rails no compatible con Ruby 3.3)
 //= require underscore
 //= require gmaps/google
-//= require best_in_place
-//= require signature-pad
+// DISABLED: //= require best_in_place  (gem best_in_place no compatible con Ruby 3.3)
+// DISABLED: //= require signature-pad  (signature-pad-rails solo tiene CSS, no JS en Ruby 3.3)
 //= require_tree .
 //= require notifications
 //= require eventospersonas_modales

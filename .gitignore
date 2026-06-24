@@ -74,3 +74,5 @@ Dockerfile
 entrypoint.sh
 .ruby-gemset
 .ruby-versionvendor/bundle/
+node_modules/
+*.bak

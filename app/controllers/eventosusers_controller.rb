@@ -27,7 +27,7 @@ class EventosusersController < ApplicationController
     @evento = Evento.find_by_guid!(params[:evento_id])  # ← GUID
     @eventosuser = Eventosuser.new(eventosuser_params)
     @eventosuser.evento_id = @evento.id
-    @eventosuser.user_id = is_admin
+    @eventosuser.user_id = current_user.id  # quien agrega el registro
     respond_to do |format|
       if @eventosuser.save
         flash[:notice] = "#{t :notice_crea_msj}"

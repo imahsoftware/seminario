@@ -3,17 +3,9 @@
 # Version of your assets, change this if you want to expire all your assets.
 Rails.application.config.assets.version = '1.0'
 
-# Add additional assets to the asset load path
-# Rails.application.config.assets.paths << Emoji.images_path
-
-# Precompile additional assets.
-# application.js, application.css, and all non-JS/CSS in app/assets folder are already added.
-# Rails.application.config.assets.precompile += %w( search.js )
-#Rails.application.config.assets.precompile += %w( bootstrap/css/bootstrap.css )
-#Rails.application.config.assets.precompile += %w( bootstrap/css/bootstrap.min.css )
-#Rails.application.config.assets.precompile += %w( bootstrap.min.js )
-#Rails.application.config.assets.precompile += %w( jquery.min.js )
-Rails.application.config.assets.paths << Rails.root.join('node_modules')
-Rails.application.config.assets.paths << Rails.root.join('node_modules')
-Rails.application.config.assets.paths << Rails.root.join("vendor", "assets", "AdminLTE")
-Rails.application.config.assets.paths << Rails.root.join("app", "assets")
+# FIX Rails 7 / Ruby 3.3: Rails.root.join devuelve Pathname, Sprockets necesita String
+# NOTA: NO agregar 'app/assets' ni 'app/assets/images/logos' — Sprockets 4 ya busca
+# automáticamente en subdirectorios de app/assets/images. Agregar esas rutas crea
+# logical paths duplicados que causan conflictos y assets no encontrados.
+Rails.application.config.assets.paths << Rails.root.join('node_modules').to_s
+Rails.application.config.assets.paths << Rails.root.join("vendor", "assets", "AdminLTE").to_s

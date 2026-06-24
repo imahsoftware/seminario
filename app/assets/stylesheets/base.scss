@@ -1,10 +1,21 @@
 @import "bootstrap-sprockets";
 @import "bootstrap";
-@import "font-awesome-sprockets";
-@import "font-awesome";
-@import "bootstrap-wysihtml5/bootstrap3-wysihtml5";
+
+// Font Awesome 4.7 desde node_modules (FA4 usa clases fa fa-* que usa toda la app)
+// FA5 gem cambió los nombres — usamos FA4 vía npm para compatibilidad
+$fa-font-path: "font-awesome/fonts";
+@import "font-awesome/scss/font-awesome";
+// DISABLED: @import "bootstrap-wysihtml5/bootstrap3-wysihtml5";  (gem no compatible con Ruby 3.3)
 @import 'simple_form_autocomplete';
 @import url('nav.scss');
+
+/* Encabezados de tablas azules — cubre tr.thcolor y thead.thcolor */
+.thcolor,
+.thcolor th,
+.thcolor td {
+  background-color: #071B7D !important;
+  color: #fff !important;
+}
 
 * html {
   font-family: "-apple-system", BlinkMacSystemFont, Roboto, Arial, Helvetica, "sans-serif";

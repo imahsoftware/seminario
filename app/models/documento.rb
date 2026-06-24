@@ -1,7 +1,7 @@
 # app/models/documento.rb
 class Documento < ApplicationRecord
-  belongs_to :persona
-  belongs_to :eventospersona
+  belongs_to :persona, optional: true
+  belongs_to :eventospersona, optional: true
 
   has_attached_file :cedula_frente
 

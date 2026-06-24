@@ -1,7 +1,7 @@
 # app/models/eventospersona.rb
 class Eventospersona < ApplicationRecord
   belongs_to :evento
-  belongs_to :estado_civil
+  belongs_to :estado_civil, optional: true
   belongs_to :documento_tipo, optional: true
   belongs_to :persona, optional: true
   belongs_to :acudiente, class_name: 'Persona', optional: true
@@ -86,6 +86,10 @@ class Eventospersona < ApplicationRecord
   before_save       :buscar_o_crear_persona
 
   # ── Helpers públicos ──────────────────────────────────────────────────────
+
+  def es_voluntario?
+    es_voluntario == true
+  end
 
   def menor_de_edad?
     return false if fecha_nacimiento.blank?

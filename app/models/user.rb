@@ -8,8 +8,8 @@ class User < ApplicationRecord
 
   has_many :login_activities, as: :user
   has_many :registros
-  belongs_to :persona
-  belongs_to :portafolio
+  belongs_to :persona, optional: true
+  belongs_to :portafolio, optional: true
   has_many :portafoliosreportes
   has_many :usersmodulos, dependent: :destroy
   has_many :userspermisos, dependent: :destroy
