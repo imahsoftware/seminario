@@ -13,6 +13,9 @@ Bundler.require(*Rails.groups)
 
 module Seminario
   class Application < Rails::Application
+    # Rails 7.2 defaults
+    config.load_defaults 7.2
+
     config.app_name = "Seminario"
     config.action_mailer.default_url_options = { host: 'imahsoftware.com' }
     config.action_cable.disable_request_forgery_protection = true
@@ -20,7 +23,6 @@ module Seminario
     # Application configuration should go into files in config/initializers
     # -- all .rb files in that directory are automatically loaded.
 
-    #config.active_record.default_timezone = 'America/Bogota'
     config.time_zone = "America/Bogota"
     config.active_record.default_timezone = :local
     config.i18n.load_path += Dir[Rails.root.join('lib', 'locale', '*.{rb,yml}')]
@@ -28,21 +30,17 @@ module Seminario
     config.i18n.available_locales = [:es, :en]
     config.i18n.default_locale = :es
     config.exceptions_app = self.routes
-    # Mantener el comportamiento antiguo (antes de Rails 5.1)
-    config.active_record.time_zone_aware_types = [:datetime]
-
-    # Utilizar el nuevo comportamiento (para futuras versiones de Rails)
     config.active_record.time_zone_aware_types = [:datetime, :time]
 
-
-    config.second_base.run_with_db_tasks = false
-
-    config.second_base.path = 'db/secondbase'
-    config.second_base.config_key = 'secondbase'
+    # secondbase removido — Rails 7 tiene soporte nativo multi-DB con connects_to
+    # config.second_base.run_with_db_tasks = false
+    # config.second_base.path = 'db/secondbase'
+    # config.second_base.config_key = 'secondbase'
 
     # server de jobs
     config.active_job.queue_adapter = :inline
-    #config.cache_store = :redis_cache_store, { url: ENV['REDIS_URL'] }
-    config.cache_store = :redis_store, "redis://localhost:6379/0/cache", { expires_in: 90.minutes }
+
+    # Redis cache store (Rails 7 syntax — reemplaza redis-store)
+    config.cache_store = :redis_cache_store, { url: (ENV['REDIS_URL'] || 'redis://localhost:6379/0'), expires_in: 90.minutes }
   end
 end

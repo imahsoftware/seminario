@@ -1,6 +1,6 @@
 class Evento < ApplicationRecord
   belongs_to :iglesia
-  belongs_to :iglesiascomunidad
+  belongs_to :iglesiascomunidad, optional: true
   belongs_to :tiposevento
   belongs_to :user
   has_many :eventospersonas, dependent: :destroy

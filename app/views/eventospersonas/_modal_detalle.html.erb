@@ -106,7 +106,7 @@
       conyuge_celular = 'N/D'
       conyuge_email = 'N/D'
       
-      if ep.conyuge_pendiente == 1
+      if ep.conyuge_pendiente.to_s == 'SI'
         conyuge_nombre = 'PENDIENTE POR REGISTRAR'
       elsif ep.conyuge_id.present?
         conyuge = Eventospersona.find_by(id: ep.conyuge_id)
@@ -128,7 +128,7 @@
           <div class="col-md-6 col-sm-6">
             <p class="text-muted" style="margin-bottom:2px;"><small>Nombre Completo</small></p>
             <p>
-              <% if ep.conyuge_pendiente == 1 %>
+              <% if ep.conyuge_pendiente.to_s == 'SI' %>
                 <span class="label label-warning">
                   <i class="fa fa-clock-o"></i> <%= conyuge_nombre %>
                 </span>
@@ -137,7 +137,7 @@
               <% end %>
             </p>
           </div>
-          <% if ep.conyuge_pendiente != 1 %>
+          <% if ep.conyuge_pendiente.to_s != 'SI' %>
             <div class="col-md-6 col-sm-6">
               <p class="text-muted" style="margin-bottom:2px;"><small>Identificación</small></p>
               <p><strong><%= conyuge_identificacion %></strong></p>
@@ -272,7 +272,7 @@
             <div class="col-md-12">
               <p class="text-muted" style="margin-bottom:2px;"><small>Firma Acudiente</small></p>
               <div style="border:1px solid #ddd; padding:5px; display:inline-block; background:#fff;">
-                <%= image_tag ep.acudiente_firma, style: 'max-height:80px;', alt: 'Firma' %>
+                <img src="<%= ep.acudiente_firma %>" style="max-height:80px;" alt="Firma">
               </div>
             </div>
           <% end %>

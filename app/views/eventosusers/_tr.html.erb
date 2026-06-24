@@ -8,9 +8,9 @@
     <% end %>
 
   </td>
-  <td align="left"><%= eventosuser.created_at.strftime("%Y-%m-%d %X") rescue nil %>
-    <br/><%= eventosuser.user.nombre.html_safe rescue nil %></td>
-  <td align="justify"><%= User.find(eventosuser.user_administra).nombre rescue nil %></td>
+  <td><%= eventosuser.created_at.strftime("%Y-%m-%d %H:%M") rescue nil %></td>
+  <td><%= (User.find(eventosuser.user_administra).nombre rescue nil).presence || "—" %></td>
+  <td><%= eventosuser.user&.nombre || "—" %></td>
 </tr>
 
 
