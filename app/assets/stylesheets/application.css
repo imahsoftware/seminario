@@ -6,11 +6,12 @@
  *= require dist/css/skins/_all-skins.min
  *= require jquery-ui/datepicker
  *= require select
- /* DISABLED: *= require signature-pad  (gem signature-pad-rails removida — incompatible con Ruby 3.3) */
  *= require_tree .
-*= require datatables
+ *= require datatables
  *= require_self
 */
+
+/* DISABLED: require signature-pad (gem signature-pad-rails removida - incompatible con Ruby 3.3) */
 
 .alerta-visita {
     width: 100%;

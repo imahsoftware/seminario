@@ -96,7 +96,6 @@ group :development do
   gem 'spring'
   gem 'brakeman'
   # gem 'bullet'  # DISABLED: incompatible con Ruby 3.3 — revisar versión compatible
-  gem 'coffee-rails', '~> 5.0'  # necesario para procesar archivos .coffee con Sprockets 4
 end
 
 gem 'devise'
@@ -118,3 +117,5 @@ gem 'gruff'
 gem 'rotp'
 gem 'combine_pdf'
 gem 'e2mmap'
+gem 'coffee-rails', '~> 5.0'
+gem 'csv'
