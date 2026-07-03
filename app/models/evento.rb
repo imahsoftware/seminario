@@ -57,10 +57,12 @@ class Evento < ApplicationRecord
   end
 
   def hay_cupos?
+    return true if cantidad_persona.nil? || cantidad_persona.zero?
     eventospersonas.count < cantidad_persona
   end
 
   def lleno?
+    return false if cantidad_persona.nil? || cantidad_persona.zero?
     eventospersonas.count >= cantidad_persona
   end
 
