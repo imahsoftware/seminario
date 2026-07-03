@@ -43,6 +43,26 @@ $(function () {
     $('[data-toggle="popover"]').popover();
 });
 
+// ── Remotipart replacement para Rails 7 + rails-ujs ──────────────────────────
+// rails-ujs no puede hacer AJAX con file inputs — dispara ajax:aborted:file.
+// Este handler lo intercepta y lo envía como FormData via jQuery AJAX,
+// incluyendo el X-CSRF-Token header para que Rails 7 lo valide correctamente.
+$(document).on('ajax:aborted:file', 'form[data-remote]', function (event) {
+    event.preventDefault();
+    var $form    = $(this);
+    var formData = new FormData(this);
+    $.ajax({
+        url:         $form.attr('action') || window.location.href,
+        type:        ($form.attr('method') || 'POST').toUpperCase(),
+        data:        formData,
+        processData: false,
+        contentType: false,
+        dataType:    'script',
+        headers:     { 'X-CSRF-Token': $('meta[name="csrf-token"]').attr('content') }
+    });
+    return false;
+});
+
 $(document).ready(function () {
     jQuery(".best_in_place").best_in_place();
 });

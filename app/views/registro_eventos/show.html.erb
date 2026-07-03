@@ -49,6 +49,7 @@
             <input type="hidden" id="acudiente_cedula_frente_base64" name="eventospersona[acudiente_cedula_frente_base64]" value="<%= @acu_frente_b64 %>">
             <input type="hidden" id="acudiente_cedula_reverso_base64" name="eventospersona[acudiente_cedula_reverso_base64]" value="<%= @acu_rev_b64 %>">
             <input type="hidden" id="persona_ya_tiene_documentos" name="eventospersona[persona_ya_tiene_documentos]" value="0">
+            <input type="hidden" id="area_voluntariado_final" name="eventospersona[area_voluntariado]" value="<%= @eventospersona.area_voluntariado.to_s %>">
             <input type="hidden" id="acudiente_ya_tiene_documentos" name="eventospersona[acudiente_ya_tiene_documentos]" value="0">
 
             <h4 class="text-primary"><i class="fa fa-user"></i> Información Personal</h4>
@@ -110,6 +111,33 @@
                 <%= f.input :direccion, label: "Dirección", required: true, input_html: { class: 'form-control', onchange: 'this.value=this.value.toUpperCase();' } %>
               </div>
             </div>
+
+            <% if @evento.evento_especial? %>
+            <div class="row">
+              <div class="col-md-3">
+                <%= f.input :barrio, label: "Barrio", required: true,
+                            input_html: { class: 'form-control', onchange: 'this.value=this.value.toUpperCase();' } %>
+              </div>
+              <div class="col-md-3">
+                <%= f.input :municipio, label: "Municipio", required: false,
+                            input_html: { class: 'form-control', onchange: 'this.value=this.value.toUpperCase();' } %>
+              </div>
+              <div class="col-md-3">
+                <%= f.input :lugar_nacimiento, label: "Lugar de Nacimiento",
+                            input_html: { class: 'form-control', onchange: 'this.value=this.value.toUpperCase();' } %>
+              </div>
+              <div class="col-md-3">
+                <%= f.input :eps, label: "EPS",
+                            input_html: { class: 'form-control', onchange: 'this.value=this.value.toUpperCase();' } %>
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-md-6">
+                <%= f.input :ocupacion, label: "Ocupación",
+                            input_html: { class: 'form-control', onchange: 'this.value=this.value.toUpperCase();' } %>
+              </div>
+            </div>
+            <% end %>
 
             <h4 class="text-primary" style="margin-top: 30px;">
               <i class="fa fa-id-card"></i> Documento de Identidad
@@ -216,6 +244,96 @@
                   </div>
                 </div>
               </div>
+
+              <% if @evento.evento_especial? %>
+              <%# ── Datos extendidos del acudiente (evento especial) ── %>
+              <div id="seccion-acudiente-especial">
+                <h5 class="text-primary" style="margin-top: 15px;"><i class="fa fa-info-circle"></i> Datos adicionales del Acudiente</h5>
+                <hr style="margin-top: 5px;">
+                <div class="row">
+                  <div class="col-md-6">
+                    <%= f.input :acudiente_fecha_lugar_nacimiento,
+                                label: "Fecha y Lugar de Nacimiento del Acudiente",
+                                input_html: { class: 'form-control acudiente-especial-field',
+                                              id: 'acudiente_fecha_lugar_nacimiento',
+                                              placeholder: 'Ej: 15/03/1985 - Medellín, Antioquia',
+                                              onchange: 'this.value=this.value.toUpperCase();' } %>
+                  </div>
+                  <div class="col-md-6">
+                    <%= f.input :acudiente_ocupacion, label: "Ocupación del Acudiente",
+                                input_html: { class: 'form-control acudiente-especial-field',
+                                              id: 'acudiente_ocupacion',
+                                              onchange: 'this.value=this.value.toUpperCase();' } %>
+                  </div>
+                </div>
+                <div class="row">
+                  <div class="col-md-6">
+                    <%= f.input :acudiente_direccion, label: "Dirección del Acudiente",
+                                input_html: { class: 'form-control acudiente-especial-field',
+                                              id: 'acudiente_direccion',
+                                              onchange: 'this.value=this.value.toUpperCase();' } %>
+                  </div>
+                  <div class="col-md-3">
+                    <%= f.input :acudiente_barrio, label: "Barrio",
+                                input_html: { class: 'form-control acudiente-especial-field',
+                                              id: 'acudiente_barrio',
+                                              onchange: 'this.value=this.value.toUpperCase();' } %>
+                  </div>
+                  <div class="col-md-3">
+                    <%= f.input :acudiente_municipio, label: "Municipio",
+                                input_html: { class: 'form-control acudiente-especial-field',
+                                              id: 'acudiente_municipio',
+                                              onchange: 'this.value=this.value.toUpperCase();' } %>
+                  </div>
+                </div>
+                <div class="row">
+                  <div class="col-md-6">
+                    <%= f.input :acudiente_parroquia_comunidad, label: "Parroquia / Comunidad del Acudiente",
+                                input_html: { class: 'form-control acudiente-especial-field',
+                                              id: 'acudiente_parroquia_comunidad',
+                                              onchange: 'this.value=this.value.toUpperCase();' } %>
+                  </div>
+                </div>
+
+                <%# ── Selector de Área de Voluntariado del menor ── %>
+                <div class="form-group" style="margin-top: 10px;">
+                  <label>
+                    <i class="fa fa-th-large"></i> <strong style="color: #071B7D;">Área de Voluntariado del Menor</strong>
+                    <span class="text-danger"> *</span>
+                  </label>
+                  <%# Sin name= para que no sobreescriba el campo oculto #area_voluntariado_final %>
+                  <%= select_tag nil,
+                                 options_for_select([
+                                   ['Seleccione un área...', ''],
+                                   ['RECREACIÓN', 'RECREACIÓN'],
+                                   ['FINANZAS (BANCOS Y CAJAS)', 'FINANZAS (BANCOS Y CAJAS)'],
+                                   ['LOGISTICA SEGURIDAD Y TRANSPORTE', 'LOGISTICA SEGURIDAD Y TRANSPORTE'],
+                                   ['APOYO PARROQUIA (COMIDAS)', 'APOYO PARROQUIA (COMIDAS)'],
+                                   ['EVENTOS', 'EVENTOS'],
+                                   ['PROMOCIONALES', 'PROMOCIONALES'],
+                                   ['ALMACÉN CALZADO', 'ALMACÉN CALZADO'],
+                                   ['ALMACÉN ROPA', 'ALMACÉN ROPA'],
+                                   ['ALMACÉN VARIADOS', 'ALMACÉN VARIADOS'],
+                                   ['SANITARIO', 'SANITARIO'],
+                                   ['PRIMEROS AUXILIOS', 'PRIMEROS AUXILIOS'],
+                                   ['OTROS', 'OTROS']
+                                 ], @eventospersona.area_voluntariado),
+                                 class: "form-control select2 acudiente-especial-field area-vol-visible",
+                                 id: "area_voluntariado_menor_select",
+                                 style: "width: 100%" %>
+                </div>
+
+                <%# Texto de autorización con fecha auto ── %>
+                <div class="alert alert-info" style="margin-top: 15px; border-left: 5px solid #071B7D;">
+                  <p style="margin: 0; font-size: 13px;">
+                    <i class="fa fa-calendar-check-o"></i>
+                    <strong>Autorización:</strong>
+                    Se autoriza a los <%= Date.today.day %> días del mes de
+                    <strong><%= I18n.l(Date.today, format: "%B %Y").capitalize %></strong>.
+                  </p>
+                </div>
+              </div><%# fin seccion-acudiente-especial %>
+              <% end %>
 
             </div><%# fin seccion-acudiente %>
             <%# ══════════════════════════════════════════
@@ -387,6 +505,46 @@
                     </div>
                   <% end %>
 
+                  <%# Select: Área de Voluntariado (adultos voluntarios) %>
+                  <div class="form-group" style="margin-top: 15px;">
+                    <label>
+                      <i class="fa fa-th-large"></i> <strong style="color: #071B7D;">Área de Voluntariado</strong>
+                      <span class="text-danger"> *</span>
+                    </label>
+                    <%# Sin name= para que no sobreescriba el campo oculto #area_voluntariado_final %>
+                    <%= select_tag nil,
+                                   options_for_select([
+                                     ['Seleccione un área...', ''],
+                                     ['RECREACIÓN', 'RECREACIÓN'],
+                                     ['FINANZAS (BANCOS Y CAJAS)', 'FINANZAS (BANCOS Y CAJAS)'],
+                                     ['LOGISTICA SEGURIDAD Y TRANSPORTE', 'LOGISTICA SEGURIDAD Y TRANSPORTE'],
+                                     ['APOYO PARROQUIA (COMIDAS)', 'APOYO PARROQUIA (COMIDAS)'],
+                                     ['EVENTOS', 'EVENTOS'],
+                                     ['PROMOCIONALES', 'PROMOCIONALES'],
+                                     ['ALMACÉN CALZADO', 'ALMACÉN CALZADO'],
+                                     ['ALMACÉN ROPA', 'ALMACÉN ROPA'],
+                                     ['ALMACÉN VARIADOS', 'ALMACÉN VARIADOS'],
+                                     ['SANITARIO', 'SANITARIO'],
+                                     ['PRIMEROS AUXILIOS', 'PRIMEROS AUXILIOS'],
+                                     ['OTROS', 'OTROS']
+                                   ], @eventospersona.area_voluntariado),
+                                   class: "form-control select2 voluntario-select area-vol-visible",
+                                   id: "area_voluntariado_select",
+                                   style: "width: 100%" %>
+                  </div>
+
+                  <%# Campo: Otro área (visible solo si se selecciona OTROS) %>
+                  <div class="form-group" id="area-voluntariado-otro-wrap" style="display:none;">
+                    <label>
+                      <i class="fa fa-pencil"></i> <strong style="color: #071B7D;">Especifique el área</strong>
+                      <span class="text-danger"> *</span>
+                    </label>
+                    <%= f.input :area_voluntariado_otro, label: false,
+                                input_html: { class: 'form-control', id: 'area_voluntariado_otro',
+                                              placeholder: 'Describe el área de voluntariado...',
+                                              onchange: 'this.value=this.value.toUpperCase();' } %>
+                  </div>
+
                   <%# Select: Apoyo Parroquia %>
                   <div class="form-group" style="margin-top: 15px;">
                     <label>
@@ -406,6 +564,26 @@
                     <small class="text-muted">Selecciona la comunidad/parroquia donde prestarás apoyo.</small>
                   </div>
 
+                  <%# ── Contacto de emergencia (adultos) ── %>
+                  <h5 class="text-primary" style="margin-top: 25px;"><i class="fa fa-phone"></i> Contacto de Emergencia</h5>
+                  <hr>
+                  <div class="row">
+                    <div class="col-md-4">
+                      <%= f.input :emergencia_nombre, label: "Nombre",
+                                  input_html: { class: 'form-control voluntario-field', id: 'emergencia_nombre',
+                                                onchange: 'this.value=this.value.toUpperCase();' } %>
+                    </div>
+                    <div class="col-md-4">
+                      <%= f.input :emergencia_apellido, label: "Apellido",
+                                  input_html: { class: 'form-control voluntario-field', id: 'emergencia_apellido',
+                                                onchange: 'this.value=this.value.toUpperCase();' } %>
+                    </div>
+                    <div class="col-md-4">
+                      <%= f.input :emergencia_telefono, label: "Teléfono",
+                                  input_html: { class: 'form-control voluntario-field', id: 'emergencia_telefono',
+                                                maxlength: 20 } %>
+                    </div>
+                  </div>
 
                 </div><%# fin seccion-voluntario %>
               </div>
@@ -819,11 +997,39 @@
                 if ($('#es_voluntario_hidden').val() === '1') {
                     var vaciosVol = [];
                     if (!$('#iglesiascomunidad_apoyo_id').val()) vaciosVol.push('Parroquia de Apoyo');
+                    // Evento especial: campos adicionales del voluntario adulto
+                    var areaVol = $('#area_voluntariado_final').val();
+                    if ($('#area_voluntariado_select').length && !areaVol) vaciosVol.push('Área de Voluntariado');
+                    if (areaVol === 'OTROS' && !$('#area_voluntariado_otro').val().trim()) vaciosVol.push('Especificación del área (OTROS)');
+                    if ($('#emergencia_nombre').length && !$('#emergencia_nombre').val().trim()) vaciosVol.push('Nombre del Contacto de Emergencia');
+                    if ($('#emergencia_apellido').length && !$('#emergencia_apellido').val().trim()) vaciosVol.push('Apellido del Contacto de Emergencia');
+                    if ($('#emergencia_telefono').length && !$('#emergencia_telefono').val().trim()) vaciosVol.push('Teléfono del Contacto de Emergencia');
                     if (vaciosVol.length > 0) {
                         e.preventDefault();
                         alert('⚠️ Como voluntario debes completar:\n\n• ' + vaciosVol.join('\n• '));
                         document.getElementById('seccion-voluntario').scrollIntoView({ behavior: 'smooth', block: 'center' });
                         return false;
+                    }
+                }
+
+                // ── Validación menores en evento especial ──────────────────
+                if ($('#seccion-acudiente-especial').length && $('#seccion-acudiente-especial').is(':visible')) {
+                    var f2 = convertirFecha($fn.val());
+                    if (f2 && calcularEdad(f2) < 18) {
+                        var vaciosAcu = [];
+                        if (!$('#acudiente_fecha_lugar_nacimiento').val().trim()) vaciosAcu.push('Fecha y Lugar de Nacimiento del Acudiente');
+                        if (!$('#acudiente_ocupacion').val().trim()) vaciosAcu.push('Ocupación del Acudiente');
+                        if (!$('#acudiente_direccion').val().trim()) vaciosAcu.push('Dirección del Acudiente');
+                        if (!$('#acudiente_barrio').val().trim()) vaciosAcu.push('Barrio del Acudiente');
+                        if (!$('#acudiente_municipio').val().trim()) vaciosAcu.push('Municipio del Acudiente');
+                        if (!$('#acudiente_parroquia_comunidad').val().trim()) vaciosAcu.push('Parroquia/Comunidad del Acudiente');
+                        if (!$('#area_voluntariado_final').val()) vaciosAcu.push('Área de Voluntariado del Menor');
+                        if (vaciosAcu.length > 0) {
+                            e.preventDefault();
+                            alert('⚠️ Para menores en evento especial debes completar:\n\n• ' + vaciosAcu.join('\n• '));
+                            document.getElementById('seccion-acudiente').scrollIntoView({ behavior: 'smooth', block: 'center' });
+                            return false;
+                        }
                     }
                 }
                 var f = convertirFecha($fn.val());
@@ -1108,6 +1314,22 @@
             $('#modal-doc-iframe').attr('src', '');
         });
 
+        // ── Sincronizar selectores de área con el campo oculto ───────────
+        // (#area_voluntariado_select para adultos y #area_voluntariado_menor_select
+        //  para menores no tienen name= para evitar duplicados; actualizan el hidden)
+        $(document).on('change', '.area-vol-visible', function () {
+            var val = $(this).val();
+            $('#area_voluntariado_final').val(val);
+            // Sync el otro selector visible para que no queden desincronizados
+            $('.area-vol-visible').not(this).val(val).trigger('change.select2');
+            if (val === 'OTROS') {
+                $('#area-voluntariado-otro-wrap').slideDown(200);
+            } else {
+                $('#area-voluntariado-otro-wrap').slideUp(200);
+                $('#area_voluntariado_otro').val('');
+            }
+        });
+
         // Toggle apertura sección voluntario
         $('#panel-voluntario-toggle').on('click', function () {
             $('#seccion-voluntario').slideDown(400);
@@ -1116,6 +1338,10 @@
             // Inicializar select2 dentro de la sección
             if ($.fn.select2) {
                 $('#iglesiascomunidad_apoyo_id').select2({ placeholder: 'Seleccione la parroquia...' });
+                $('#area_voluntariado_select').select2({ placeholder: 'Seleccione un área...' });
+                // Restaurar valor guardado en el campo oculto
+                var valorActual = $('#area_voluntariado_final').val();
+                if (valorActual) $('#area_voluntariado_select').val(valorActual).trigger('change.select2');
             }
         });
 

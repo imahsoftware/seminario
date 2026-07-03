@@ -1,0 +1,23 @@
+<div class="box box-primary">
+  <div class="box-header with-border">
+    <h3 class="box-title"><i class="fa fa-edit"></i> Editar Documento</h3>
+    <div class="box-tools pull-right">
+      <%= link_to check_documentos_path, class: 'btn btn-sm btn-default' do %>
+        <i class="fa fa-arrow-left"></i> Volver a la biblioteca
+      <% end %>
+    </div>
+  </div>
+  <div class="box-body">
+    <% if @check_documento.errors.any? %>
+      <div class="alert alert-danger">
+        <h4><i class="fa fa-exclamation-triangle"></i> Corrige los siguientes errores:</h4>
+        <ul>
+          <% @check_documento.errors.full_messages.each do |msg| %>
+            <li><%= msg %></li>
+          <% end %>
+        </ul>
+      </div>
+    <% end %>
+    <%= render 'form' %>
+  </div>
+</div>

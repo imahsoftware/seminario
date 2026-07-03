@@ -1,7 +1,8 @@
 <%
   ep = @ep
   edad = ep.fecha_nacimiento.present? ? ((Date.today - ep.fecha_nacimiento.to_date).to_i / 365.25).floor : nil
-  es_menor = edad.present? && edad < 18
+  es_menor  = edad.present? && edad < 18
+  es_especial = ep.evento&.evento_especial == true
   documento = @documento
 %>
 
@@ -145,6 +146,56 @@
                              include_blank: 'Seleccione...' %>
             </div>
           </div>
+
+          <%# ── Campos adicionales evento especial ── %>
+          <% if es_especial %>
+            <div class="col-md-12">
+              <hr style="margin: 6px 0 10px; border-color:#6c3483;">
+              <p class="text-muted" style="margin-bottom:8px;">
+                <small><strong style="color:#6c3483;"><i class="fa fa-star"></i> Datos Evento Especial</strong></small>
+              </p>
+            </div>
+            <div class="col-md-4 col-sm-6">
+              <div class="form-group">
+                <label class="control-label"><small>Barrio</small></label>
+                <%= text_field_tag "eventospersona[barrio]", ep.barrio,
+                                   class: 'form-control input-sm',
+                                   onchange: 'this.value=this.value.toUpperCase();' %>
+              </div>
+            </div>
+            <div class="col-md-4 col-sm-6">
+              <div class="form-group">
+                <label class="control-label"><small>Municipio</small></label>
+                <%= text_field_tag "eventospersona[municipio]", ep.municipio,
+                                   class: 'form-control input-sm',
+                                   onchange: 'this.value=this.value.toUpperCase();' %>
+              </div>
+            </div>
+            <div class="col-md-4 col-sm-6">
+              <div class="form-group">
+                <label class="control-label"><small>Lugar de Nacimiento</small></label>
+                <%= text_field_tag "eventospersona[lugar_nacimiento]", ep.lugar_nacimiento,
+                                   class: 'form-control input-sm',
+                                   onchange: 'this.value=this.value.toUpperCase();' %>
+              </div>
+            </div>
+            <div class="col-md-4 col-sm-6">
+              <div class="form-group">
+                <label class="control-label"><small>Ocupación</small></label>
+                <%= text_field_tag "eventospersona[ocupacion]", ep.ocupacion,
+                                   class: 'form-control input-sm',
+                                   onchange: 'this.value=this.value.toUpperCase();' %>
+              </div>
+            </div>
+            <div class="col-md-4 col-sm-6">
+              <div class="form-group">
+                <label class="control-label"><small>EPS</small></label>
+                <%= text_field_tag "eventospersona[eps]", ep.eps,
+                                   class: 'form-control input-sm',
+                                   onchange: 'this.value=this.value.toUpperCase();' %>
+              </div>
+            </div>
+          <% end %>
 
         </div>
       </div>
@@ -310,6 +361,81 @@
               </div>
             </div>
           </div>
+          <%# ── Campos extendidos del acudiente (evento especial) ── %>
+          <% if es_especial %>
+            <div class="row">
+              <div class="col-md-12">
+                <hr style="margin: 6px 0 10px; border-color:#f0ad4e;">
+                <p class="text-muted" style="margin-bottom:8px;">
+                  <small><strong style="color:#8a5c00;"><i class="fa fa-info-circle"></i> Datos adicionales del Acudiente (Evento Especial)</strong></small>
+                </p>
+              </div>
+              <div class="col-md-6 col-sm-6">
+                <div class="form-group">
+                  <label class="control-label"><small>Fecha y Lugar de Nacimiento</small></label>
+                  <%= text_field_tag "eventospersona[acudiente_fecha_lugar_nacimiento]",
+                                     ep.acudiente_fecha_lugar_nacimiento,
+                                     class: 'form-control input-sm',
+                                     onchange: 'this.value=this.value.toUpperCase();' %>
+                </div>
+              </div>
+              <div class="col-md-6 col-sm-6">
+                <div class="form-group">
+                  <label class="control-label"><small>Ocupación</small></label>
+                  <%= text_field_tag "eventospersona[acudiente_ocupacion]", ep.acudiente_ocupacion,
+                                     class: 'form-control input-sm',
+                                     onchange: 'this.value=this.value.toUpperCase();' %>
+                </div>
+              </div>
+              <div class="col-md-4 col-sm-6">
+                <div class="form-group">
+                  <label class="control-label"><small>Dirección</small></label>
+                  <%= text_field_tag "eventospersona[acudiente_direccion]", ep.acudiente_direccion,
+                                     class: 'form-control input-sm',
+                                     onchange: 'this.value=this.value.toUpperCase();' %>
+                </div>
+              </div>
+              <div class="col-md-4 col-sm-6">
+                <div class="form-group">
+                  <label class="control-label"><small>Barrio</small></label>
+                  <%= text_field_tag "eventospersona[acudiente_barrio]", ep.acudiente_barrio,
+                                     class: 'form-control input-sm',
+                                     onchange: 'this.value=this.value.toUpperCase();' %>
+                </div>
+              </div>
+              <div class="col-md-4 col-sm-6">
+                <div class="form-group">
+                  <label class="control-label"><small>Municipio</small></label>
+                  <%= text_field_tag "eventospersona[acudiente_municipio]", ep.acudiente_municipio,
+                                     class: 'form-control input-sm',
+                                     onchange: 'this.value=this.value.toUpperCase();' %>
+                </div>
+              </div>
+              <div class="col-md-6 col-sm-6">
+                <div class="form-group">
+                  <label class="control-label"><small>Parroquia / Comunidad</small></label>
+                  <%= text_field_tag "eventospersona[acudiente_parroquia_comunidad]",
+                                     ep.acudiente_parroquia_comunidad,
+                                     class: 'form-control input-sm',
+                                     onchange: 'this.value=this.value.toUpperCase();' %>
+                </div>
+              </div>
+              <div class="col-md-6 col-sm-6">
+                <div class="form-group">
+                  <label class="control-label"><small>Área de Voluntariado del Menor</small></label>
+                  <%= select_tag "eventospersona[area_voluntariado]",
+                                 options_for_select(
+                                   Eventospersona::AREAS_VOLUNTARIADO.map { |a| [a, a] },
+                                   ep.area_voluntariado
+                                 ),
+                                 class: 'form-control input-sm',
+                                 id: "area_vol_menor_editar_#{ep.id}",
+                                 include_blank: 'Seleccione...' %>
+                </div>
+              </div>
+            </div>
+          <% end %>
+
           <div class="row">
             <% if ep.acudiente_celular.present? %>
               <div class="row" style="margin-top: 8px;">
@@ -426,6 +552,63 @@
                            class: "form-control input-sm" %>
           </div>
 
+          <%# ── Campos adicionales voluntario adulto en evento especial ── %>
+          <% if es_especial && !es_menor %>
+            <hr style="margin: 8px 0 12px; border-color:#071B7D;">
+            <p class="text-muted" style="margin-bottom:8px;">
+              <small><strong style="color:#071B7D;"><i class="fa fa-th-large"></i> Área de Voluntariado y Emergencia</strong></small>
+            </p>
+            <div class="row">
+              <div class="col-md-6 col-sm-6">
+                <div class="form-group">
+                  <label class="control-label"><small>Área de Voluntariado</small></label>
+                  <%= select_tag "eventospersona[area_voluntariado]",
+                                 options_for_select(
+                                   Eventospersona::AREAS_VOLUNTARIADO.map { |a| [a, a] },
+                                   ep.area_voluntariado
+                                 ),
+                                 class: 'form-control input-sm',
+                                 id: "area_vol_editar_#{ep.id}",
+                                 include_blank: 'Seleccione...' %>
+                </div>
+              </div>
+              <div class="col-md-6 col-sm-6" id="area_vol_otro_editar_<%= ep.id %>"
+                   style="<%= ep.area_voluntariado == 'OTROS' ? '' : 'display:none;' %>">
+                <div class="form-group">
+                  <label class="control-label"><small>Especifique el área</small></label>
+                  <%= text_field_tag "eventospersona[area_voluntariado_otro]", ep.area_voluntariado_otro,
+                                     class: 'form-control input-sm',
+                                     onchange: 'this.value=this.value.toUpperCase();' %>
+                </div>
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-md-4 col-sm-6">
+                <div class="form-group">
+                  <label class="control-label"><small>Nombre Contacto Emergencia</small></label>
+                  <%= text_field_tag "eventospersona[emergencia_nombre]", ep.emergencia_nombre,
+                                     class: 'form-control input-sm',
+                                     onchange: 'this.value=this.value.toUpperCase();' %>
+                </div>
+              </div>
+              <div class="col-md-4 col-sm-6">
+                <div class="form-group">
+                  <label class="control-label"><small>Apellido Contacto Emergencia</small></label>
+                  <%= text_field_tag "eventospersona[emergencia_apellido]", ep.emergencia_apellido,
+                                     class: 'form-control input-sm',
+                                     onchange: 'this.value=this.value.toUpperCase();' %>
+                </div>
+              </div>
+              <div class="col-md-4 col-sm-6">
+                <div class="form-group">
+                  <label class="control-label"><small>Teléfono Emergencia</small></label>
+                  <%= text_field_tag "eventospersona[emergencia_telefono]", ep.emergencia_telefono,
+                                     class: 'form-control input-sm', maxlength: 30 %>
+                </div>
+              </div>
+            </div>
+          <% end %>
+
           <%# Checks de documentos %>
           <% if evento_check_docs.any? %>
             <p class="text-muted" style="margin-bottom:8px;"><small><strong>Documentos:</strong></small></p>
@@ -540,6 +723,15 @@
 $(document).ready(function() {
   var epId = <%= ep.id %>;
   
+  // ── Toggle campo "Especifique el área" cuando se elige OTROS ──
+  $('#area_vol_editar_' + epId).on('change', function() {
+    if ($(this).val() === 'OTROS') {
+      $('#area_vol_otro_editar_' + epId).show();
+    } else {
+      $('#area_vol_otro_editar_' + epId).hide();
+    }
+  });
+
   // ── Toggle sección cónyuge según tipo persona ──
   $('select[name="eventospersona[tipo_persona]"]').on('change', function() {
     if ($(this).val() === 'MATRIMONIO') {

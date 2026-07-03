@@ -1,12 +1,62 @@
 wd = xlsx_package.workbook
 
-headers = [
+# ── Helpers de fila compartidos ──────────────────────────────────────────────
+
+# Convierte índice de columna 0-based a letra(s) Excel: 0→'A', 25→'Z', 26→'AA', 36→'AK'
+# Necesario porque chr() solo sirve para A-Z (≤26 columnas). Con campos especiales
+# llegamos a 37 columnas y chr() devuelve minúsculas que crashean caxlsx.
+def to_col_letter(n)
+  name = ''
+  n += 1
+  while n > 0
+    n, r = (n - 1).divmod(26)
+    name = (65 + r).chr + name
+  end
+  name
+end
+
+def calcular_edad_ep(ep)
+  return '' unless ep.fecha_nacimiento.present?
+  hoy  = Date.today
+  edad = hoy.year - ep.fecha_nacimiento.year
+  edad -= 1 if hoy < ep.fecha_nacimiento + edad.years
+  edad
+end
+
+def datos_conyuge(ep)
+  return ['', ''] unless ep.tipo_persona == 'MATRIMONIO'
+  if ep.conyuge_pendiente.to_s == 'SI' || ep.conyuge_pendiente == 1
+    return ['PENDIENTE', 'PENDIENTE']
+  end
+  if ep.conyuge_id.present?
+    conyuge = Eventospersona.find_by(id: ep.conyuge_id)
+    return ["#{conyuge.nombre} #{conyuge.apellido}", conyuge.identificacion] if conyuge
+  end
+  ['', '']
+end
+
+es_especial = @evento.evento_especial?
+
+# ── Cabeceras base ────────────────────────────────────────────────────────────
+headers_base = [
   'Identificación', 'Tipo Documento', 'Nombre', 'Apellido', 'Edad', 'Celular',
-  'Dirección', 'Email', 'Género', 'Estado Civil', 'Tipo Persona', 'Nombre Cónyuge','Identificación Cónyuge',
+  'Dirección', 'Email', 'Género', 'Estado Civil', 'Tipo Persona',
+  'Nombre Cónyuge', 'Identificación Cónyuge',
   'Identificación Acudiente', 'Nombre Acudiente', 'Apellido Acudiente',
   'Email Acudiente', 'Celular Acudiente', 'Tipo Doc. Acudiente',
   'Firma Acudiente', 'Fecha Registro'
 ].freeze
+
+# Cabeceras extra para eventos especiales
+headers_especial = [
+  'Barrio', 'Municipio', 'Lugar Nacimiento', 'Ocupación', 'EPS',
+  'Área Voluntariado', 'Área Voluntariado (Otro)',
+  'Emergencia Nombre', 'Emergencia Apellido', 'Emergencia Teléfono',
+  'Acudiente Fecha/Lugar Nac.', 'Acudiente Dirección', 'Acudiente Barrio',
+  'Acudiente Municipio', 'Acudiente Parroquia/Comunidad', 'Acudiente Ocupación'
+].freeze
+
+headers = es_especial ? (headers_base + headers_especial) : headers_base
 
 wd.styles do |s|
   borde = { style: :thin, color: "FF000000", edges: [:left, :right, :top, :bottom] }
@@ -17,7 +67,7 @@ wd.styles do |s|
   header2   = s.add_style(b: true, bg_color: "FFE87F07", fg_color: 'F5F6CE', sz: 11, font_name: "Calibri",
                           border: borde,
                           :alignment => { :horizontal => :center, :vertical => :center })
-  titulo    = s.add_style(b: true, bg_color: "FF1a2eaa", fg_color: 'FFFFFF', sz: 13, font_name: "Calibri",
+  header3   = s.add_style(b: true, bg_color: "FF2E7D32", fg_color: 'FFFFFF', sz: 11, font_name: "Calibri",
                           border: borde,
                           :alignment => { :horizontal => :center, :vertical => :center })
   datosiz   = s.add_style(sz: 11, font_name: "Calibri", border: borde,
@@ -28,13 +78,94 @@ wd.styles do |s|
                           border: borde,
                           :alignment => { :horizontal => :center, :vertical => :center })
 
-  # ── Hoja 1: Info del Evento ──
+  # ── Helper: construir fila de datos ──────────────────────────────────────
+  construir_fila = lambda do |ep|
+    edad = calcular_edad_ep(ep)
+    conyuge_nom, conyuge_id = datos_conyuge(ep)
+
+    fila = [
+      ep.identificacion,
+      ep.documento_tipo&.descripcion.to_s,
+      ep.nombre,
+      ep.apellido,
+      edad,
+      ep.celular,
+      ep.direccion,
+      ep.email,
+      (ep.sexo == 'M' ? 'Masculino' : 'Femenino'),
+      ep.estado_civil&.nombre.to_s,
+      ep.tipo_persona,
+      conyuge_nom,
+      conyuge_id,
+      ep.acudiente_identificacion,
+      ep.acudiente_nombre,
+      ep.acudiente_apellido,
+      ep.acudiente_email,
+      ep.acudiente_celular,
+      ep.acudiente_documento_tipo&.descripcion.to_s,
+      ep.acudiente_firma,
+      ep.created_at
+    ]
+
+    if es_especial
+      fila += [
+        ep.barrio,
+        ep.municipio,
+        ep.lugar_nacimiento,
+        ep.ocupacion,
+        ep.eps,
+        ep.area_voluntariado,
+        ep.area_voluntariado_otro,
+        ep.emergencia_nombre,
+        ep.emergencia_apellido,
+        ep.emergencia_telefono,
+        ep.acudiente_fecha_lugar_nacimiento,
+        ep.acudiente_direccion,
+        ep.acudiente_barrio,
+        ep.acudiente_municipio,
+        ep.acudiente_parroquia_comunidad,
+        ep.acudiente_ocupacion
+      ]
+    end
+
+    fila
+  end
+
+  # ── Estilos y tipos de columnas base ────────────────────────────────────
+  estilos_base = [
+    datosiz, datosiz, datosiz, datosiz, datoscent, datoscent,
+    datosiz, datosiz, datoscent, datosiz, datoscent,
+    datosiz, datoscent,
+    datoscent, datosiz, datosiz,
+    datosiz, datoscent, datoscent,
+    datoscent, fecha
+  ]
+  tipos_base = [
+    :string, nil, nil, nil, nil, :string,
+    nil, nil, nil, nil, nil,
+    nil, :string,
+    :string, nil, nil,
+    nil, :string, nil,
+    nil, nil
+  ]
+  estilos_especial = Array.new(16, datosiz)
+  tipos_especial   = Array.new(16, nil)
+
+  estilos_fila = es_especial ? (estilos_base + estilos_especial) : estilos_base
+  tipos_fila   = es_especial ? (tipos_base   + tipos_especial)   : tipos_base
+
+  anchos_base    = [30, 30, 30, 16, 8, 25, 28, 25, 12, 18, 15, 30, 22, 22, 22, 22, 28, 18, 18, 15, 18]
+  anchos_especial = [18, 18, 25, 20, 18, 30, 25, 22, 22, 18, 30, 28, 18, 18, 30, 22]
+  anchos_fila    = es_especial ? (anchos_base + anchos_especial) : anchos_base
+
+  # ── Hoja 1: Info del Evento ──────────────────────────────────────────────
   wd.add_worksheet(:name => "Evento") do |sheet|
     sheet.add_row ["Detalle del Evento", ""],                                  :style => [header1, header1]
     sheet.merge_cells "A1:B1"
     sheet.add_row ["Campo",                        "Valor"],                   :style => [header1, header1]
     sheet.add_row ["Evento",                       @evento.detalle],           :style => [datosiz, datoscent]
     sheet.add_row ["Tipo",                         @evento.tiposevento&.descripcion.to_s], :style => [datosiz, datoscent]
+    sheet.add_row ["Evento Especial",              es_especial ? 'SÍ' : 'NO'], :style => [datosiz, datoscent]
     sheet.add_row ["Fecha Inicio Inscripción",     @evento.fecha_inicio],      :style => [datosiz, fecha]
     sheet.add_row ["Fecha Fin Inscripción",        @evento.fecha_fin],         :style => [datosiz, fecha]
     sheet.add_row ["Fecha Inicio Evento",          @evento.fecha_inicio_e],    :style => [datosiz, fecha]
@@ -43,136 +174,91 @@ wd.styles do |s|
     sheet.column_widths 30, 60
   end
 
-  # ── Hoja 2: Inscritos ──
+  # ── Hoja 2: Todos los inscritos ──────────────────────────────────────────
   wd.add_worksheet(:name => "Inscritos") do |sheet|
-
-    # Encabezados
     sheet.add_row headers, :style => Array.new(headers.size, header2)
 
-    # Estilos por columna (21 columnas, alineado con headers)
-    estilos_fila = [
-      datosiz,   # 1  Identificación
-      datosiz,   # 2  Tipo Documento
-      datosiz,   # 3  Nombre
-      datosiz,   # 4  Apellido
-      datoscent, # 5  Edad
-      datoscent, # 6  Celular
-      datosiz,   # 7  Dirección
-      datosiz,   # 8  Email
-      datoscent, # 9  Género
-      datosiz,   # 10 Estado Civil
-      datoscent, # 11 Tipo Persona
-      datosiz,   # 12 Nombre Cónyuge
-      datoscent, # 13 Identificación Cónyuge
-      datoscent, # 14 Identificación Acudiente
-      datosiz,   # 15 Nombre Acudiente
-      datosiz,   # 16 Apellido Acudiente
-      datosiz,   # 17 Email Acudiente
-      datoscent, # 18 Celular Acudiente
-      datoscent, # 19 Tipo Doc. Acudiente
-      datoscent, # 20 Firma Acudiente
-      fecha      # 21 Fecha Registro
-    ]
-
-    # Tipos por columna (string para forzar texto en identificaciones y celulares)
-    tipos_fila = [
-      :string, # 1  Identificación
-      nil,     # 2  Tipo Documento
-      nil,     # 3  Nombre
-      nil,     # 4  Apellido
-      nil,     # 5  Edad
-      :string, # 6  Celular
-      nil,     # 7  Dirección
-      nil,     # 8  Email
-      nil,     # 9  Género
-      nil,     # 10 Estado Civil
-      nil,     # 11 Tipo Persona
-      nil,     # 12 Nombre Cónyuge
-      :string, # 13 Identificación Cónyuge
-      :string, # 14 Identificación Acudiente
-      nil,     # 15 Nombre Acudiente
-      nil,     # 16 Apellido Acudiente
-      nil,     # 17 Email Acudiente
-      :string, # 18 Celular Acudiente
-      nil,     # 19 Tipo Doc. Acudiente
-      nil,     # 20 Firma Acudiente
-      nil      # 21 Fecha Registro
-    ]
-
     @inscritos.each do |ep|
-      # Calcular edad
-      edad = ''
-      if ep.fecha_nacimiento.present?
-        hoy = Date.today
-        edad = hoy.year - ep.fecha_nacimiento.year
-        edad -= 1 if hoy < ep.fecha_nacimiento + edad.years
-      end
-
-      # Obtener datos del cónyuge
-      conyuge_nombre = ''
-      conyuge_identificacion = ''
-      
-      if ep.tipo_persona == 'MATRIMONIO'
-        if ep.conyuge_pendiente == 1
-          # Si está pendiente, mostrar "PENDIENTE"
-          conyuge_nombre = 'PENDIENTE'
-          conyuge_identificacion = 'PENDIENTE'
-        elsif ep.conyuge_id.present?
-          # Si no está pendiente y tiene conyuge_id, buscar los datos
-          conyuge = Eventospersona.find_by(id: ep.conyuge_id)
-          if conyuge
-            conyuge_nombre = "#{conyuge.nombre} #{conyuge.apellido}"
-            conyuge_identificacion = conyuge.identificacion
-          end
-        end
-      end
-
-      sheet.add_row [
-                      ep.identificacion,                              # 1
-                      ep.documento_tipo&.descripcion.to_s,            # 2
-                      ep.nombre,                                      # 3
-                      ep.apellido,                                    # 4
-                      edad,                                           # 5
-                      ep.celular,                                     # 6
-                      ep.direccion,                                   # 7
-                      ep.email,                                       # 8
-                      (ep.sexo == 'M' ? 'Masculino' : 'Femenino'),    # 9
-                      ep.estado_civil&.nombre.to_s,                   # 10
-                      ep.tipo_persona,                                # 11
-                      conyuge_nombre,                                 # 12
-                      conyuge_identificacion,                         # 13
-                      ep.acudiente_identificacion,                    # 14
-                      ep.acudiente_nombre,                            # 15
-                      ep.acudiente_apellido,                          # 16
-                      ep.acudiente_email,                             # 17
-                      ep.acudiente_celular,                           # 18
-                      ep.acudiente_documento_tipo&.descripcion.to_s,  # 19
-                      ep.acudiente_firma,                             # 20
-                      ep.created_at                                   # 21
-                    ],
-                    :style => estilos_fila,
-                    :types => tipos_fila
+      sheet.add_row construir_fila.call(ep), :style => estilos_fila, :types => tipos_fila
     end
 
-    # Fila de total al final
     sheet.add_row []
-    sheet.add_row ["Total Inscritos:", @inscritos.count],
-                  :style => [header1, datoscent]
+    sheet.add_row ["Total Inscritos:", @inscritos.count], :style => [header1, datoscent]
+    sheet.column_widths(*anchos_fila)
 
-    # Anchos de columna (21 columnas)
-    sheet.column_widths 30, 30, 30, 16, 8, 25,
-                        28, 25, 12, 18, 15,
-                        30, 22, 22, 22, 22,
-                        28, 18, 18, 15, 18
-
-    # Congelar la primera fila (encabezados visibles al hacer scroll)
     sheet.sheet_view.pane do |pane|
-      pane.state        = :frozen
-      pane.y_split      = 1
-      pane.active_pane  = :bottom_right
+      pane.state       = :frozen
+      pane.y_split     = 1
+      pane.active_pane = :bottom_right
     end
 
-    # Autofiltro sobre los encabezados (columnas A hasta U = 21)
-    sheet.auto_filter = "A1:U1"
+    last_col = to_col_letter(headers.size - 1)
+    sheet.auto_filter = "A1:#{last_col}1"
+  end
+
+  # ── Hojas por Área de Voluntariado (solo eventos especiales) ─────────────
+  if es_especial
+    areas_presentes = @inscritos
+                        .where.not(area_voluntariado: [nil, ''])
+                        .distinct
+                        .pluck(:area_voluntariado)
+                        .sort
+
+    areas_presentes.each do |area|
+      inscritos_area = @inscritos.where(area_voluntariado: area)
+      # Nombre de hoja: máximo 31 caracteres (límite Excel), sin caracteres especiales
+      nombre_hoja = area.to_s.gsub(/[\/\\*?\[\]:]/, '-')[0, 31]
+
+      wd.add_worksheet(:name => nombre_hoja) do |sheet|
+        # Título del área
+        sheet.add_row ["Área: #{area}", ""], :style => [header3, header3]
+        sheet.merge_cells "A1:B1"
+
+        sheet.add_row headers, :style => Array.new(headers.size, header3)
+
+        inscritos_area.each do |ep|
+          sheet.add_row construir_fila.call(ep), :style => estilos_fila, :types => tipos_fila
+        end
+
+        sheet.add_row []
+        sheet.add_row ["Total en esta área:", inscritos_area.count], :style => [header1, datoscent]
+        sheet.column_widths(*anchos_fila)
+
+        sheet.sheet_view.pane do |pane|
+          pane.state       = :frozen
+          pane.y_split     = 2
+          pane.active_pane = :bottom_right
+        end
+
+        last_col = to_col_letter(headers.size - 1)
+        sheet.auto_filter = "A2:#{last_col}2"
+      end
+    end
+
+    # ── Hoja resumen por área ───────────────────────────────────────────────
+    wd.add_worksheet(:name => "Resumen por Área") do |sheet|
+      sheet.add_row ["Resumen por Área de Voluntariado"], :style => [header1]
+      sheet.merge_cells "A1:C1"
+      sheet.add_row ["Área de Voluntariado", "Cantidad", "% del Total"], :style => [header1, header1, header1]
+
+      total = @inscritos.count.to_f
+
+      areas_presentes.each do |area|
+        cantidad = @inscritos.where(area_voluntariado: area).count
+        porcentaje = total > 0 ? ((cantidad / total) * 100).round(1) : 0
+        sheet.add_row [area, cantidad, "#{porcentaje}%"], :style => [datosiz, datoscent, datoscent]
+      end
+
+      # Sin área asignada
+      sin_area = @inscritos.where(area_voluntariado: [nil, '']).count
+      if sin_area > 0
+        porcentaje = total > 0 ? ((sin_area / total) * 100).round(1) : 0
+        sheet.add_row ['(Sin área asignada)', sin_area, "#{porcentaje}%"], :style => [datosiz, datoscent, datoscent]
+      end
+
+      sheet.add_row []
+      sheet.add_row ["TOTAL", @inscritos.count, "100%"], :style => [header1, datoscent, datoscent]
+      sheet.column_widths 45, 12, 12
+    end
   end
 end

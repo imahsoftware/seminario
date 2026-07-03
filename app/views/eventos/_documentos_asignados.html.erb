@@ -52,6 +52,9 @@
     </div>
   <% end %>
 
+  <%# Contenedor donde new.js.erb inyecta el formulario via AJAX %>
+  <div id="check_documento_form" class="collapse" style="margin-bottom: 10px;"></div>
+
   <%# Agregar documento desde la biblioteca %>
   <% if disponibles.any? %>
     <div class="row">
@@ -71,7 +74,7 @@
         </div>
       </div>
       <div class="col-md-4">
-        <%= link_to new_check_documento_path, target: '_blank', class: 'btn btn-sm btn-default' do %>
+        <%= link_to new_check_documento_path, remote: true, class: 'btn btn-sm btn-default' do %>
           <i class="fa fa-upload"></i> Subir nuevo documento
         <% end %>
       </div>
@@ -79,7 +82,7 @@
   <% else %>
     <div class="alert alert-info" style="padding: 8px 12px;">
       <i class="fa fa-check-circle"></i> Todos los documentos de la biblioteca están asignados.
-      <%= link_to 'Subir nuevo documento', new_check_documento_path, target: '_blank', class: 'btn btn-xs btn-info' %>
+      <%= link_to 'Subir nuevo documento', new_check_documento_path, remote: true, class: 'btn btn-xs btn-info' %>
     </div>
   <% end %>
 </div>

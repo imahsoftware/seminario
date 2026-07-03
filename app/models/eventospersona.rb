@@ -42,6 +42,23 @@ class Eventospersona < ApplicationRecord
   validates :celular,        length: { maximum: 20 }
   validates :identificacion, length: { maximum: 20 }
 
+  # ── Longitudes máximas campos evento especial (coinciden con varchar del DB) ─
+  validates :barrio,            length: { maximum: 100 }, allow_blank: true
+  validates :municipio,         length: { maximum: 100 }, allow_blank: true
+  validates :lugar_nacimiento,  length: { maximum: 150 }, allow_blank: true
+  validates :ocupacion,         length: { maximum: 150 }, allow_blank: true
+  validates :eps,               length: { maximum: 100 }, allow_blank: true
+  validates :area_voluntariado_otro, length: { maximum: 150 }, allow_blank: true
+  validates :emergencia_nombre,   length: { maximum: 100 }, allow_blank: true
+  validates :emergencia_apellido, length: { maximum: 100 }, allow_blank: true
+  validates :emergencia_telefono, length: { maximum: 30  }, allow_blank: true
+  validates :acudiente_fecha_lugar_nacimiento, length: { maximum: 200 }, allow_blank: true
+  validates :acudiente_direccion,           length: { maximum: 200 }, allow_blank: true
+  validates :acudiente_barrio,              length: { maximum: 100 }, allow_blank: true
+  validates :acudiente_municipio,           length: { maximum: 100 }, allow_blank: true
+  validates :acudiente_parroquia_comunidad, length: { maximum: 150 }, allow_blank: true
+  validates :acudiente_ocupacion,           length: { maximum: 150 }, allow_blank: true
+
   validates :tipo_persona, inclusion: { in: TIPOS_PERSONA,
                                         message: "debe ser MATRIMONIO, SEMINARISTA, HOMBRE SOLO,MUJER SOLA o PRESBÍTERO" }
 
@@ -58,10 +75,53 @@ class Eventospersona < ApplicationRecord
     message: "ya está registrado para este evento"
   }
 
+  AREAS_VOLUNTARIADO = [
+    'RECREACIÓN',
+    'FINANZAS (BANCOS Y CAJAS)',
+    'LOGISTICA SEGURIDAD Y TRANSPORTE',
+    'APOYO PARROQUIA (COMIDAS)',
+    'EVENTOS',
+    'PROMOCIONALES',
+    'ALMACÉN CALZADO',
+    'ALMACÉN ROPA',
+    'ALMACÉN VARIADOS',
+    'SANITARIO',
+    'PRIMEROS AUXILIOS',
+    'OTROS'
+  ].freeze
+
   # ── Validaciones condicionales (voluntario) ───────────────────────────────
   validates :iglesiascomunidad_apoyo_id,
             presence: { message: "debe seleccionar la parroquia de apoyo" },
             if: :es_voluntario?
+
+  # ── Validaciones condicionales (evento especial - voluntario adulto) ──────
+  validates :area_voluntariado,
+            presence: { message: "debe seleccionar un área de voluntariado" },
+            if: :es_voluntario_adulto_especial?
+
+  validates :area_voluntariado,
+            inclusion: { in: AREAS_VOLUNTARIADO, message: "no es una opción válida" },
+            allow_blank: true
+
+  validates :area_voluntariado_otro,
+            presence: { message: "debe especificar el área de voluntariado" },
+            if: -> { es_voluntario_adulto_especial? && area_voluntariado == 'OTROS' }
+
+  validates :emergencia_nombre, :emergencia_apellido, :emergencia_telefono,
+            presence: { message: "es obligatorio para voluntarios adultos en eventos especiales" },
+            if: :es_voluntario_adulto_especial?
+
+  # ── Validaciones condicionales (evento especial - menor) ──────────────────
+  validates :acudiente_fecha_lugar_nacimiento, :acudiente_direccion,
+            :acudiente_barrio, :acudiente_municipio,
+            :acudiente_parroquia_comunidad, :acudiente_ocupacion,
+            presence: { message: "es obligatorio para acudientes en eventos especiales" },
+            if: :menor_en_evento_especial?
+
+  validates :area_voluntariado,
+            presence: { message: "debe seleccionar un área de voluntariado" },
+            if: :menor_en_evento_especial?
 
   # ── Validaciones condicionales (menores de edad) ──────────────────────────
   # Nota: acudiente_documento_tipo_id ya NO se valida aquí.
@@ -94,6 +154,20 @@ class Eventospersona < ApplicationRecord
   def menor_de_edad?
     return false if fecha_nacimiento.blank?
     calcular_edad < 18
+  end
+
+  def evento_especial?
+    evento&.evento_especial == true
+  end
+
+  # Voluntario adulto en un evento especial
+  def es_voluntario_adulto_especial?
+    es_voluntario? && !menor_de_edad? && evento_especial?
+  end
+
+  # Menor de edad inscrito en un evento especial
+  def menor_en_evento_especial?
+    menor_de_edad? && evento_especial?
   end
 
   def calcular_edad
@@ -202,6 +276,20 @@ class Eventospersona < ApplicationRecord
     self.direccion = direccion.upcase if direccion.present?
     self.acudiente_nombre   = acudiente_nombre.upcase   if acudiente_nombre.present?
     self.acudiente_apellido = acudiente_apellido.upcase if acudiente_apellido.present?
+
+    # ── Nuevos campos evento especial ─────────────────────────────────────────
+    self.barrio           = barrio.upcase           if barrio.present?
+    self.municipio        = municipio.upcase         if municipio.present?
+    self.lugar_nacimiento = lugar_nacimiento.upcase  if lugar_nacimiento.present?
+    self.ocupacion        = ocupacion.upcase         if ocupacion.present?
+    self.eps              = eps.upcase               if eps.present?
+    self.emergencia_nombre   = emergencia_nombre.upcase   if emergencia_nombre.present?
+    self.emergencia_apellido = emergencia_apellido.upcase if emergencia_apellido.present?
+    self.acudiente_direccion            = acudiente_direccion.upcase            if acudiente_direccion.present?
+    self.acudiente_barrio               = acudiente_barrio.upcase               if acudiente_barrio.present?
+    self.acudiente_municipio            = acudiente_municipio.upcase             if acudiente_municipio.present?
+    self.acudiente_parroquia_comunidad  = acudiente_parroquia_comunidad.upcase  if acudiente_parroquia_comunidad.present?
+    self.acudiente_ocupacion            = acudiente_ocupacion.upcase             if acudiente_ocupacion.present?
   end
 
   # ── Garantizar valores por defecto en aceptaciones ───────────────────────

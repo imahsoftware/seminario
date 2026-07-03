@@ -2,10 +2,11 @@
   # _modal_detalle.html.erb
   # Renderizado vía AJAX desde eventospersonas#show (formato JS o HTML)
   # Variables esperadas: @ep, @documento
-  ep        = @ep
-  edad      = ep.fecha_nacimiento.present? ? ((Date.today - ep.fecha_nacimiento.to_date).to_i / 365.25).floor : nil
-  es_menor  = edad.present? && edad < 18
-  documento = @documento
+  ep             = @ep
+  edad           = ep.fecha_nacimiento.present? ? ((Date.today - ep.fecha_nacimiento.to_date).to_i / 365.25).floor : nil
+  es_menor       = edad.present? && edad < 18
+  documento      = @documento
+  es_especial    = ep.evento&.evento_especial == true
 %>
 
 <div class="modal-header <%= es_menor ? 'bg-yellow' : 'bg-primary' %>"
@@ -96,6 +97,84 @@
       </div>
     </div>
   </div>
+
+  <%# ── Datos Evento Especial (campos adicionales) ── %>
+  <% if es_especial && (ep.barrio.present? || ep.municipio.present? || ep.lugar_nacimiento.present? || ep.ocupacion.present? || ep.eps.present?) %>
+    <div class="box box-solid" style="margin-bottom:15px; border-color:#6c3483;">
+      <div class="box-header with-border" style="padding: 8px 12px; background-color:#6c3483; color:#fff;">
+        <h4 class="box-title"><i class="fa fa-star"></i> Datos Evento Especial</h4>
+      </div>
+      <div class="box-body" style="padding: 12px 15px;">
+        <div class="row">
+          <% if ep.barrio.present? %>
+            <div class="col-md-4 col-sm-6">
+              <p class="text-muted" style="margin-bottom:2px;"><small>Barrio</small></p>
+              <p><strong><%= ep.barrio %></strong></p>
+            </div>
+          <% end %>
+          <% if ep.municipio.present? %>
+            <div class="col-md-4 col-sm-6">
+              <p class="text-muted" style="margin-bottom:2px;"><small>Municipio</small></p>
+              <p><strong><%= ep.municipio %></strong></p>
+            </div>
+          <% end %>
+          <% if ep.lugar_nacimiento.present? %>
+            <div class="col-md-4 col-sm-6">
+              <p class="text-muted" style="margin-bottom:2px;"><small>Lugar de Nacimiento</small></p>
+              <p><strong><%= ep.lugar_nacimiento %></strong></p>
+            </div>
+          <% end %>
+          <% if ep.ocupacion.present? %>
+            <div class="col-md-4 col-sm-6">
+              <p class="text-muted" style="margin-bottom:2px;"><small>Ocupación</small></p>
+              <p><strong><%= ep.ocupacion %></strong></p>
+            </div>
+          <% end %>
+          <% if ep.eps.present? %>
+            <div class="col-md-4 col-sm-6">
+              <p class="text-muted" style="margin-bottom:2px;"><small>EPS</small></p>
+              <p><strong><%= ep.eps %></strong></p>
+            </div>
+          <% end %>
+          <% if ep.area_voluntariado.present? %>
+            <div class="col-md-4 col-sm-6">
+              <p class="text-muted" style="margin-bottom:2px;"><small>Área de Voluntariado</small></p>
+              <p>
+                <span class="label" style="background:#6c3483; font-size:12px; padding:4px 8px;">
+                  <i class="fa fa-th-large"></i>
+                  <%= ep.area_voluntariado %>
+                  <% if ep.area_voluntariado == 'OTROS' && ep.area_voluntariado_otro.present? %>
+                    — <%= ep.area_voluntariado_otro %>
+                  <% end %>
+                </span>
+              </p>
+            </div>
+          <% end %>
+        </div>
+      </div>
+    </div>
+  <% end %>
+
+  <%# ── Contacto de Emergencia (adultos voluntarios en evento especial) ── %>
+  <% if es_especial && !es_menor && (ep.emergencia_nombre.present? || ep.emergencia_apellido.present? || ep.emergencia_telefono.present?) %>
+    <div class="box box-solid" style="margin-bottom:15px; border-color:#e74c3c;">
+      <div class="box-header with-border" style="padding: 8px 12px; background-color:#e74c3c; color:#fff;">
+        <h4 class="box-title"><i class="fa fa-phone"></i> Contacto de Emergencia</h4>
+      </div>
+      <div class="box-body" style="padding: 12px 15px;">
+        <div class="row">
+          <div class="col-md-4 col-sm-6">
+            <p class="text-muted" style="margin-bottom:2px;"><small>Nombre</small></p>
+            <p><strong><%= "#{ep.emergencia_nombre} #{ep.emergencia_apellido}".strip.presence || 'N/D' %></strong></p>
+          </div>
+          <div class="col-md-4 col-sm-6">
+            <p class="text-muted" style="margin-bottom:2px;"><small>Teléfono</small></p>
+            <p><i class="fa fa-phone" style="color:#e74c3c;"></i> <strong><%= ep.emergencia_telefono.presence || 'N/D' %></strong></p>
+          </div>
+        </div>
+      </div>
+    </div>
+  <% end %>
 
   <%# ── Cónyuge (solo matrimonios) ── %>
   <% if ep.tipo_persona == 'MATRIMONIO' %>
@@ -276,6 +355,61 @@
               </div>
             </div>
           <% end %>
+
+          <%# ── Datos extendidos del acudiente (evento especial) ── %>
+          <% if es_especial && (ep.acudiente_fecha_lugar_nacimiento.present? || ep.acudiente_direccion.present? || ep.acudiente_barrio.present? || ep.acudiente_municipio.present? || ep.acudiente_parroquia_comunidad.present? || ep.acudiente_ocupacion.present?) %>
+            <div class="col-md-12">
+              <hr style="margin: 10px 0; border-color:#f0ad4e;">
+              <p class="text-muted" style="margin-bottom:8px;"><small><strong><i class="fa fa-info-circle"></i> Datos adicionales del Acudiente (Evento Especial)</strong></small></p>
+            </div>
+            <% if ep.acudiente_fecha_lugar_nacimiento.present? %>
+              <div class="col-md-6 col-sm-6">
+                <p class="text-muted" style="margin-bottom:2px;"><small>Fecha y Lugar de Nacimiento</small></p>
+                <p><strong><%= ep.acudiente_fecha_lugar_nacimiento %></strong></p>
+              </div>
+            <% end %>
+            <% if ep.acudiente_ocupacion.present? %>
+              <div class="col-md-6 col-sm-6">
+                <p class="text-muted" style="margin-bottom:2px;"><small>Ocupación</small></p>
+                <p><strong><%= ep.acudiente_ocupacion %></strong></p>
+              </div>
+            <% end %>
+            <% if ep.acudiente_direccion.present? %>
+              <div class="col-md-4 col-sm-6">
+                <p class="text-muted" style="margin-bottom:2px;"><small>Dirección</small></p>
+                <p><strong><%= ep.acudiente_direccion %></strong></p>
+              </div>
+            <% end %>
+            <% if ep.acudiente_barrio.present? %>
+              <div class="col-md-4 col-sm-6">
+                <p class="text-muted" style="margin-bottom:2px;"><small>Barrio</small></p>
+                <p><strong><%= ep.acudiente_barrio %></strong></p>
+              </div>
+            <% end %>
+            <% if ep.acudiente_municipio.present? %>
+              <div class="col-md-4 col-sm-6">
+                <p class="text-muted" style="margin-bottom:2px;"><small>Municipio</small></p>
+                <p><strong><%= ep.acudiente_municipio %></strong></p>
+              </div>
+            <% end %>
+            <% if ep.acudiente_parroquia_comunidad.present? %>
+              <div class="col-md-6 col-sm-6">
+                <p class="text-muted" style="margin-bottom:2px;"><small>Parroquia / Comunidad</small></p>
+                <p><strong><%= ep.acudiente_parroquia_comunidad %></strong></p>
+              </div>
+            <% end %>
+            <% if ep.area_voluntariado.present? %>
+              <div class="col-md-6 col-sm-6">
+                <p class="text-muted" style="margin-bottom:2px;"><small>Área de Voluntariado del Menor</small></p>
+                <p>
+                  <span class="label" style="background:#6c3483; font-size:12px; padding:4px 8px;">
+                    <i class="fa fa-th-large"></i> <%= ep.area_voluntariado %>
+                  </span>
+                </p>
+              </div>
+            <% end %>
+          <% end %>
+
         </div>
       </div>
     </div>
