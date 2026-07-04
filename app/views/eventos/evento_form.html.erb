@@ -7,107 +7,10 @@
         <legend>Información del evento</legend>
       </div>
       <div class="box-body">
-        <div class="row">
-          <div class="col-md-3">
-            <%= f.input :iglesia_id,
-                        collection: Iglesia.all.order(:nombre).collect { |p| [p.nombre, p.id] },
-                        input_html: { class: 'select2', id: 'evento_iglesia_id' },
-                        as: :select, include_blank: true, label: "Iglesia" %>
-          </div>
 
-          <div class="col-md-3">
-            <%= f.input :iglesiascomunidad_id,
-                        collection: [],
-                        input_html: { class: 'select2', id: 'evento_iglesiascomunidad_id' },
-                        as: :select, include_blank: true, label: "Comunidad" %>
-          </div>
-
-          <div class="col-md-3">
-            <%= f.input :tiposevento_id,
-                        collection: Tiposevento.where(estado: "ACTIVO").order(:descripcion).collect { |p| [p.descripcion, p.id] },
-                        input_html: { class: 'select2' },
-                        as: :select, include_blank: true, label: "Tipo de Evento" %>
-          </div>
-
-          <div class="col-md-3">
-            <label>Fecha Inicio Inscripción</label>
-            <div class="input-group">
-              <div class="input-group-addon" style="background: #EDEDED;">
-                <i class="fa fa-calendar"></i>
-              </div>
-              <%= f.input :fecha_inicio, as: :string, label: false,
-                          input_html: { class: 'form-control datepicker', autocomplete: 'off' } %>
-            </div>
-          </div>
-        </div>
-
-        <div class="row">
-          <div class="col-md-3">
-            <label>Fecha Fin Inscripción</label>
-            <div class="input-group">
-              <div class="input-group-addon" style="background: #EDEDED;">
-                <i class="fa fa-calendar"></i>
-              </div>
-              <%= f.input :fecha_fin, as: :string, label: false,
-                          input_html: { class: 'form-control datepicker', autocomplete: 'off' } %>
-            </div>
-          </div>
-
-          <div class="col-md-3">
-            <label>Fecha Inicio Evento</label>
-            <div class="input-group">
-              <div class="input-group-addon" style="background: #EDEDED;">
-                <i class="fa fa-calendar"></i>
-              </div>
-              <%= f.input :fecha_inicio_e, as: :string, label: false,
-                          input_html: { class: 'form-control datepicker', autocomplete: 'off' } %>
-            </div>
-          </div>
-
-          <div class="col-md-3">
-            <label>Fecha Fin Evento</label>
-            <div class="input-group">
-              <div class="input-group-addon" style="background: #EDEDED;">
-                <i class="fa fa-calendar"></i>
-              </div>
-              <%= f.input :fecha_fin_e, as: :string, label: false,
-                          input_html: { class: 'form-control datepicker', autocomplete: 'off' } %>
-            </div>
-          </div>
-
-          <div class="col-md-3">
-            <%= f.input :estado,
-                        collection: select_estado,
-                        as: :select,
-                        input_html: { data: { width: '100%' }, class: 'select2' } %>
-          </div>
-        </div>
-
-        <div class="row">
-          <div class="col-md-3">
-            <%= f.input :cantidad_persona,
-                        as: :integer,
-                        label: "Cantidad de Personas Permitidas",
-                        input_html: { class: 'form-control', min: 0 } %>
-          </div>
-
-          <div class="col-md-3">
-            <label class="form-label">Cantidad de Personas Registradas</label>
-            <%= text_field_tag :cantidad_registradas,
-                               @evento.eventospersonas.size,
-                               class: 'form-control',
-                               disabled: true %>
-          </div>
-
-          <div class="col-md-6">
-            <%= f.input :detalle, as: :text,
-                        input_html: { onchange: "this.value=this.value.toUpperCase();" } %>
-          </div>
-        </div>
-
-        <%# ── Evento Especial ── %>
+        <%# ── 1. Evento Especial (siempre primero) ── %>
         <% if is_auth_c('EVENTO_ESPECIAL') %>
-          <div class="row" style="margin-top: 15px;">
+          <div class="row" style="margin-bottom: 15px;">
             <div class="col-md-12">
               <div class="callout" style="border-left: 5px solid #071B7D; background-color: #f0f3ff; padding: 12px 15px;">
                 <div class="checkbox" style="margin: 0;">
@@ -126,8 +29,7 @@
             </div>
           </div>
         <% elsif @evento.evento_especial? %>
-          <%# Solo lectura: el evento ya es especial pero el usuario no tiene permiso para cambiar eso %>
-          <div class="row" style="margin-top: 15px;">
+          <div class="row" style="margin-bottom: 15px;">
             <div class="col-md-12">
               <div class="callout" style="border-left: 5px solid #e67e22; background-color: #fef9f0; padding: 12px 15px;">
                 <strong style="color: #e67e22; font-size: 14px;">
@@ -140,6 +42,110 @@
             </div>
           </div>
         <% end %>
+
+        <%# ── 2. Campos que cambian según tipo ── %>
+        <div class="row">
+          <%# Iglesia / Comunidad / Tipo — solo eventos normales %>
+          <div id="campos-normales-evento" style="display: <%= @evento.evento_especial? ? 'none' : 'contents' %>;">
+            <div class="col-md-3">
+              <%= f.input :iglesia_id,
+                          collection: Iglesia.all.order(:nombre).collect { |p| [p.nombre, p.id] },
+                          input_html: { class: 'select2', id: 'evento_iglesia_id' },
+                          as: :select, include_blank: true, label: "Iglesia" %>
+            </div>
+            <div class="col-md-3">
+              <%= f.input :iglesiascomunidad_id,
+                          collection: [],
+                          input_html: { class: 'select2', id: 'evento_iglesiascomunidad_id' },
+                          as: :select, include_blank: true, label: "Comunidad" %>
+            </div>
+            <div class="col-md-3">
+              <%= f.input :tiposevento_id,
+                          collection: Tiposevento.where(estado: "ACTIVO").order(:descripcion).collect { |p| [p.descripcion, p.id] },
+                          input_html: { class: 'select2' },
+                          as: :select, include_blank: true, label: "Tipo de Evento" %>
+            </div>
+          </div>
+
+          <%# Nombre del Evento — solo eventos especiales %>
+          <div id="campos-especiales-evento" style="display: <%= @evento.evento_especial? ? 'contents' : 'none' %>;">
+            <div class="col-md-6">
+              <div id="detalle-especial">
+                <%= f.input :detalle, as: :string,
+                            label: "Nombre del Evento",
+                            input_html: { id: 'detalle_especial_input', class: 'form-control',
+                                          onchange: "this.value=this.value.toUpperCase();",
+                                          placeholder: "Ej: Día del Seminario, Cena Concierto...",
+                                          value: @evento.detalle.to_s } %>
+              </div>
+            </div>
+          </div>
+
+          <%# Fecha Inicio Inscripción — siempre visible %>
+          <div class="col-md-3">
+            <label>Fecha Inicio Inscripción</label>
+            <div class="input-group">
+              <div class="input-group-addon" style="background: #EDEDED;"><i class="fa fa-calendar"></i></div>
+              <%= f.input :fecha_inicio, as: :string, label: false,
+                          input_html: { class: 'form-control datepicker', autocomplete: 'off' } %>
+            </div>
+          </div>
+        </div>
+
+        <%# ── 3. Fechas + Estado ── %>
+        <div class="row" style="margin-top: 10px;">
+          <div class="col-md-3">
+            <label>Fecha Fin Inscripción</label>
+            <div class="input-group">
+              <div class="input-group-addon" style="background: #EDEDED;"><i class="fa fa-calendar"></i></div>
+              <%= f.input :fecha_fin, as: :string, label: false,
+                          input_html: { class: 'form-control datepicker', autocomplete: 'off' } %>
+            </div>
+          </div>
+          <div class="col-md-3">
+            <label>Fecha Inicio Evento</label>
+            <div class="input-group">
+              <div class="input-group-addon" style="background: #EDEDED;"><i class="fa fa-calendar"></i></div>
+              <%= f.input :fecha_inicio_e, as: :string, label: false,
+                          input_html: { class: 'form-control datepicker', autocomplete: 'off' } %>
+            </div>
+          </div>
+          <div class="col-md-3">
+            <label>Fecha Fin Evento</label>
+            <div class="input-group">
+              <div class="input-group-addon" style="background: #EDEDED;"><i class="fa fa-calendar"></i></div>
+              <%= f.input :fecha_fin_e, as: :string, label: false,
+                          input_html: { class: 'form-control datepicker', autocomplete: 'off' } %>
+            </div>
+          </div>
+          <div class="col-md-3">
+            <%= f.input :estado,
+                        collection: select_estado,
+                        as: :select,
+                        input_html: { data: { width: '100%' }, class: 'select2' } %>
+          </div>
+        </div>
+
+        <%# ── 4. Cantidades + Detalle normal ── %>
+        <div class="row" style="margin-top: 10px;">
+          <div class="col-md-3">
+            <%= f.input :cantidad_persona,
+                        as: :integer,
+                        label: "Cantidad de Personas Permitidas",
+                        input_html: { class: 'form-control', min: 0 } %>
+          </div>
+          <div class="col-md-3">
+            <label class="form-label">Cantidad de Personas Registradas</label>
+            <%= text_field_tag :cantidad_registradas,
+                               @evento.eventospersonas.size,
+                               class: 'form-control',
+                               disabled: true %>
+          </div>
+          <div class="col-md-6" id="detalle-normal" style="display: <%= @evento.evento_especial? ? 'none' : 'block' %>;">
+            <%= f.input :detalle, as: :text,
+                        input_html: { onchange: "this.value=this.value.toUpperCase();" } %>
+          </div>
+        </div>
 
         <%# ── Selector Habeas Data + botón descarga ── %>
         <div class="row" style="margin-top: 10px;">
@@ -246,6 +252,44 @@
       });
   </script>
 <% end %>
+
+<script>
+$(document).ready(function () {
+    function toggleCamposEspecial(esEspecial) {
+        if (esEspecial) {
+            // Ocultar campos normales (Iglesia, Comunidad, Tipo) y detalle normal
+            $('#campos-normales-evento').hide();
+            $('#detalle-normal').hide();
+            // Mostrar campos especiales (Nombre del Evento)
+            $('#campos-especiales-evento').css('display', 'contents');
+            // Limpiar selects de iglesia/tipo para que no bloqueen la validación del servidor
+            $('#evento_iglesia_id').val('').trigger('change');
+            $('#evento_iglesiascomunidad_id').val('').trigger('change');
+            $('#evento_tiposevento_id').val('').trigger('change');
+        } else {
+            // Mostrar campos normales y detalle normal
+            $('#campos-normales-evento').css('display', 'contents');
+            $('#detalle-normal').show();
+            // Ocultar campos especiales
+            $('#campos-especiales-evento').hide();
+        }
+    }
+
+    // Sincronizar input oculto del detalle especial con el campo real
+    $('#detalle_especial_input').on('input change', function () {
+        $('#evento_detalle').val($(this).val());
+    });
+
+    // Ejecutar al cambiar el checkbox
+    $('input[name="evento[evento_especial]"][type="checkbox"]').on('change', function () {
+        toggleCamposEspecial($(this).is(':checked'));
+    });
+
+    // Ejecutar al cargar la página según estado inicial
+    var inicialEspecial = $('input[name="evento[evento_especial]"][type="checkbox"]').is(':checked');
+    toggleCamposEspecial(inicialEspecial);
+});
+</script>
 
 <script>
     $(document).ready(function () {

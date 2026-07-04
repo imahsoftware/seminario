@@ -58,9 +58,13 @@ class Eventospersona < ApplicationRecord
   validates :acudiente_municipio,           length: { maximum: 100 }, allow_blank: true
   validates :acudiente_parroquia_comunidad, length: { maximum: 150 }, allow_blank: true
   validates :acudiente_ocupacion,           length: { maximum: 150 }, allow_blank: true
+  validates :parroquia,  length: { maximum: 150 }, allow_blank: true
+  validates :comunidad,  length: { maximum: 150 }, allow_blank: true
 
+  # tipo_persona no aplica para eventos especiales (se asigna 'SEMINARISTA' por defecto)
   validates :tipo_persona, inclusion: { in: TIPOS_PERSONA,
-                                        message: "debe ser MATRIMONIO, SEMINARISTA, HOMBRE SOLO,MUJER SOLA o PRESBÍTERO" }
+                                        message: "debe ser MATRIMONIO, SEMINARISTA, HOMBRE SOLO,MUJER SOLA o PRESBÍTERO" },
+                           unless: :evento_especial?
 
   validates :acepta_politica,
             acceptance: { accept: 'SI', message: 'Debes aceptar las políticas de tratamiento de datos personales' },
@@ -91,9 +95,10 @@ class Eventospersona < ApplicationRecord
   ].freeze
 
   # ── Validaciones condicionales (voluntario) ───────────────────────────────
+  # En eventos especiales no se pide parroquia de apoyo (queda cubierto por área de voluntariado)
   validates :iglesiascomunidad_apoyo_id,
             presence: { message: "debe seleccionar la parroquia de apoyo" },
-            if: :es_voluntario?
+            if: -> { es_voluntario? && !evento_especial? }
 
   # ── Validaciones condicionales (evento especial - voluntario adulto) ──────
   validates :area_voluntariado,
@@ -276,6 +281,8 @@ class Eventospersona < ApplicationRecord
     self.direccion = direccion.upcase if direccion.present?
     self.acudiente_nombre   = acudiente_nombre.upcase   if acudiente_nombre.present?
     self.acudiente_apellido = acudiente_apellido.upcase if acudiente_apellido.present?
+    self.parroquia = parroquia.upcase if parroquia.present?
+    self.comunidad = comunidad.upcase if comunidad.present?
 
     # ── Nuevos campos evento especial ─────────────────────────────────────────
     self.barrio           = barrio.upcase           if barrio.present?

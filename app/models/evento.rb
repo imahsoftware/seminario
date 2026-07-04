@@ -1,7 +1,7 @@
 class Evento < ApplicationRecord
-  belongs_to :iglesia
+  belongs_to :iglesia,          optional: true
   belongs_to :iglesiascomunidad, optional: true
-  belongs_to :tiposevento
+  belongs_to :tiposevento,      optional: true
   belongs_to :user
   has_many :eventospersonas, dependent: :destroy
   has_many :personas, through: :eventospersonas
@@ -17,7 +17,8 @@ class Evento < ApplicationRecord
   before_save :actualizar_url_si_necesario
 
   validates :guid, presence: true, uniqueness: true
-  validates :iglesia_id, :tiposevento_id, :habeas_data_parametro_id,
+  validates :iglesia_id, :tiposevento_id, presence: true, unless: :evento_especial?
+  validates :habeas_data_parametro_id,
             :fecha_fin, :fecha_inicio_e, :fecha_fin_e, presence: true
 
   validate :validar_fechas

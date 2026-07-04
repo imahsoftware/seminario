@@ -28,147 +28,96 @@
     </div>
   </div>
 
-  <%# ── BODY ──────────────────────────────────────────────────────── %>
-  <div class="box-body table-responsive">
-    <table class="table table-bordered table-hover table-striped" style="font-size: 13px;">
-      <thead>
-      <tr>
-        <th class="text-center" width="8%"  style="background-color: #071B7D; color: #fff;"></th>
-        <th style="background-color: #071B7D; color: #fff;">Detalle</th>
-        <th width="18%" style="background-color: #071B7D; color: #fff;">Tipo Evento</th>
-        <th class="text-center" width="12%" style="background-color: #071B7D; color: #fff;">Fechas Inscripción</th>
-        <th class="text-center" width="12%" style="background-color: #071B7D; color: #fff;">Fechas Evento</th>
-        <th class="text-center" width="12%" style="background-color: #071B7D; color: #fff;">Cupos</th>
-        <th class="text-center" width="12%" style="background-color: #071B7D; color: #fff;">Estado</th>
-      </tr>
-      </thead>
-      <tbody>
-
-      <% if @eventos.empty? %>
-        <tr>
-          <td colspan="7" class="text-center text-muted" style="padding: 30px;">
-            <i class="fa fa-calendar-o fa-2x"></i><br>
-            <small>No se encontraron eventos.</small>
-          </td>
-        </tr>
-
-      <% else %>
-        <% @eventos.order(created_at: :desc).each do |evento| %>
-          <%
-            inscritos  = evento.eventospersonas.size rescue 0
-            permitidos = evento.cantidad_persona.to_i
-            porcentaje = permitidos > 0 ? [(inscritos * 100.0 / permitidos).round, 100].min : 0
-            color_barra = porcentaje >= 100 ? 'danger' : porcentaje >= 75 ? 'warning' : 'success'
-          %>
-          <tr <%= evento.evento_especial? ? 'style="border-left: 4px solid #f39c12; background-color: #fffdf4;"'.html_safe : '' %>>
-            <td class="text-center">
-              <%= link_to edit_evento_path(evento.guid, etapa: 'A'),
-                          class: 'btn btn-xs btn-warning',
-                          title: 'Editar',
-                          data: { toggle: 'tooltip' } do %>
-                <i class="fa fa-edit"></i>
-              <% end %>
-              <%= link_to edit_evento_path(evento.guid, etapa: 'B'),
-                          class: 'btn btn-xs btn-info',
-                          title: 'Ver inscritos',
-                          data: { toggle: 'tooltip' } do %>
-                <i class="fa fa-users"></i>
-              <% end %>
-              <%# Botón nuevo - Descargar Excel %>
-              <%= link_to evento_exportar_excel_path(evento.guid, format: :xlsx),
-                          class: 'btn btn-xs btn-success',
-                          title: 'Descargar Excel',
-                          data: { toggle: 'tooltip' } do %>
-                <i class="fa fa-file-excel-o"></i>
-              <% end %>
-            </td>
-            <td>
-              <% if evento.evento_especial? %>
-                <span class="label" style="background-color: #f39c12; color: #fff; font-size: 10px; padding: 2px 6px; margin-right: 5px; vertical-align: middle;">
-                  <i class="fa fa-star"></i> Especial
-                </span>
-              <% end %>
-              <%= evento.detalle rescue nil %>
-            </td>
-            <td><%= evento.tiposevento.descripcion rescue '—' %></td>
-            <td class="text-center">
-              <small>
-                <i class="fa fa-calendar text-muted"></i>
-                <%= evento.fecha_inicio.strftime("%d/%m/%Y") rescue '—' %>
-              </small><br>
-              <small>
-                <i class="fa fa-calendar-check-o text-muted"></i>
-                <%= evento.fecha_fin.strftime("%d/%m/%Y") rescue '—' %>
-              </small>
-            </td>
-
-            <%# Fechas Evento %>
-            <td class="text-center">
-              <small>
-                <i class="fa fa-calendar text-muted"></i>
-                <%= evento.fecha_inicio_e.strftime("%d/%m/%Y") rescue '—' %>
-              </small><br>
-              <small>
-                <i class="fa fa-calendar-check-o text-muted"></i>
-                <%= evento.fecha_fin_e.strftime("%d/%m/%Y") rescue '—' %>
-              </small>
-            </td>
-
-            <%# Cupos %>
-            <td class="text-center">
-                <span>
-                  <strong><%= inscritos %></strong>
-                  <% if permitidos > 0 %>
-                    <span class="text-muted">/ <%= permitidos %></span>
-                  <% end %>
-                </span>
-              <% if permitidos > 0 %>
-                <div class="progress progress-xs" style="margin: 4px 0 0 0;">
-                  <div class="progress-bar progress-bar-<%= color_barra %>"
-                       style="width: <%= porcentaje %>%"
-                       title="<%= porcentaje %>% ocupado">
-                  </div>
-                </div>
-              <% end %>
-            </td>
-
-
-            <td class="text-center">
-              <% if evento.vigente? %>
-                <span class="label label-success">VIGENTE</span>
-              <% elsif evento.vencido? %>
-                <span class="label label-danger">VENCIDO</span>
-              <% else %>
-                <span class="label label-warning">NO INICIADO</span>
-              <% end %>
-            </td>
-
-          </tr>
-        <% end %>
+  <%# ── TABS ──────────────────────────────────────────────────────── %>
+  <div class="box-body" style="padding-bottom: 0;">
+    <ul class="nav nav-tabs" id="eventosTabs" role="tablist">
+      <li role="presentation" class="<%= params[:tab] == 'especiales' ? '' : 'active' %>">
+        <a href="#tab-normales" role="tab" data-toggle="tab" data-tab="normales">
+          <i class="fa fa-calendar"></i> Eventos
+          <span class="badge" style="background-color: #071B7D; margin-left: 5px;">
+            <%= @eventos_normales.total_entries %>
+          </span>
+        </a>
+      </li>
+      <% if is_auth_c('EVENTO_ESPECIAL') || @eventos_especiales.any? %>
+        <li role="presentation" class="<%= params[:tab] == 'especiales' ? 'active' : '' %>">
+          <a href="#tab-especiales" role="tab" data-toggle="tab" data-tab="especiales">
+            <i class="fa fa-star" style="color: #f39c12;"></i> Eventos Especiales
+            <span class="badge" style="background-color: #f39c12; margin-left: 5px;">
+              <%= @eventos_especiales.total_entries %>
+            </span>
+          </a>
+        </li>
       <% end %>
-
-      </tbody>
-    </table>
+    </ul>
   </div>
 
-  <%# ── FOOTER PAGINACIÓN ─────────────────────────────────────────── %>
-  <div class="box-footer clearfix">
-    <div class="pull-right">
-      <%= will_paginate @eventos, renderer: BootstrapPagination::Rails %>
+  <%# ── CONTENIDO TABS ─────────────────────────────────────────────── %>
+  <div class="tab-content" style="padding: 0;">
+
+    <%# ── TAB: EVENTOS NORMALES ──────────────────────────────────────── %>
+    <div role="tabpanel"
+         class="tab-pane <%= params[:tab] == 'especiales' ? '' : 'active' %>"
+         id="tab-normales">
+      <div class="box-body table-responsive" style="padding-top: 0;">
+        <%= render 'tabla_eventos', eventos: @eventos_normales, tipo: :normal %>
+      </div>
+      <div class="box-footer clearfix">
+        <div class="pull-right">
+          <%= will_paginate @eventos_normales,
+                            renderer: BootstrapPagination::Rails,
+                            params: { tab: 'normales', page_e: params[:page_e] } %>
+        </div>
+        <div class="pull-left text-muted" style="padding-top: 6px;">
+          <small>
+            Mostrando <%= @eventos_normales.offset_value + 1 %> –
+            <%= [@eventos_normales.offset_value + @eventos_normales.length, @eventos_normales.total_entries].min %>
+            de <%= @eventos_normales.total_entries %> eventos
+          </small>
+        </div>
+      </div>
     </div>
-    <div class="pull-left text-muted" style="padding-top: 6px;">
-      <small>
-        Mostrando <%= @eventos.offset_value + 1 %> –
-        <%= [@eventos.offset_value + @eventos.length, @eventos.total_entries].min %>
-        de <%= @eventos.total_entries %> eventos
-      </small>
-    </div>
-  </div>
+
+    <%# ── TAB: EVENTOS ESPECIALES ─────────────────────────────────────── %>
+    <% if is_auth_c('EVENTO_ESPECIAL') || @eventos_especiales.any? %>
+      <div role="tabpanel"
+           class="tab-pane <%= params[:tab] == 'especiales' ? 'active' : '' %>"
+           id="tab-especiales">
+        <div class="box-body table-responsive" style="padding-top: 0;">
+          <%= render 'tabla_eventos', eventos: @eventos_especiales, tipo: :especial %>
+        </div>
+        <div class="box-footer clearfix">
+          <div class="pull-right">
+            <%= will_paginate @eventos_especiales,
+                              renderer: BootstrapPagination::Rails,
+                              params: { tab: 'especiales', page: params[:page] } %>
+          </div>
+          <div class="pull-left text-muted" style="padding-top: 6px;">
+            <small>
+              Mostrando <%= @eventos_especiales.offset_value + 1 %> –
+              <%= [@eventos_especiales.offset_value + @eventos_especiales.length, @eventos_especiales.total_entries].min %>
+              de <%= @eventos_especiales.total_entries %> eventos especiales
+            </small>
+          </div>
+        </div>
+      </div>
+    <% end %>
+
+  </div><%# /tab-content %>
 
 </div>
 
 <script>
-    $(document).ready(function () {
-        $('[data-toggle="tooltip"]').tooltip();
+  $(document).ready(function () {
+    $('[data-toggle="tooltip"]').tooltip();
+
+    // Recordar tab activo en la URL al cambiar
+    $('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
+      var tabName = $(e.target).data('tab');
+      // Actualizar URL sin recargar la página
+      var url = new URL(window.location.href);
+      url.searchParams.set('tab', tabName);
+      window.history.replaceState({}, '', url.toString());
     });
+  });
 </script>

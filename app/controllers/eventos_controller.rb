@@ -11,7 +11,13 @@ class EventosController < ApplicationController
 
   def index
     @q = Evento.ransack(params[:q])
-    @eventos = @q.result.paginate(:page => params[:page], :per_page => 10)
+    base = @q.result(distinct: true)
+    @eventos_especiales = base.where(evento_especial: true)
+                              .order(created_at: :desc)
+                              .paginate(page: params[:page_e], per_page: 10)
+    @eventos_normales   = base.where(evento_especial: [false, nil])
+                              .order(created_at: :desc)
+                              .paginate(page: params[:page],   per_page: 10)
   end
 
   def new

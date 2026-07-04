@@ -74,12 +74,16 @@
             </div>
 
             <div class="row">
+              <% unless @evento.evento_especial? %>
               <div class="col-md-4">
                 <%= f.input :tipo_persona, label: "Tipo",
                             collection: Iparametro.where("campo = 'TIPO_PERSONA'").order(:descripcion).collect { |p| [p.descripcion.to_s, p.valor.to_s] },
                             input_html: { class: 'select2', id: 'tipo_persona', style: "width: 100%" },
                             as: :select, include_blank: true %>
               </div>
+              <% else %>
+                <%= hidden_field_tag 'eventospersona[tipo_persona]', 'SEMINARISTA' %>
+              <% end %>
               <div class="col-md-4">
                 <label>Fecha de Nacimiento <span class="text-danger">*</span></label>
                 <div class="input-group">
@@ -132,9 +136,19 @@
               </div>
             </div>
             <div class="row">
-              <div class="col-md-6">
+              <div class="col-md-4">
                 <%= f.input :ocupacion, label: "Ocupación",
                             input_html: { class: 'form-control', onchange: 'this.value=this.value.toUpperCase();' } %>
+              </div>
+              <div class="col-md-4">
+                <%= f.input :parroquia, label: "Parroquia",
+                            input_html: { class: 'form-control', onchange: 'this.value=this.value.toUpperCase();',
+                                          placeholder: 'Ej: Parroquia San Juan Bosco' } %>
+              </div>
+              <div class="col-md-4">
+                <%= f.input :comunidad, label: "Comunidad",
+                            input_html: { class: 'form-control', onchange: 'this.value=this.value.toUpperCase();',
+                                          placeholder: 'Ej: Comunidad Juvenil SRM' } %>
               </div>
             </div>
             <% end %>
@@ -545,7 +559,8 @@
                                               onchange: 'this.value=this.value.toUpperCase();' } %>
                   </div>
 
-                  <%# Select: Apoyo Parroquia %>
+                  <%# Select: Apoyo Parroquia — solo para eventos normales %>
+                  <% unless @evento.evento_especial? %>
                   <div class="form-group" style="margin-top: 15px;">
                     <label>
                       <i class="fa fa-map-marker"></i> <strong style="color: #071B7D;">Apoyo Parroquia</strong>
@@ -563,6 +578,7 @@
                                    style: "width: 100%" %>
                     <small class="text-muted">Selecciona la comunidad/parroquia donde prestarás apoyo.</small>
                   </div>
+                  <% end %>
 
                   <%# ── Contacto de emergencia (adultos) ── %>
                   <h5 class="text-primary" style="margin-top: 25px;"><i class="fa fa-phone"></i> Contacto de Emergencia</h5>
@@ -996,7 +1012,8 @@
                 // ── Validación voluntario ──────────────────────────────────
                 if ($('#es_voluntario_hidden').val() === '1') {
                     var vaciosVol = [];
-                    if (!$('#iglesiascomunidad_apoyo_id').val()) vaciosVol.push('Parroquia de Apoyo');
+                    // Parroquia de Apoyo solo requerida en eventos normales (no especiales)
+                    if ($('#iglesiascomunidad_apoyo_id').length && !$('#iglesiascomunidad_apoyo_id').val()) vaciosVol.push('Parroquia de Apoyo');
                     // Evento especial: campos adicionales del voluntario adulto
                     var areaVol = $('#area_voluntariado_final').val();
                     if ($('#area_voluntariado_select').length && !areaVol) vaciosVol.push('Área de Voluntariado');
