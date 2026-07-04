@@ -1,0 +1,118 @@
+<%# app/views/eventos/_tabla_eventos.html.erb
+    Parámetros:
+      eventos  – colección paginada de eventos
+      tipo     – :normal | :especial  (controla columnas visibles)
+%>
+
+<table class="table table-bordered table-hover table-striped" style="font-size: 13px; margin-bottom: 0;">
+  <thead>
+    <tr>
+      <th class="text-center" width="8%"  style="background-color: #071B7D; color: #fff;"></th>
+      <th style="background-color: #071B7D; color: #fff;">Detalle</th>
+      <% if tipo == :normal %>
+        <th width="18%" style="background-color: #071B7D; color: #fff;">Tipo Evento</th>
+      <% end %>
+      <th class="text-center" width="12%" style="background-color: #071B7D; color: #fff;">Fechas Inscripción</th>
+      <th class="text-center" width="12%" style="background-color: #071B7D; color: #fff;">Fechas Evento</th>
+      <th class="text-center" width="12%" style="background-color: #071B7D; color: #fff;">Cupos</th>
+      <th class="text-center" width="10%" style="background-color: #071B7D; color: #fff;">Estado</th>
+    </tr>
+  </thead>
+  <tbody>
+    <% if eventos.empty? %>
+      <tr>
+        <td colspan="<%= tipo == :normal ? 7 : 6 %>" class="text-center text-muted" style="padding: 30px;">
+          <i class="fa fa-calendar-o fa-2x"></i><br>
+          <small>No se encontraron eventos.</small>
+        </td>
+      </tr>
+    <% else %>
+      <% eventos.each do |evento| %>
+        <%
+          inscritos  = evento.eventospersonas.size rescue 0
+          permitidos = evento.cantidad_persona.to_i
+          porcentaje = permitidos > 0 ? [(inscritos * 100.0 / permitidos).round, 100].min : 0
+          color_barra = porcentaje >= 100 ? 'danger' : porcentaje >= 75 ? 'warning' : 'success'
+        %>
+        <tr>
+          <td class="text-center">
+            <%= link_to edit_evento_path(evento.guid, etapa: 'A'),
+                        class: 'btn btn-xs btn-warning',
+                        title: 'Editar',
+                        data: { toggle: 'tooltip' } do %>
+              <i class="fa fa-edit"></i>
+            <% end %>
+            <%= link_to edit_evento_path(evento.guid, etapa: 'B'),
+                        class: 'btn btn-xs btn-info',
+                        title: 'Ver inscritos',
+                        data: { toggle: 'tooltip' } do %>
+              <i class="fa fa-users"></i>
+            <% end %>
+            <%= link_to evento_exportar_excel_path(evento.guid, format: :xlsx),
+                        class: 'btn btn-xs btn-success',
+                        title: 'Descargar Excel',
+                        data: { toggle: 'tooltip' } do %>
+              <i class="fa fa-file-excel-o"></i>
+            <% end %>
+          </td>
+
+          <td><%= evento.detalle rescue nil %></td>
+
+          <% if tipo == :normal %>
+            <td><%= evento.tiposevento.descripcion rescue '—' %></td>
+          <% end %>
+
+          <td class="text-center">
+            <small>
+              <i class="fa fa-calendar text-muted"></i>
+              <%= evento.fecha_inicio.strftime("%d/%m/%Y") rescue '—' %>
+            </small><br>
+            <small>
+              <i class="fa fa-calendar-check-o text-muted"></i>
+              <%= evento.fecha_fin.strftime("%d/%m/%Y") rescue '—' %>
+            </small>
+          </td>
+
+          <td class="text-center">
+            <small>
+              <i class="fa fa-calendar text-muted"></i>
+              <%= evento.fecha_inicio_e.strftime("%d/%m/%Y") rescue '—' %>
+            </small><br>
+            <small>
+              <i class="fa fa-calendar-check-o text-muted"></i>
+              <%= evento.fecha_fin_e.strftime("%d/%m/%Y") rescue '—' %>
+            </small>
+          </td>
+
+          <td class="text-center">
+            <span>
+              <strong><%= inscritos %></strong>
+              <% if permitidos > 0 %>
+                <span class="text-muted">/ <%= permitidos %></span>
+              <% end %>
+            </span>
+            <% if permitidos > 0 %>
+              <div class="progress progress-xs" style="margin: 4px 0 0 0;">
+                <div class="progress-bar progress-bar-<%= color_barra %>"
+                     style="width: <%= porcentaje %>%"
+                     title="<%= porcentaje %>% ocupado">
+                </div>
+              </div>
+            <% end %>
+          </td>
+
+          <td class="text-center">
+            <% if evento.vigente? %>
+              <span class="label label-success">VIGENTE</span>
+            <% elsif evento.vencido? %>
+              <span class="label label-danger">VENCIDO</span>
+            <% else %>
+              <span class="label label-warning">NO INICIADO</span>
+            <% end %>
+          </td>
+
+        </tr>
+      <% end %>
+    <% end %>
+  </tbody>
+</table>
