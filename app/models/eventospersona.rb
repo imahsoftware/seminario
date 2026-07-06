@@ -48,6 +48,11 @@ class Eventospersona < ApplicationRecord
   validates :lugar_nacimiento,  length: { maximum: 150 }, allow_blank: true
   validates :ocupacion,         length: { maximum: 150 }, allow_blank: true
   validates :eps,               length: { maximum: 100 }, allow_blank: true
+
+  # ── Obligatorios en eventos especiales ───────────────────────────────────
+  validates :municipio, :lugar_nacimiento, :eps, :ocupacion,
+            presence: { message: "es obligatorio" },
+            if: :evento_especial?
   validates :area_voluntariado_otro, length: { maximum: 150 }, allow_blank: true
   validates :emergencia_nombre,   length: { maximum: 100 }, allow_blank: true
   validates :emergencia_apellido, length: { maximum: 100 }, allow_blank: true

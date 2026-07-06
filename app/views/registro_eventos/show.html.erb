@@ -123,21 +123,21 @@
                             input_html: { class: 'form-control', onchange: 'this.value=this.value.toUpperCase();' } %>
               </div>
               <div class="col-md-3">
-                <%= f.input :municipio, label: "Municipio", required: false,
+                <%= f.input :municipio, label: "Municipio", required: true,
                             input_html: { class: 'form-control', onchange: 'this.value=this.value.toUpperCase();' } %>
               </div>
               <div class="col-md-3">
-                <%= f.input :lugar_nacimiento, label: "Lugar de Nacimiento",
+                <%= f.input :lugar_nacimiento, label: "Lugar de Nacimiento", required: true,
                             input_html: { class: 'form-control', onchange: 'this.value=this.value.toUpperCase();' } %>
               </div>
               <div class="col-md-3">
-                <%= f.input :eps, label: "EPS",
+                <%= f.input :eps, label: "EPS", required: true,
                             input_html: { class: 'form-control', onchange: 'this.value=this.value.toUpperCase();' } %>
               </div>
             </div>
             <div class="row">
               <div class="col-md-4">
-                <%= f.input :ocupacion, label: "Ocupación",
+                <%= f.input :ocupacion, label: "Ocupación", required: true,
                             input_html: { class: 'form-control', onchange: 'this.value=this.value.toUpperCase();' } %>
               </div>
               <div class="col-md-4">
