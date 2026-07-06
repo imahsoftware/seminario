@@ -25,7 +25,10 @@ class EventoCheckDocumentosController < ApplicationController
   def update
     @ecd = EventoCheckDocumento.find(params[:id])
     @evento = @ecd.evento
-    @ecd.update(orden: params[:orden])
+    attrs = {}
+    attrs[:orden]       = params[:orden]       if params[:orden].present?
+    attrs[:aplica_para] = params[:aplica_para] if params[:aplica_para].present?
+    @ecd.update(attrs)
     respond_to { |format| format.js { render 'refresh_documentos' } }
   end
 end

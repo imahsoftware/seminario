@@ -10,13 +10,15 @@ class WssmsController < ApplicationController
   require 'base64'
 
   def self.envio_sms_colombiaredenvio(eventopersona)
-
-    mensaje = "Hola #{eventopersona.acudiente_nombre}, soy del Seminario Redemptoris Mater. #{eventopersona.nombre} se inscribió a un evento y necesita tu autorización. Por favor abre este enlace para completar el proceso:"
     dominio  = Parametro.find(37).valor
     url_sms  = "#{dominio}/registro/#{eventopersona&.evento&.guid}/autorizacion/#{eventopersona&.id}"
+
+    mensaje = "Hola #{eventopersona.acudiente_nombre}, soy del Seminario Redemptoris Mater. " \
+      "#{eventopersona.nombre} se inscribio a un evento y necesita tu autorizacion. " \
+      "Abre este enlace para autorizar: #{url_sms}"
+
     username = Parametro.find(31).valor
     password = Parametro.find(32).valor
-
 
     token = Base64.strict_encode64("#{username}:#{password}")
     url   = URI.parse('https://apitellit.aldeamo.com/SmsiWS/smsSendPost/')
@@ -41,6 +43,8 @@ class WssmsController < ApplicationController
       ]
     }
 
+    Rails.logger.info "📱 SMS Autorizacion menor | Acudiente: #{eventopersona.acudiente_nombre} | Celular: #{eventopersona.acudiente_celular} | URL: #{url_sms}"
+
     http             = Net::HTTP.new(url.host, url.port)
     http.use_ssl     = true
     http.verify_mode = OpenSSL::SSL::VERIFY_NONE
@@ -49,17 +53,19 @@ class WssmsController < ApplicationController
     request.body = payload.to_json
 
     begin
-      response = http.request(request)
-      return response.body
+      response      = http.request(request)
+      response_body = response.body.to_s.force_encoding('UTF-8').scrub
+
+      Rails.logger.info "✅ SMS Autorizacion menor | Respuesta Aldeamo: #{response.code} | #{response_body}"
+      return response_body
     rescue OpenSSL::SSL::SSLError => e
-      Rails.logger.error "SMS SSL Error: #{e.message}"
+      Rails.logger.error "❌ SMS Autorizacion menor SSL Error | Celular: #{eventopersona.acudiente_celular} | #{e.message}"
       return nil
     rescue => e
-      Rails.logger.error "SMS Error: #{e.message}"
+      Rails.logger.error "❌ SMS Autorizacion menor Error | Celular: #{eventopersona.acudiente_celular} | #{e.message}"
       return nil
     end
   end
-
   def self.envio_sms_credenciales_inscrito(eventospersona, password)
     identificacion = eventospersona.identificacion.to_s
 

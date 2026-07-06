@@ -108,6 +108,62 @@
               SECCIÓN DOCUMENTOS — solo visible si autoriza
               ══════════════════════════════════════════════════════════ %>
             <div id="seccion-documentos" style="display:none;">
+
+              <%# ── Documentos para menores que el acudiente debe leer ── %>
+              <% docs_menor = @evento.evento_check_documentos
+                                     .includes(:check_documento)
+                                     .where(aplica_para: ['MENOR', 'AMBOS'])
+                                     .order(:orden) %>
+              <% if docs_menor.any? %>
+                <h4 class="text-primary" style="margin-top: 10px;">
+                  <i class="fa fa-file-text-o"></i> Documentos que debes leer y aceptar
+                </h4>
+                <p class="text-muted">
+                  <small><i class="fa fa-info-circle"></i> Abre cada documento, léelo y márcalo para poder continuar.</small>
+                </p>
+
+                <% docs_menor.each do |ecd| %>
+                  <% doc = ecd.check_documento %>
+                  <div class="panel panel-default" style="margin-bottom: 8px;" id="panel_doc_acud_<%= ecd.id %>">
+                    <div class="panel-body" style="padding: 10px 15px;">
+                      <div class="row">
+                        <div class="col-xs-7">
+                          <div class="checkbox" style="margin: 0;">
+                            <label id="label_doc_acud_<%= ecd.id %>"
+                                   style="opacity: 0.4; cursor: not-allowed;"
+                                   title="Primero debes abrir el documento">
+                              <input type="checkbox"
+                                     id="check_doc_acud_<%= ecd.id %>"
+                                     class="acud-doc-check"
+                                     value="1"
+                                     disabled>
+                              <strong style="color: #071B7D;">
+                                <i class="fa fa-file-pdf-o"></i> <%= doc.titulo %>
+                              </strong>
+                              <span class="text-danger"> *</span>
+                            </label>
+                          </div>
+                          <small class="text-muted" style="padding-left: 22px;"><%= doc.descripcion %></small>
+                        </div>
+                        <div class="col-xs-5 text-right">
+                          <a href="<%= doc.documento.url %>"
+                             target="_blank"
+                             class="btn btn-info btn-sm btn-abrir-doc-acud"
+                             data-ecd-id="<%= ecd.id %>"
+                             onclick="habilitarCheckAcud(<%= ecd.id %>)">
+                            <i class="fa fa-eye"></i> Leer
+                          </a>
+                          <span id="leido_acud_<%= ecd.id %>" class="label label-success" style="display:none; margin-left:4px;">
+                            <i class="fa fa-check"></i> Leído
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                <% end %>
+                <hr>
+              <% end %>
+
               <h4 class="text-primary" style="margin-top: 10px;">
                 <i class="fa fa-id-card"></i> Documento de Identidad del Acudiente
               </h4>
@@ -283,17 +339,38 @@
               }
           }
 
+          // ── Habilitar check de documento del acudiente al abrirlo ────────
+          window.habilitarCheckAcud = function(ecdId) {
+              var label = document.getElementById('label_doc_acud_' + ecdId);
+              var check = document.getElementById('check_doc_acud_' + ecdId);
+              var badge = document.getElementById('leido_acud_' + ecdId);
+              if (label) { label.style.opacity = '1'; label.style.cursor = 'pointer'; label.title = ''; }
+              if (check) { check.disabled = false; check.addEventListener('change', verificarHabilitarBoton); }
+              if (badge) { badge.style.display = 'inline'; }
+          };
+
           // ── Verificar si habilitar el botón Confirmar SI ───────────────────
           function verificarHabilitarBoton() {
               var frente  = document.getElementById('acu_frente_b64').value;
               var reverso = document.getElementById('acu_reverso_b64').value;
-              var btn     = document.getElementById('btn-confirmar-si');
-              if (frente && reverso) {
+
+              // Verificar que todos los documentos estén marcados
+              var checks = document.querySelectorAll('.acud-doc-check');
+              var todosChecked = true;
+              checks.forEach(function(c) { if (!c.checked) todosChecked = false; });
+
+              var btn = document.getElementById('btn-confirmar-si');
+              if (frente && reverso && todosChecked) {
                   btn.disabled = false; btn.style.opacity = '1'; btn.style.cursor = 'pointer';
               } else {
                   btn.disabled = true;  btn.style.opacity = '0.5'; btn.style.cursor = 'not-allowed';
               }
           }
+
+          // Escuchar cambios en los checks de documentos
+          document.querySelectorAll('.acud-doc-check').forEach(function(c) {
+              c.addEventListener('change', verificarHabilitarBoton);
+          });
 
           // ── Al enviar el form SI: copiar base64 a campos hidden ────────────
           $('#form-autorizar-si').on('submit', function (e) {

@@ -14,6 +14,7 @@
           <th style="width: 50px;">Orden</th>
           <th>Documento</th>
           <th>Descripción</th>
+          <th style="width: 130px;" class="text-center">Aplica para</th>
           <th style="width: 80px;">Acción</th>
         </tr>
       </thead>
@@ -35,6 +36,15 @@
               <% end %>
             </td>
             <td><small class="text-muted"><%= ecd.check_documento.descripcion %></small></td>
+            <td class="text-center">
+              <select class="form-control input-sm select2-aplica"
+                      id="aplica_para_<%= ecd.id %>"
+                      onchange="actualizarAplicaPara(<%= ecd.id %>, this.value)">
+                <% EventoCheckDocumento::APLICA_PARA_OPCIONES.each do |label, val| %>
+                  <option value="<%= val %>" <%= 'selected' if ecd.aplica_para == val %>><%= label %></option>
+                <% end %>
+              </select>
+            </td>
             <td>
               <%= link_to evento_check_documento_path(ecd), method: :delete, remote: true,
                           data: { confirm: '¿Quitar este documento del evento?' },
@@ -108,5 +118,21 @@
     });
   }
 
-  setTimeout(function(){ if($.fn.select2) $('#select_check_documento').select2(); }, 200);
+  function actualizarAplicaPara(ecdId, valor) {
+    $.ajax({
+      url: '/evento_check_documentos/' + ecdId,
+      method: 'PATCH',
+      data: { aplica_para: valor, authenticity_token: $('meta[name=csrf-token]').attr('content') },
+      dataType: 'script',
+      success: function() { toastr.success('Actualizado correctamente.'); },
+      error:   function() { toastr.error('Error al actualizar.'); }
+    });
+  }
+
+  setTimeout(function(){
+    if($.fn.select2) {
+      $('#select_check_documento').select2();
+      $('.select2-aplica').select2({ minimumResultsForSearch: Infinity, width: '100%' });
+    }
+  }, 200);
 </script>
