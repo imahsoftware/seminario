@@ -104,14 +104,28 @@ class EventospersonasController < ApplicationController
     @eventospersona = Eventospersona.find_by(id: params[:id])
 
     if @eventospersona.nil?
-      redirect_back fallback_location: root_path,
-                    alert: 'Inscripción no encontrada'
+      respond_to do |format|
+        format.json { render json: { ok: false, mensaje: 'Inscripción no encontrada' }, status: :not_found }
+        format.html { redirect_back fallback_location: root_path, alert: 'Inscripción no encontrada' }
+      end
       return
     end
 
-    WssmsController.envio_sms_colombiaredenvio(@eventospersona)
-    redirect_back fallback_location: root_path,
-                  notice: "SMS reenviado al acudiente #{@eventospersona.acudiente_celular}"
+    resultado = WssmsController.envio_sms_colombiaredenvio(@eventospersona)
+
+    respond_to do |format|
+      format.json do
+        if resultado[:status] == 'ENVIADO'
+          render json: { ok: true,  mensaje: "✅ SMS enviado al #{@eventospersona.acudiente_celular}" }
+        else
+          render json: { ok: false, mensaje: "❌ Error al enviar SMS: #{resultado[:body]}" }
+        end
+      end
+      format.html do
+        redirect_back fallback_location: root_path,
+                      notice: "SMS reenviado al acudiente #{@eventospersona.acudiente_celular}"
+      end
+    end
   end
 
 

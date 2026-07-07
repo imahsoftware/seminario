@@ -440,18 +440,47 @@
             <% if ep.acudiente_celular.present? %>
               <div class="row" style="margin-top: 8px;">
                 <div class="col-xs-12 text-center">
-                  <%= link_to reenviar_mensaje_eventospersona_path(ep),
-                              method: :post,
-                              class: 'btn btn-sm btn-success',
-                              data: { toggle: 'tooltip', placement: 'top' },
-                              title: "Reenviar SMS al acudiente" do %>
+                  <button type="button"
+                          class="btn btn-sm btn-success btn-reenviar-sms"
+                          data-url="<%= reenviar_mensaje_eventospersona_path(ep) %>"
+                          title="Reenviar SMS al acudiente">
                     <i class="fa fa-paper-plane"></i> Reenviar SMS al acudiente
                     <strong><%= ep.acudiente_celular %></strong>
-                  <% end %>
+                  </button>
+                  <div id="sms-resultado-<%= ep.id %>" style="margin-top:6px;"></div>
                 </div>
               </div>
             <% end %>
           </div>
+
+          <script>
+            $(document).off('click', '.btn-reenviar-sms').on('click', '.btn-reenviar-sms', function() {
+              var btn = $(this);
+              var url = btn.data('url');
+              var epId = '<%= ep.id %>';
+              btn.prop('disabled', true).html('<i class="fa fa-spinner fa-spin"></i> Enviando...');
+              $.ajax({
+                url:  url,
+                type: 'POST',
+                dataType: 'json',
+                headers: { 'X-CSRF-Token': $('meta[name="csrf-token"]').attr('content') },
+                success: function(data) {
+                  var cls = data.ok ? 'alert-success' : 'alert-danger';
+                  var ico = data.ok ? 'check-circle' : 'times-circle';
+                  $('#sms-resultado-' + epId).html(
+                    '<div class="alert ' + cls + '" style="padding:6px 10px; margin:0;">' +
+                    '<i class="fa fa-' + ico + '"></i> ' + data.mensaje + '</div>'
+                  );
+                  btn.prop('disabled', false).html('<i class="fa fa-paper-plane"></i> Reenviar SMS al acudiente <strong>' + btn.find('strong').text() + '</strong>');
+                  setTimeout(function() { $('#sms-resultado-' + epId).fadeOut(500, function(){ $(this).html('').show(); }); }, 6000);
+                },
+                error: function() {
+                  $('#sms-resultado-' + epId).html('<div class="alert alert-danger" style="padding:6px 10px; margin:0;"><i class="fa fa-times-circle"></i> Error al contactar el servidor</div>');
+                  btn.prop('disabled', false).html('<i class="fa fa-paper-plane"></i> Reenviar SMS al acudiente <strong>' + btn.find('strong').text() + '</strong>');
+                }
+              });
+            });
+          </script>
         </div>
       </div>
     <% end %>
