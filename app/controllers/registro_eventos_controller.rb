@@ -305,7 +305,9 @@ class RegistroEventosController < ApplicationController
         email:              persona.email,
         direccion:          persona.direccion,
         sexo:               persona.sexo,
-        tipo_persona:       eventospersona&.tipo_persona,  # ← &. por si no existe
+        tipo_persona:       eventospersona&.tipo_persona,
+        es_voluntario:      eventospersona&.es_voluntario == true,
+        area_voluntariado:  eventospersona&.area_voluntariado.to_s,
         estado_civil_id:    persona.estado_civil_id,
         documento_tipo_id:  persona.documento_tipo_id,
         tiene_documentos:   documento.present?,

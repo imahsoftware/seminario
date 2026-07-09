@@ -1245,9 +1245,6 @@
                     data: {identificacion: id, documento_tipo_id: documento_tipo_id},
                     success: function (data) {
                         console.log('✅ data recibida:', data);
-                        console.log('📌 tipo_persona:', data.tipo_persona);
-                        console.log('📌 #tipo_persona options:', $('#tipo_persona option').length);
-
                         if (!data.encontrada) return;
 
                         $('#eventospersona_nombre').val(data.nombre).trigger('change');
@@ -1255,19 +1252,44 @@
                         $('#eventospersona_celular').val(data.celular).trigger('change');
                         $('#eventospersona_email').val(data.email).trigger('change');
                         $('#eventospersona_direccion').val(data.direccion).trigger('change');
-
-                        if (data.tipo_persona) {
-                            $('#tipo_persona').val(data.tipo_persona).trigger('change');
-                        } else {
-                            $('#tipo_persona').val('').trigger('change');
-                        }
-
-                        if (data.fecha_nacimiento) {
-                            $fn.val(data.fecha_nacimiento);
-                            setTimeout(validarEdad, 200);
-                        }
                         if (data.sexo) $('#eventospersona_sexo').val(data.sexo).trigger('change');
                         if (data.documento_tipo_id) $('#eventospersona_documento_tipo_id').val(data.documento_tipo_id).trigger('change');
+
+                        // 1) Cargar fecha primero para que validarEdad y actualizarSeccionConyuge
+                        //    conozcan la edad antes de decidir qué secciones mostrar
+                        if (data.fecha_nacimiento) {
+                            $fn.val(data.fecha_nacimiento);
+                            setTimeout(validarEdad, 100);
+                        }
+
+                        // 2) Cargar tipo_persona DESPUÉS de la fecha (con delay)
+                        //    para que actualizarSeccionConyuge ya tenga la edad calculada
+                        setTimeout(function () {
+                            if (data.tipo_persona) {
+                                $('#tipo_persona').val(data.tipo_persona).trigger('change');
+                            } else {
+                                $('#tipo_persona').val('').trigger('change');
+                            }
+                        }, 250);
+
+                        // 3) Sección voluntario: abrir si ya era voluntario
+                        setTimeout(function () {
+                            if (data.es_voluntario) {
+                                $('#es_voluntario_hidden').val('1');
+                                $('#panel-voluntario-toggle').hide();
+                                $('#seccion-voluntario').show();
+                                if (data.area_voluntariado) {
+                                    $('#area_voluntariado_final').val(data.area_voluntariado);
+                                    if ($.fn.select2) {
+                                        $('#area_voluntariado_select').val(data.area_voluntariado).trigger('change.select2');
+                                        $('#area_voluntariado_menor_select').val(data.area_voluntariado).trigger('change.select2');
+                                    }
+                                    if (data.area_voluntariado === 'OTROS') {
+                                        $('#area-voluntariado-otro-wrap').show();
+                                    }
+                                }
+                            }
+                        }, 300);
 
                         if (data.tiene_documentos && data.cedula_frente_url && data.cedula_reverso_url) {
                             document.getElementById('preview-frente-img').src = data.cedula_frente_url;
