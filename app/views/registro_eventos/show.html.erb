@@ -1314,10 +1314,13 @@
         $('#acudiente_identificacion').on('blur', function () {
             var id = $(this).val().trim();
             if (id.length < 5) return;
+            // Antes usaba una variable inexistente (documento_tipo_id) que
+            // lanzaba ReferenceError y rompía el autocompletado del acudiente.
+            var acudienteTipoId = $('#acudiente_documento_tipo_id_select').val() || '';
             $.ajax({
                 url: '<%= buscar_persona_registro_evento_path(@evento.guid) %>',
                 method: 'GET',
-                data: {identificacion: id, documento_tipo_id: documento_tipo_id},
+                data: {identificacion: id, documento_tipo_id: acudienteTipoId},
                 success: function (data) {
                     if (!data.encontrada) return;
                     if (data.nombre) $('#acudiente_nombre').val(data.nombre).trigger('change');

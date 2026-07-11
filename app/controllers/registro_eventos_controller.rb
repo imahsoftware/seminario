@@ -4,6 +4,28 @@ class RegistroEventosController < ApplicationController
   skip_before_action :verify_authenticity_token, only: [:create, :autorizar_participacion]
   layout 'registro_publico'
 
+  # ── Control global: ningún error imprevisto debe mostrar un 500 crudo ──────
+  # Los rescue específicos dentro de cada acción siguen teniendo prioridad.
+  rescue_from StandardError do |e|
+    Rails.logger.error "❌ Error inesperado en registro público (#{action_name}): #{e.class} - #{e.message}"
+    Rails.logger.error e.backtrace.first(10).join("\n") if e.backtrace
+    respond_to do |format|
+      format.html { render :error_interno, status: :internal_server_error }
+      format.json { render json: { error: 'Error interno' }, status: :internal_server_error }
+      format.any  { render plain: 'Error interno', status: :internal_server_error }
+    end
+  end
+
+  # Declarado después de StandardError para que tenga prioridad (Rails evalúa
+  # los rescue_from del más reciente al más antiguo).
+  rescue_from ActiveRecord::RecordNotFound do
+    respond_to do |format|
+      format.html { render :no_encontrado, status: :not_found }
+      format.json { render json: { error: 'No encontrado' }, status: :not_found }
+      format.any  { render plain: 'No encontrado', status: :not_found }
+    end
+  end
+
   def show
     @evento = Evento.find_by_guid!(params[:guid])
 
@@ -248,12 +270,14 @@ class RegistroEventosController < ApplicationController
         end
       end
 
-      @eventospersona.update(acudiente_firma: 'SI')
+      # update_column: la firma SIEMPRE debe quedar registrada, sin que
+      # validaciones ajenas (ej. evento lleno) la bloqueen silenciosamente.
+      @eventospersona.update_column(:acudiente_firma, 'SI')
       flash[:notice] = "La participación del menor ha sido autorizada correctamente."
       redirect_to exito_registro_evento_path(@evento.guid)
 
     else
-      @eventospersona.update(acudiente_firma: 'NO')
+      @eventospersona.update_column(:acudiente_firma, 'NO')
       redirect_to no_autorizado_registro_evento_path(@evento.guid)
     end
 

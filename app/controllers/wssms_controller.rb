@@ -11,11 +11,17 @@ class WssmsController < ApplicationController
 
   # ── SMS de autorización para menores de edad ────────────────────────────
   def self.envio_sms_colombiaredenvio(eventopersona)
-    dominio  = Parametro.find(37).valor
+    dominio  = Parametro.find(37).valor.to_s.chomp('/')
     url_sms  = "#{dominio}/registro/#{eventopersona&.evento&.guid}/autorizacion/#{eventopersona&.id}"
 
-    mensaje = "Hola #{eventopersona.acudiente_nombre}, #{eventopersona.nombre} se inscribio y necesita tu autorizacion: #{url_sms}"
-    mensaje = mensaje[0, 157] + "..." if mensaje.length > 160
+    # El link NUNCA debe recortarse: si el mensaje supera 160 caracteres,
+    # se recorta el texto (los nombres), no la URL.
+    prefijo     = "Hola #{eventopersona.acudiente_nombre}, #{eventopersona.nombre} se inscribio y necesita tu autorizacion: "
+    max_prefijo = 160 - url_sms.length
+    if prefijo.length > max_prefijo
+      prefijo = max_prefijo > 30 ? "#{prefijo[0, max_prefijo - 5]}...: " : "Autorizacion: "
+    end
+    mensaje = prefijo + url_sms
 
     token = Parametro.find(31).valor
 
