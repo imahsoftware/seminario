@@ -1,24 +1,30 @@
 class ErrorsController < ApplicationController
-  layout :determine_layout
+  # Las páginas de error deben ser públicas y a prueba de fallos:
+  # si el visitante no estaba logueado (ej. registro público de eventos),
+  # authenticate_user! reventaba aquí también y Rails devolvía el 500 plano
+  # de emergencia (el archivo .txt que descargaba el navegador).
+  skip_before_action :authenticate_user!, raise: false
+  skip_before_action :validatesession, raise: false
+  skip_before_action :bloqueo_user_index, raise: false
+  skip_before_action :verify_authenticity_token, raise: false
+
+  layout 'login'
 
   def not_found
     respond_to do |format|
-      format.html { render status: 404 }
-      format.png { render plain: 'Not Found', status: 404, content_type: 'text/plain' }
+      format.html { render status: :not_found }
+      format.any  { render plain: 'Not Found', status: :not_found }
     end
+  rescue StandardError
+    render plain: 'Not Found', status: :not_found
   end
 
   def internal_server_error
     respond_to do |format|
-      format.html { render status: 500 }
-      format.png { render plain: 'Internal Server Error', status: 500, content_type: 'text/plain' }
-      # Puedes agregar la lógica de envío de correo aquí si es necesario
+      format.html { render status: :internal_server_error }
+      format.any  { render plain: 'Internal Server Error', status: :internal_server_error }
     end
-  end
-
-  private
-
-  def determine_layout
-    "login"
+  rescue StandardError
+    render plain: 'Internal Server Error', status: :internal_server_error
   end
 end

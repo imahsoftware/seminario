@@ -152,8 +152,14 @@ class RegistroEventosController < ApplicationController
         doc_titular.eventospersona_id = @eventospersona.id
         base64_a_paperclip(frente_b64,  'cedula_frente')  { |f| doc_titular.cedula_frente  = f }
         base64_a_paperclip(reverso_b64, 'cedula_reverso') { |f| doc_titular.cedula_reverso = f }
-        unless doc_titular.save
-          Rails.logger.error "❌ Error guardando Documento titular: #{doc_titular.errors.full_messages}"
+        begin
+          unless doc_titular.save
+            Rails.logger.error "❌ Error guardando Documento titular: #{doc_titular.errors.full_messages}"
+          end
+        rescue StandardError => e
+          # Ej: Errno::EACCES si Paperclip no puede reemplazar un archivo viejo.
+          # No debe impedir que se complete la inscripción.
+          Rails.logger.error "❌ Excepción guardando Documento titular: #{e.class} - #{e.message}"
         end
       end
 
@@ -227,8 +233,14 @@ class RegistroEventosController < ApplicationController
         doc_acu.eventospersona_id = @eventospersona.id
         base64_a_paperclip(acu_frente_b64, 'acudiente_cedula_frente') { |f| doc_acu.cedula_frente  = f }
         base64_a_paperclip(acu_rev_b64,    'acudiente_cedula_reverso'){ |f| doc_acu.cedula_reverso = f }
-        unless doc_acu.save
-          Rails.logger.error "❌ Error guardando doc acudiente en autorización: #{doc_acu.errors.full_messages}"
+        begin
+          unless doc_acu.save
+            Rails.logger.error "❌ Error guardando doc acudiente en autorización: #{doc_acu.errors.full_messages}"
+          end
+        rescue StandardError => e
+          # Ej: Errno::EACCES si Paperclip no puede reemplazar un archivo viejo.
+          # No debe impedir que se registre la autorización del acudiente.
+          Rails.logger.error "❌ Excepción guardando doc acudiente en autorización: #{e.class} - #{e.message}"
         end
 
         if acu_tipo_id.present? && @eventospersona.acudiente_id.present?
