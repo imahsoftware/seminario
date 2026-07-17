@@ -62,7 +62,7 @@
                               <button class="btn btn-xs btn-warning"><i class="fa fa-circle"></i></button>
                             <% end %>
                           <% end %>
-                          <% if user.unlock_token %>
+                          <% if user.locked_at.present? %>
                             <%= link_to desbloquearusuario_users_path(id: user.id), data: { toggle: 'tooltip', confirm: '¿Esta seguro?' }, title: 'Desbloquear' do %>
                               <button class="btn btn-xs btn-info"><i class="fa fa-unlock"></i></button>
                             <% end %>
@@ -80,7 +80,7 @@
                               <button class="btn btn-xs btn-warning"><i class="fa fa-circle"></i></button>
                             <% end %>
                           <% end %>
-                          <% if user.unlock_token %>
+                          <% if user.locked_at.present? %>
                             <%= link_to desbloquearusuario_users_path(id: user.id), data: { toggle: 'tooltip', confirm: '¿Esta seguro?' }, title: 'Desbloquear' do %>
                               <button class="btn btn-xs btn-info"><i class="fa fa-unlock"></i></button>
                             <% end %>
@@ -115,7 +115,7 @@
                               <button class="btn btn-xs btn-warning"><i class="fa fa-circle"></i></button>
                             <% end %>
                           <% end %>
-                          <% if user.unlock_token %>
+                          <% if user.locked_at.present? %>
                             <%= link_to desbloquearusuario_users_path(id: user.id), data: { toggle: 'tooltip', confirm: '¿Esta seguro?' }, title: 'Desbloquear' do %>
                               <button class="btn btn-xs btn-info"><i class="fa fa-unlock"></i></button>
                             <% end %>
@@ -141,7 +141,7 @@
                             <button class="btn btn-xs btn-warning"><i class="fa fa-circle"></i></button>
                           <% end %>
                         <% end %>
-                        <% if user.unlock_token %>
+                        <% if user.locked_at.present? %>
                           <%= link_to desbloquearusuario_users_path(id: user.id), data: { toggle: 'tooltip', confirm: '¿Esta seguro?' }, title: 'Desbloquear' do %>
                             <button class="btn btn-xs btn-info"><i class="fa fa-unlock"></i></button>
                           <% end %>
