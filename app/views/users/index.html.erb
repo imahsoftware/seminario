@@ -45,7 +45,7 @@
                 </tr>
               </thead>
               <tbody>
-                <% if @blockedusers != nil %>
+                <% if @blockedusers.present? %>
                   <% @blockedusers.each do |user| %>
                     <tr>
                       <td class="text-center">

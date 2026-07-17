@@ -4,9 +4,9 @@
       <div class="box box-primary">
         <div class="box-header">
           <legend>
-            <% if @user.unlock_token %>
-              <%= link_to desbloquearusuario_users_path(id: @user.id), data: {toggle: 'tooltip', confirm: '¿Esta seguro?'}, title: 'Desbloquear' do %>
-                <button class="btn btn-xs btn-info"><i class="fa fa-unlock"></i></button>
+            <% if @user.locked_at.present? || @user.unlock_token.present? %>
+              <%= link_to desbloquearusuario_users_path(id: @user.id), data: {toggle: 'tooltip', confirm: '¿Esta seguro?'}, title: 'Desbloquear usuario bloqueado' do %>
+                <button class="btn btn-xs btn-info"><i class="fa fa-unlock"></i> Desbloquear</button>
               <% end %>
             <% end %>
             <% if is_sygma %>

@@ -20,7 +20,7 @@ es:
       inactive: Tu cuenta aún no ha sido activada.
       invalid: Usuario o contraseña inválidos.
       last_attempt: Tienes un intento más antes de que tu cuenta sea bloqueada.
-      locked: Tu cuenta está bloqueada.
+      locked: Tu cuenta está bloqueada. Te enviamos un correo con instrucciones para desbloquearla.
       not_found_in_database: Usuario o contraseña inválidos.
       timeout: Tu sesión expiró. Por favor, inicia sesión nuevamente para continuar.
       unauthenticated: Tienes que iniciar sesión o registrarte para poder continuar.

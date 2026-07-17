@@ -184,35 +184,22 @@ class UsersController < ApplicationController
   end
 
   def index
-    @blockedusers = User.where(failed_attempts: 3)
-    @q = User.ransack(params[:q])
-    @users = @q.result.paginate(:page => params[:page], :per_page => 10)
-    @q = User.ransack(params[:q])
+    @blockedusers = User.where.not(locked_at: nil).order(:nombre)
+    blocked_ids   = @blockedusers.pluck(:id)
 
-    if @q == nil
-      @users = User.all.paginate(:page => params[:page], :per_page => 10)
-    else
-      @users = @q.result.paginate(:page => params[:page], :per_page => 10)
-    end
     if params[:nombre]
-      @users = User.name_like("%#{params[:nombre].upcase}%").order(:nombre).paginate(:page => params[:page], :per_page => 10)
+      @users = User.where.not(id: blocked_ids)
+                   .name_like("%#{params[:nombre].upcase}%")
+                   .order(:nombre)
+                   .paginate(:page => params[:page], :per_page => 10)
       if @users.count == 1
         @user = @users.last
         redirect_to edit_user_path(etapa: "A", id: params[:user_id])
       end
     else
+      @q     = User.where.not(id: blocked_ids).ransack(params[:q])
+      @users = @q.result.paginate(:page => params[:page], :per_page => 10)
     end
-=begin
-    else
-      @blockedusers = User.where(failed_attempts: 3, portafolio_id: is_portafolio)
-      @q = User.ransack(params[:q])
-      @users = @q.result.paginate(:page => params[:page], :per_page => 10).where(["portafolio_id= #{is_portafolio} and (geintac = 'N' or geintac is null)"])
-      if @users.count == 1
-        @user = @users.last
-        redirect_to edit_user_path(etapa: "A", id: @user.id)
-      end
-    end
-=end
   end
 
   def new
@@ -234,8 +221,6 @@ class UsersController < ApplicationController
       @usersreportes = @user.usersreportes.all
     elsif @user.etapa.to_s == 'C'
       @userspermisos = @user.userspermisos.all
-    elsif @user.etapa.to_s == 'C'
-      @usersvisitas = @user.usersvisitas.all
     elsif @user.etapa.to_s == 'A'
     end
     #@usersfechas = @user.usersfechas.all
@@ -319,7 +304,7 @@ class UsersController < ApplicationController
     else
       @usersmodulo = Usersmodulo.new
       @userspermiso = Userspermiso.new
-      @usersvisita = Usersvisita.new
+      #@usersvisita = Usersvisita.new
       @usersportafolio = Usersportafolio.new
       #@usersfecha = Usersfecha.new
       #@usersimagen = Usersimagen.new
