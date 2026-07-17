@@ -20,11 +20,13 @@ class ApplicationController < ActionController::Base
 
 
   def validatesession
-    if current_user == nil
+    if current_user.nil?
       cookies.delete(:_session_id)
       cookies.delete(:user_id)
       cookies.delete(:username)
     end
+  rescue => e
+    Rails.logger.warn "validatesession error: #{e.message}"
   end
 
   def allow_iframe_requests

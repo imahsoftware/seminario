@@ -1,5 +1,7 @@
 Rails.application.routes.draw do
 
+  get '/favicon.ico', to: proc { [204, {}, []] }
+
   # Biblioteca de documentos
   resources :check_documentos
 
